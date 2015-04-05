@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>$action.titleAsHtml</title>
+</head>
+
+#applyDecorator("root")
+    #decoratorParam("helper"  $action.helper)
+    #decoratorParam("context" "space-tab-link-for-spaceadmin-screen")
+
+    <body>
+    #applyDecorator("root")
+        #decoratorParam("helper"                    $action.helper)
+        #decoratorParam("context"                   "spacetoolspanel")
+        #decoratorParam("selectedSpaceToolsWebItem" "space-tools-link-for-spaceadmin-screen")
+
+        <script>
+            // We're using this approach to become indepent of existing angular versions on the same page:
+            // http://www.mattburkedev.com/multiple-angular-versions-on-the-same-page/
+            var existingWindowDotAngular = window.angular;
+            var angular = (window.angular = {});
+            angular.initializationDone = function() {
+                // restore the old angular version
+                window.angular = existingWindowDotAngular;
+            };
+        </script>
+
+        $action.indexHtmlAsHtml
+
+    #end
+    </body>
+
+#end
+</html>
+
+#* @vtlvariable name="action" type="com.k15t.spark.atlassian.app.ConfluenceSpaceAppAction" *#
