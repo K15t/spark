@@ -23,7 +23,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.util.Collections;
@@ -132,11 +131,11 @@ abstract public class AtlassianAppServlet extends AppServlet implements BundleCo
 
 
     @Override
-    protected void renderVelocity(RequestProperties props, HttpServletResponse response, InputStream template) throws IOException {
-        template.close();
-
+    protected void renderVelocity(RequestProperties props, HttpServletResponse response, String template) throws IOException {
         TemplateRenderer renderer = getTemplateRenderer();
-        renderer.render(getPluginResourcePath(props.getLocalPath()), getVelocityContext(props.getRequest()), response.getWriter());
+        String rendered = renderer.renderFragment(template, getVelocityContext(props.getRequest()));
+        response.getWriter().write(rendered);
+        response.getWriter().flush();
     }
 
 
@@ -242,7 +241,7 @@ abstract public class AtlassianAppServlet extends AppServlet implements BundleCo
         if ((proxy != null) && (proxy instanceof I18nResolver)) {
             return (I18nResolver) proxy;
         } else {
-            throw new RuntimeException("Could not get a valid TemplateRenderer proxy.");
+            throw new RuntimeException("Could not get a valid I18nResolver proxy.");
         }
     }
 

@@ -113,7 +113,7 @@ abstract public class AppServlet extends HttpServlet {
 
         String shortType = StringUtils.substringBefore(props.getContentType(), ";");
         if (VELOCITY_TYPES.contains(shortType)) {
-            renderVelocity(props, response, resource);
+            renderVelocity(props, response, IOUtils.toString(resource, "UTF-8"));
         } else if (JAVASCRIPT_I18N_TYPES.contains(shortType)) {
             renderJavaScriptI18n(props, response, resource);
         } else {
@@ -124,7 +124,7 @@ abstract public class AppServlet extends HttpServlet {
     }
 
 
-    abstract protected void renderVelocity(RequestProperties props, HttpServletResponse response, InputStream template) throws IOException;
+    abstract protected void renderVelocity(RequestProperties props, HttpServletResponse response, String template) throws IOException;
 
 
     protected boolean verifyPermissions(RequestProperties props, HttpServletResponse response) throws IOException {
