@@ -7,7 +7,9 @@
 
 #applyDecorator("root")
     #decoratorParam("helper"  $action.helper)
-    #decoratorParam("context" "space-tab-link-for-spaceadmin-screen")
+    #decoratorParam("context" "space-administration")
+    #decoratorParam("mode" "view-space-administration")
+    #decoratorParam("space" $action.space)
 
     <body>
     #applyDecorator("root")
