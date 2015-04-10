@@ -1,7 +1,6 @@
-package com.k15t.spark.atlassian.app;
+package com.k15t.spark.confluence;
 
 import com.k15t.spark.atlassian.AtlassianAppServlet;
-import com.k15t.spark.base.AppServlet;
 import org.apache.commons.lang.BooleanUtils;
 
 
@@ -9,7 +8,8 @@ public class JiraAppServlet extends AtlassianAppServlet {
 
     @Override
     protected boolean isDevMode() {
-        return BooleanUtils.toBoolean(System.getProperty(AppServlet.Keys.DEV_MODE));
+        // TODO check, if there are JIRA specific system properties and use them
+        return BooleanUtils.toBoolean(System.getProperty("atlassian.dev.mode"));
     }
 
 }

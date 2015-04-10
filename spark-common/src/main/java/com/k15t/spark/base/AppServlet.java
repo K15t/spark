@@ -2,7 +2,6 @@ package com.k15t.spark.base;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -23,21 +22,20 @@ import java.util.regex.Pattern;
 
 
 /**
- * Serves resources.
- *
+ * <p>Serves resources.</p>
  * <p>As an example, this servlet is supposed to be listening to the URL pattern <code>https://example.com/servlet/**</code>.
  * Inside the classpath, there is a directory <code>/webapp</code> that contains a web application. The file
  * <code>/scripts/test.js</code> from this directory can be accessed using the following two URLs:
  * <code>https://example.com/servlet/scripts/test.js</code> and
  * <code>https://example.com/servlet/_/&lt;deploymentNumber&gt;/&lt;localeKey&gt;/scripts/test.js</code>.</p>
- *
- * <p>The following terminology will be used in this code:
- * <ul><li><code>resourcePath</code> is <code>&quot;/webapp/&quot;</code>
+ * <p>The following terminology will be used in this code:</p>
+ * <ul>
+ * <li><code>resourcePath</code> is <code>&quot;/webapp/&quot;</code></li>
  * <li><code>cacheKey</code> would be <code>&quot;_/&lt;deploymentNumber&gt;/&lt;localeKey&gt;/&quot;</code> in the
- * second URL
- * <li><code>localPath</code> is <code>&quot;scripts/test.js</code>
+ * second URL</li>
+ * <li><code>localPath</code> is <code>&quot;scripts/test.js</code></li>
  * <li><code>localUrlPart</code> is <code>&quot;/scripts/test.js</code> in the first example,
- * <code>/_/&lt;deploymentNumber&gt;/&lt;localeKey&gt;/scripts/test.js</code> in the second.
+ * <code>/_/&lt;deploymentNumber&gt;/&lt;localeKey&gt;/scripts/test.js</code> in the second.</li>
  * </ul>
  */
 
@@ -65,8 +63,8 @@ abstract public class AppServlet extends HttpServlet {
             throw new ServletException(Keys.RESOURCE_PATH + " parameter is not defined");
         }
 
-        if (!"/".equals(resourcePath.substring(resourcePath.length()-1))) {
-            resourcePath = resourcePath+"/";
+        if (!"/".equals(resourcePath.substring(resourcePath.length() - 1))) {
+            resourcePath = resourcePath + "/";
         }
     }
 
@@ -77,8 +75,9 @@ abstract public class AppServlet extends HttpServlet {
 
         RequestProperties props = getRequestProperties(request);
 
-        if (!verifyPermissions(props, response))
+        if (!verifyPermissions(props, response)) {
             return;
+        }
 
         if (props.shouldCache()) {
             response.setHeader("Cache-Control", "public");
@@ -101,8 +100,9 @@ abstract public class AppServlet extends HttpServlet {
 
     protected boolean sendOutput(RequestProperties props, HttpServletResponse response) throws IOException {
         InputStream resource = getPluginResource(props.getLocalPath());
-        if (resource == null)
+        if (resource == null) {
             return false;
+        }
 
         // this is a bit of a hack to set the contextPath as global variable in JavaScript
         /*if ("index.html".equals(path)) {
@@ -144,22 +144,24 @@ abstract public class AppServlet extends HttpServlet {
     protected InputStream getPluginResource(String localPath) throws IOException {
         if (isDevMode()) {
             InputStream dev = loadFromDevelopmentDirectory(getPluginResourcePath(localPath));
-            if (dev != null)
+            if (dev != null) {
                 return dev;
+            }
         }
 
         return getClass().getClassLoader().getResourceAsStream(getPluginResourcePath(localPath));
     }
 
 
-    protected boolean isDevMode() {
-        return BooleanUtils.toBoolean(System.getProperty(Keys.DEV_MODE));
-    }
+    /**
+     * @return true if the host application is running in development mode.
+     */
+    protected abstract boolean isDevMode();
 
 
     protected InputStream loadFromDevelopmentDirectory(String localPath) throws IOException {
         InputStream fileIn = null;
-        String resourceDirectoryPaths = System.getProperty(Keys.PLUGIN_RESOURCE_DIRECTORIES);
+        String resourceDirectoryPaths = System.getProperty(Keys.SPARK_RESOURCE_DIRECTORIES);
 
         if (resourceDirectoryPaths == null) {
             return null;
@@ -213,11 +215,5 @@ abstract public class AppServlet extends HttpServlet {
 
     abstract protected String getText(String key);
 
-
-    public class Keys {
-        public static final String RESOURCE_PATH = "resource-path";
-        public static final String DEV_MODE = "atlassian.dev.mode";
-        public static final String PLUGIN_RESOURCE_DIRECTORIES = "plugin.resource.directories";
-    }
 
 }

@@ -1,5 +1,7 @@
 package com.k15t.spark.atlassian;
 
+import com.atlassian.plugin.servlet.descriptors.BaseServletModuleDescriptor;
+import com.atlassian.plugins.rest.common.util.ReflectionUtils;
 import com.atlassian.sal.api.auth.LoginUriProvider;
 import com.atlassian.sal.api.message.I18nResolver;
 import com.atlassian.sal.api.user.UserManager;
@@ -15,6 +17,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;
 import org.springframework.osgi.context.BundleContextAware;
 
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -22,6 +25,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.Map;
 
@@ -39,11 +43,49 @@ abstract public class AtlassianAppServlet extends AppServlet implements BundleCo
     @Override
     public void init() throws ServletException {
         super.init();
+        appPrefix = getAppPrefixFromServletConfig();
+    }
 
-        appPrefix = StringUtils.removeEnd(getInitParameter(Keys.APP_PREFIX), "/");
-        if (appPrefix == null) {
-            throw new ServletException(Keys.APP_PREFIX+" parameter is not defined.");
+
+    private String getAppPrefixFromServletConfig() {
+        ServletConfig servletConfig = getServletConfig();
+        String urlPattern = getUrlPattern(servletConfig);
+
+        return StringUtils.removeEnd(urlPattern, "*");
+    }
+
+
+    /**
+     * @return the first url pattern as configured in the servlet module in the atlassian-plugin.xml,
+     * e.g. {@code <url-pattern>/hello-world*</url-pattern>}
+     */
+    private String getUrlPattern(ServletConfig servletConfig) {
+        // This implementation is a hack, because we have to get to the ModuleDescriptor of the
+        // servlet module and we use reflection for that.
+        // (Alternatively, we could try to go through the pluginAccessor)
+
+        Field field = getDescriptorField(servletConfig.getClass());
+        if (field == null) {
+            throw new RuntimeException("Could not detect app prefix from servlet module.");
         }
+
+        BaseServletModuleDescriptor descriptor = (BaseServletModuleDescriptor) ReflectionUtils.getFieldValue(field, servletConfig);
+        if ((descriptor.getPaths() == null) || (descriptor.getPaths().size() < 1)) {
+            throw new RuntimeException("Could not detect app prefix from servlet module.");
+        }
+
+        return (String) descriptor.getPaths().get(0);
+    }
+
+
+    private Field getDescriptorField(Class<? extends ServletConfig> clazz) {
+        for (Field field : ReflectionUtils.getDeclaredFields(clazz)) {
+            if (field.getType().isAssignableFrom(BaseServletModuleDescriptor.class)) {
+                return field;
+            }
+        }
+
+        return null;
     }
 
 
@@ -102,10 +144,10 @@ abstract public class AtlassianAppServlet extends AppServlet implements BundleCo
      * Override this method to provide parameters to the Velocity context that
      * is used to render the HTML file.
      *
-     * @return
      * @param request
+     * @return
      */
-    protected Map<String,Object> getVelocityContext(HttpServletRequest request) {
+    protected Map<String, Object> getVelocityContext(HttpServletRequest request) {
         return Collections.emptyMap();
     }
 
@@ -141,7 +183,6 @@ abstract public class AtlassianAppServlet extends AppServlet implements BundleCo
         String user = getUserManager().getRemoteUsername(props.getRequest());
         return (user != null && getUserManager().isSystemAdmin(user));
     }
-
 
 
     private void redirectToLogin(RequestProperties props,
@@ -215,7 +256,4 @@ abstract public class AtlassianAppServlet extends AppServlet implements BundleCo
         templateRendererTracker.close();
     }
 
-    private class Keys {
-        public static final String APP_PREFIX = "app-prefix";
-    }
 }
