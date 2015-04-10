@@ -1,0 +1,7 @@
+{
+  "name": "spark-example-addon",
+  "version": "1.0.0",
+  "devDependencies": {
+    "gulp": "^3.8.11"
+  }
+}

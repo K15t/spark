@@ -1,0 +1,45 @@
+<atlassian-plugin key="${project.groupId}.${project.artifactId}" name="${project.name}" plugins-version="2">
+    <plugin-info>
+        <description>${project.description}</description>
+        <version>${project.version}</version>
+        <vendor name="${project.organization.name}" url="${project.organization.url}" />
+    </plugin-info>
+
+    <!-- === Admin App ========================= -->
+
+    <servlet name="Admin App Servlet" key="admin-app-servlet" class="com.k15t.spark.confluence.ConfluenceAppServlet">
+        <description>Outputs the 'Hello World' SPARK admin app.</description>
+        <url-pattern>/admin-app*</url-pattern>
+        <init-param>
+            <!-- This is the path in your resource directory where the angularjs application lives -->
+            <param-name>resource-path</param-name>
+            <param-value>/admin_app</param-value>
+        </init-param>
+    </servlet>
+
+
+
+    <!-- === Space App ========================= -->
+
+    <servlet name="Space App Servlet" key="space-app-servlet" class="com.k15t.spark.confluence.ConfluenceAppServlet">
+        <description>Outputs the 'Hello World' SPARK space app.</description>
+        <url-pattern>/space-app*</url-pattern>
+        <init-param>
+            <!-- This is the path in your resource directory where the angularjs application lives -->
+            <param-name>resource-path</param-name>
+            <param-value>/space_app</param-value>
+        </init-param>
+    </servlet>
+
+    <xwork key="space-app-actions">
+        <package name="Space App Action" extends="default" namespace="/spaces/space-app">
+            <default-interceptor-ref name="defaultStack"/>
+            <action name="index" class="com.k15t.spark.confluence.ConfluenceSpaceAppAction" method="index">
+                <result name="input" type="velocity">/com/k15t/spark/confluence/space-app.vm</result>
+                <result name="notpermitted" type="redirect">/pages/pagenotpermitted.action</result>
+                <param name="resource-path">/space_app</param>
+            </action>
+        </package>
+    </xwork>
+
+</atlassian-plugin>
