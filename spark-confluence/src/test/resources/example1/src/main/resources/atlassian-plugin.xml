@@ -42,4 +42,56 @@
         </package>
     </xwork>
 
+
+
+    <!-- === Dialog App ========================= -->
+
+    <web-resource name="Dialog App Bootstrap" key="dialog-app-web-resource">
+        <description>Hooks in the Viewport Controller (in the Confluence UI).</description>
+
+        <context>page</context>
+        <context>blogpost</context>
+
+        <resource type="download" name="lazyload.js" location="/spark/lazyload.js"/>
+        <resource type="download" name="spark-dialog-app-bootstrap.js" location="/spark/spark-dialog-app-bootstrap.js"/>
+        <resource type="download" name="spark-dialog-app-bootstrap.soy.js" location="/spark/spark-dialog-app-bootstrap.soy"/>
+        <!--<resource type="download" name="confluence-viewport-control.soy.js" location="/com/k15t/scroll/viewport/confluence/web/control/confluence-viewport-control.soy"/>-->
+        <!--<resource type="download" name="confluence-viewport-control.js"     location="/com/k15t/scroll/viewport/confluence/web/control/confluence-viewport-control.js"/>-->
+        <!--<resource type="download" name="confluence-viewport-control.css"    location="/com/k15t/scroll/viewport/confluence/web/control/confluence-viewport-control.css"/>-->
+
+        <!--<transformation extension="js">-->
+            <!--<transformer key="jsI18n" />-->
+        <!--</transformation>-->
+        <transformation extension="soy">
+            <transformer key="soyTransformer">
+                <functions>com.atlassian.confluence.plugins.soy:soy-core-functions</functions>
+            </transformer>
+        </transformation>
+    </web-resource>
+
+    <servlet name="Dialog App 1 Servlet" key="dialog-app1-servlet" class="com.k15t.spark.confluence.ConfluenceAppServlet">
+        <description>Outputs the 'Hello World' SPARK dialog app.</description>
+        <url-pattern>/dialog-app1*</url-pattern>
+        <init-param>
+            <!-- This is the path in your resource directory where the angularjs application lives -->
+            <param-name>resource-path</param-name>
+            <param-value>/dialog_app</param-value>
+        </init-param>
+    </servlet>
+
+    <servlet name="Dialog App 2 Servlet" key="dialog-app2-servlet" class="com.k15t.spark.confluence.ConfluenceAppServlet">
+        <description>Outputs the 'Hello World' SPARK dialog app 2.</description>
+        <url-pattern>/dialog-app2*</url-pattern>
+        <init-param>
+            <!-- This is the path in your resource directory where the angularjs application lives -->
+            <param-name>resource-path</param-name>
+            <param-value>/dialog_app_v14</param-value>
+        </init-param>
+    </servlet>
+
+
+
+
+
+
 </atlassian-plugin>
