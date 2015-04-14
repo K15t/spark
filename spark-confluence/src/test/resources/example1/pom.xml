@@ -153,8 +153,8 @@
     </build>
 
     <properties>
-        <confluence.version>5.3</confluence.version>
-        <confluence.data.version>5.3</confluence.data.version>
+        <confluence.version>5.7.1</confluence.version>
+        <confluence.data.version>5.7.1</confluence.data.version>
         <amps.version>5.0.4</amps.version>
         <plugin.testrunner.version>1.2.0</plugin.testrunner.version>
     </properties>

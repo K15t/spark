@@ -1,15 +1,14 @@
 {namespace Spark.DialogApp.Templates}
 
 /**
- * @param appId
- * @param title
+ * @param dialogId
  */
-{template .dialog}
-    <section role="dialog" id="{$appId}" class="aui-layer aui-dialog2 aui-dialog2-large" aria-hidden="true">
+{template .dialog2}
+    <section role="dialog" id="{$dialogId}" class="aui-layer aui-dialog2 aui-dialog2-large" aria-hidden="true">
         <!-- Dialog header -->
         <header class="aui-dialog2-header">
             <!-- The dialog's title -->
-            <h2 class="aui-dialog2-header-main">{$title}</h2>
+            <h2 class="aui-dialog2-header-main">{lb}{lb}dialog.title{rb}{rb}</h2>
             <!-- Actions to render on the right of the header -->
 <!--            <div class="aui-dialog2-header-secondary">
                 <form class="aui" action="#">
@@ -22,7 +21,7 @@
             </a>
         </header>
         <!-- Main dialog content -->
-        <div class="aui-dialog2-content spark-dialog-app">
+        <div class="aui-dialog2-content spark-app-content">
             <p>Hello World</p>
         </div>
         <!-- Dialog footer -->
@@ -35,4 +34,25 @@
             <div class="aui-dialog2-footer-hint">this is a hint</div>
         </footer>
     </section>
+{/template}
+
+/**
+ */
+{template .dialog}
+    <div class="dialog-components">
+        <h2 class="dialog-title">
+            <div class="dialog-help-link">
+                <a href="{lb}{lb}dialog.helpLink{rb}{rb}" target="_blank">Help</a>
+            </div>
+            {lb}{lb}dialog.title{rb}{rb}
+        </h2>
+        <div class="dialog-page-body">
+            <div class="dialog-panel-body spark-app-content">
+            </div>
+        </div>
+        <div class="dialog-button-panel">
+            <button class="button-panel-button permissions-update-button disabled" disabled="">Save</button>
+            <a href="#" class="button-panel-link button-panel-cancel-link">Close</a>
+        </div>
+    </div>
 {/template}
