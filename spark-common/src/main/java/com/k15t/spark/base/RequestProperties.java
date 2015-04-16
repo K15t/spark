@@ -130,4 +130,10 @@ public class RequestProperties {
 
         return uri;
     }
+
+
+    public boolean isRequestedWithAjax() {
+        return "XMLHttpRequest".equals(request.getHeader("X-Requested-With"));
+    }
+
 }

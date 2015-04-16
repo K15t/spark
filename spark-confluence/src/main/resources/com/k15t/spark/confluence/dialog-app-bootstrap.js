@@ -17,8 +17,10 @@
 
     window.SPARK.createDialogApp = function (angularApp, appPath) {
 
+        // append trailing slash if not there.
+        var fullAppPath = contextPath + (/\/$/.test(appPath) ? appPath : appPath + '/');
+
         var dialog = createDialog('spark-dialog-' + angularApp);
-        var fullAppPath = contextPath + appPath;
 
         // We have to use an additional element (div#spark-dialog-app-wrapper),
         // because body doesn't work, because it is using the browsers .innerHtml
@@ -64,7 +66,7 @@
 
         if (AJS.dialog2) {
             $('body').append(SPARK.DialogApp.Templates.dialog2({
-                dialogId: dialogId,
+                dialogId: dialogId
             }));
             dialog = AJS.dialog2('#' + dialogId);
             dialog.$appEl = dialog.$el;
@@ -85,6 +87,7 @@
         }
 
         dialog.show();
+        // TODO use Confluence.PageLoadingIndicator().show() here and
         $('.aui-blanket').addClass('spark-loading');
         return dialog;
     };
