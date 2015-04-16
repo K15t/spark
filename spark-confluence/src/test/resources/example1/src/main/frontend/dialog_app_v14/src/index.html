@@ -6,28 +6,33 @@
     <!-- the spark.app-base-url is used to define where the  -->
     <!--<meta name="spark.app-base-url" content="plugins/servlet/admin-app/">-->
 
+    <link type="text/css" rel="stylesheet" href="/confluence/plugins/servlet/dialog-app1/test.css" />
+    <meta name="decorator" content="spark.dialog-app"/>
+    <meta name="spark.app-type" content="dialog-app"/>
+
     <title>Hello, World!</title>
 </head>
 <body>
 
-<div>
-<h2>Welcome to the 'Hello World' SPARK Dialog App 14.</h2>
+<div id="spark-dialog-app-wrapper">
 
-<div ng-controller="HelloController" >
+    <h2>Welcome to the 'Hello World' SPARK Dialog App 14.</h2>
 
-    <input ng-model="helloTo.title"/>
+    <div ng-controller="HelloController">
 
-    <p>Hello {{helloTo.title}} !</p>
+        <input ng-model="helloTo.title"/>
 
-    <p>Angular Version: {{angularVersion.full}}</p>
+        <p>Hello {{helloTo.title}} !</p>
 
+        <p>Angular Version: {{angularVersion.full}}</p>
+
+    </div>
+
+    <p>Powered by <a href="https://github.com/K15t/spark">SPARK</a>.</p>
+
+    <meta name="script" content="//ajax.googleapis.com/ajax/libs/angularjs/1.4.0-rc.0/angular.min.js"/>
+    <meta name="script" content="/confluence/plugins/servlet/dialog-app2/js/script.js"/>
 </div>
-
-<p>Powered by <a href="https://github.com/K15t/spark">SPARK</a>.</p>
-</div>
-
-<meta name="script" content="//ajax.googleapis.com/ajax/libs/angularjs/1.4.0-rc.0/angular.min.js" />
-<meta name="script" content="/confluence/plugins/servlet/dialog-app2/js/script.js" />
 
 </body>
 </html>

@@ -1,24 +1,24 @@
-{namespace Spark.DialogApp.Templates}
+{namespace SPARK.DialogApp.Templates}
 
 /**
  * @param dialogId
  */
 {template .dialog2}
-    <section role="dialog" id="{$dialogId}" class="aui-layer aui-dialog2 aui-dialog2-large" aria-hidden="true">
+    <section role="dialog" id="{$dialogId}" class="aui-layer aui-dialog2 aui-dialog2-large" aria-hidden="true" ng-cloak>
         <!-- Dialog header -->
         <header class="aui-dialog2-header">
             <!-- The dialog's title -->
-            <h2 class="aui-dialog2-header-main">{lb}{lb}dialog.title{rb}{rb}</h2>
+            <h2 class="aui-dialog2-header-main">{lb}{lb}app.title{rb}{rb}</h2>
             <!-- Actions to render on the right of the header -->
-<!--            <div class="aui-dialog2-header-secondary">
-                <form class="aui" action="#">
-                    <input id="demo-search" class="text" type="search" name="search">
-                </form>
-            </div> -->
-            <!-- Close icon -->
+            <div class="aui-dialog2-header-secondary" ng-show="app.helpLink">
+                <div class="dialog-help-link">
+                    <a href="{lb}{lb}app.helpLink{rb}{rb}" target="_blank">Help</a>
+                </div>
+            </div>
+            <!-- Close icon
             <a class="aui-dialog2-header-close">
                 <span class="aui-icon aui-icon-small aui-iconfont-close-dialog">Close</span>
-            </a>
+            </a> -->
         </header>
         <!-- Main dialog content -->
         <div class="aui-dialog2-content spark-app-content">
@@ -39,12 +39,12 @@
 /**
  */
 {template .dialog}
-    <div class="dialog-components">
+    <div class="dialog-components" ng-cloak>
         <h2 class="dialog-title">
-            <div class="dialog-help-link">
-                <a href="{lb}{lb}dialog.helpLink{rb}{rb}" target="_blank">Help</a>
+            <div class="dialog-help-link" ng-show="app.helpLink">
+                <a href="{lb}{lb}app.helpLink{rb}{rb}" target="_blank">Help</a>
             </div>
-            {lb}{lb}dialog.title{rb}{rb}
+            {lb}{lb}app.title{rb}{rb}
         </h2>
         <div class="dialog-page-body">
             <div class="dialog-panel-body spark-app-content">

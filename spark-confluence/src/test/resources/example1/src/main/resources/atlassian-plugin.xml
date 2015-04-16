@@ -52,12 +52,11 @@
         <context>page</context>
         <context>blogpost</context>
 
-        <resource type="download" name="lazyload.js" location="/spark/lazyload.js"/>
-        <resource type="download" name="spark-dialog-app-bootstrap.js" location="/spark/spark-dialog-app-bootstrap.js"/>
-        <resource type="download" name="spark-dialog-app-bootstrap.soy.js" location="/spark/spark-dialog-app-bootstrap.soy"/>
-        <!--<resource type="download" name="confluence-viewport-control.soy.js" location="/com/k15t/scroll/viewport/confluence/web/control/confluence-viewport-control.soy"/>-->
-        <!--<resource type="download" name="confluence-viewport-control.js"     location="/com/k15t/scroll/viewport/confluence/web/control/confluence-viewport-control.js"/>-->
-        <!--<resource type="download" name="confluence-viewport-control.css"    location="/com/k15t/scroll/viewport/confluence/web/control/confluence-viewport-control.css"/>-->
+        <resource type="download" name="lazyload.js" location="com/k15t/spark/confluence/lazyload.js"/>
+        <resource type="download" name="dialog-app.css" location="com/k15t/spark/confluence/dialog-app.css"/>
+        <resource type="download" name="spark-dialog-app-bootstrap.soy.js" location="com/k15t/spark/confluence/dialog-app-bootstrap.soy"/>
+        <resource type="download" name="spark-dialog-app-bootstrap.js" location="com/k15t/spark/confluence/dialog-app-bootstrap.js"/>
+        <resource type="download" name="dialog-app-1.js" location="spark/dialog-app-1.js"/>
 
         <!--<transformation extension="js">-->
             <!--<transformer key="jsI18n" />-->
