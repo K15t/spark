@@ -24,7 +24,7 @@
 
         // We have to use an additional element (div#spark-dialog-app-wrapper),
         // because body doesn't work, because it is using the browsers .innerHtml
-        // property, which doesn't work consistently accross browsers and for
+        // property, which doesn't work consistently across browsers and for
         // example in Chrome includes elements from head, too. The additional
         // element is inserted automatically by the AppServlet.
         // More info: https://api.jquery.com/load/#loading-page-fragments
@@ -41,17 +41,13 @@
 
             } else {
 
-                var angular;
                 window.existingWindowDotAngular = window.angular;
-                if (window.angular) {
-                    angular = (window.angular = {});
-                }
+                var angular = (window.angular = {});
 
                 // https://github.com/rgrove/lazyload
                 LazyLoad.js(getScripts(dialog.$contentEl), function () {
-                    angular = window.angular;
                     angular.bootstrap(dialog.$appEl, [angularApp]);
-                    window.angular = window.existingWindowDotAngular;
+                    window.angular = window.existingWindowDotAngular ? window.existingWindowDotAngular : window.angular;
                     delete window.existingWindowDotAngular;
                 });
             }

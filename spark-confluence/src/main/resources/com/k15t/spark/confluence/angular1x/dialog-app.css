@@ -1,10 +1,10 @@
 /* Don't show dialogs while loading, see https://docs.angularjs.org/api/ng/directive/ngCloak */
-#{$dialogId} [ng-cloak] {
+[ng-cloak] {
     display: none !important;
 }
 
 /* While loading, we want to modify the blanket */
 [ng-cloak] ~ .aui-blanket.spark-loading {
     /* TODO this is an example only, replace by loading animation */
-    background-color: red;
+    background-color: white;
 }
