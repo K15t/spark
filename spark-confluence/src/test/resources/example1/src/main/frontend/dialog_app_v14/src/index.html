@@ -5,22 +5,27 @@
 
     <meta name="decorator" content="spark.dialog-app"/>
 
-    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.0-rc.0/angular.min.js"></script>
-    <script src="js/script.js"></script>
+    <script src="libs/angularjs/1.4.0-rc.0/angular.min.js"></script>
+    <script src="js/app.js"></script>
 
-    <title>Hello, World!</title>
+    <title>SPARK Dialog App 2</title>
 </head>
 <body>
 
-<h2>Welcome to the 'Hello World' SPARK Dialog App 14.</h2>
-
 <div ng-controller="HelloController">
 
-    <input ng-model="app.title"/>
+    <h3>Hello, {{user.name}}!</h3>
 
-    <p>Hello {{app.title}}!</p>
+    <form class="aui">
+        <fieldset>
+            <div class="field-group">
+                <label for="d-fname">What's your Name?<span class="aui-icon icon-required"> required</span></label>
+                <input ng-model="user.name" class="text" type="text" id="d-fname" name="d-fname" title="first name"/>
 
-    <p>Angular Version: {{angularVersion.full}} | Powered by <a href="https://github.com/K15t/spark">SPARK</a>.</p>
+                <div class="description">Insert name for greeting</div>
+            </div>
+        </fieldset>
+    </form>
 
 </div>
 
