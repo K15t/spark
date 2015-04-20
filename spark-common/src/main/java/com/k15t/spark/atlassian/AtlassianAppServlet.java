@@ -129,8 +129,8 @@ abstract public class AtlassianAppServlet extends AppServlet implements BundleCo
             appWrapper.append(allBodyContent.outerHtml())
                     .append(headContent.outerHtml());
 
-            fixScriptElements(appWrapper);
-            fixLinkElements(appWrapper);
+            fixScriptSrcs(appWrapper);
+            fixLinkHrefs(appWrapper);
         }
 
         indexHtml = document.outerHtml();
@@ -151,7 +151,7 @@ abstract public class AtlassianAppServlet extends AppServlet implements BundleCo
     /**
      * Change relative references to load CSS from the app servlet.
      */
-    private void fixScriptElements(Elements appWrapper) {
+    private void fixScriptSrcs(Elements appWrapper) {
         Elements scriptElements = appWrapper.select("script[src$=.js]");
 
         for (Element scriptEl : scriptElements) {
@@ -166,7 +166,7 @@ abstract public class AtlassianAppServlet extends AppServlet implements BundleCo
     /**
      * Change relative references to load CSS from the app servlet.
      */
-    private void fixLinkElements(Elements appWrapper) throws IOException {
+    private void fixLinkHrefs(Elements appWrapper) throws IOException {
         Elements linkElements = appWrapper.select("link[href$=.css]");
 
         for (Element linkEl : linkElements) {
