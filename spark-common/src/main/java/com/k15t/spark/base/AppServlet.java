@@ -84,6 +84,17 @@ abstract public class AppServlet extends HttpServlet {
             response.setHeader("Cache-Control", "no-cache,must-revalidate");
         }
 
+        // when the URL is /confluence/plugins/servlet/<appPrefix>
+        // we need to redirect to /confluence/plugins/servlet/<appPrefix>/
+        // (note the trailing slash). Otherwise loading resources will not
+        // work.
+        if ("index.html".equals(props.getLocalPath())) {
+            if ("".equals(props.getUrlLocalPart())) {
+                response.sendRedirect(request.getRequestURI() + "/");
+                return;
+            }
+        }
+
         response.setContentType(props.getContentType());
 
         if (!sendOutput(props, response)) {
