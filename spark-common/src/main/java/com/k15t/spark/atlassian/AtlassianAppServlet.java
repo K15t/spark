@@ -116,7 +116,7 @@ abstract public class AtlassianAppServlet extends AppServlet implements BundleCo
             Elements scriptsAndStyles = document.head().children().not("title,meta[name=decorator],content").remove();
             document.body().prepend(scriptsAndStyles.outerHtml());
 
-        } else if (isPageApp(document) && props.isRequestedWithAjax()) {
+        } else if (isDialogApp(document) && props.isRequestedWithAjax()) {
             // * The Confluence decorators ignore anything inside the <head> of a velocity template. Thus we
             //   move it into the body
             // * For page apps, we need to wrap all body content with a div to load that into the modal dialog.
@@ -143,7 +143,7 @@ abstract public class AtlassianAppServlet extends AppServlet implements BundleCo
     }
 
 
-    private boolean isPageApp(Document document) {
+    private boolean isDialogApp(Document document) {
         return (document.select("meta[name=decorator][content=spark.dialog-app]").size() != 0);
     }
 
