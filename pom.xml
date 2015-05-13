@@ -32,7 +32,7 @@
     </licenses>
 
     <scm>
-        <connection>scm:git:git://github.com/K15t/spark.git</connection>
+        <connection>scm:git:git@github.com:K15t/spark.git</connection>
         <url>https://github.com/K15t/spark</url>
         <tag>HEAD</tag>
     </scm>
