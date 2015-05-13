@@ -8,10 +8,10 @@ import com.atlassian.sal.api.user.UserManager;
 import com.atlassian.templaterenderer.TemplateRenderer;
 import com.k15t.spark.base.AppServlet;
 import com.k15t.spark.base.RequestProperties;
-import com.k15t.spark.base.util.ContentBufferingServletResponseWrapper;
 import org.apache.commons.lang.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;
@@ -23,7 +23,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.Map;
@@ -94,48 +93,86 @@ abstract public class AtlassianAppServlet extends AppServlet implements BundleCo
     }
 
 
-    @Override
-    protected boolean sendOutput(RequestProperties props, HttpServletResponse response) throws IOException {
-        if (isHtmlContentType(props.getContentType())) {
-            ContentBufferingServletResponseWrapper responseWrapper = new ContentBufferingServletResponseWrapper(response);
-            if (!super.sendOutput(props, responseWrapper)) {
-                return false;
-            }
-
-            String documentStr = responseWrapper.toString();
-            Document document = Jsoup.parse(documentStr, props.getUri().toString());
-
-            if (document.select("meta[name=decorator]").size() != 0) {
-                // The Confluence decorators ignore anything inside the <head> of a velocity template. Thus we
-                // move it into the body.
-
-                Elements scriptsAndStyles = document.head().children().not("title,meta[name=decorator],content");
-                scriptsAndStyles.remove();
-                document.body().prepend(scriptsAndStyles.outerHtml());
-                documentStr = document.outerHtml();
-            }
-
-            PrintWriter out = response.getWriter();
-            out.write(documentStr);
-            out.close();
-            return true;
-        } else {
-            return super.sendOutput(props, response);
-        }
-    }
-
-
     protected boolean isHtmlContentType(String contentType) {
         return StringUtils.substringBefore(contentType, ";").equals("text/html");
     }
 
 
     @Override
-    protected void renderVelocity(RequestProperties props, HttpServletResponse response, String template) throws IOException {
-        TemplateRenderer renderer = getTemplateRenderer();
-        String rendered = renderer.renderFragment(template, getVelocityContext(props.getRequest()));
-        response.getWriter().write(rendered);
-        response.getWriter().flush();
+    protected String renderVelocity(String template, RequestProperties props) throws IOException {
+        Map<String, Object> context = getVelocityContext(props.getRequest());
+        String rendered = getTemplateRenderer().renderFragment(template, context);
+        return rendered;
+    }
+
+
+    @Override
+    protected String prepareIndexHtml(String indexHtml, RequestProperties props) throws IOException {
+        Document document = Jsoup.parse(indexHtml, props.getUri().toString());
+
+        if (isAdminApp(document)) {
+            // The Confluence decorators ignore anything inside the <head> of a velocity template. Thus we
+            // move it into the body.
+            Elements scriptsAndStyles = document.head().children().not("title,meta[name=decorator],content").remove();
+            document.body().prepend(scriptsAndStyles.outerHtml());
+
+        } else if (isDialogApp(document) && props.isRequestedWithAjax()) {
+            // * The Confluence decorators ignore anything inside the <head> of a velocity template. Thus we
+            //   move it into the body
+            // * For page apps, we need to wrap all body content with a div to load that into the modal dialog.
+
+            Elements appWrapper = document.body().prepend("<div id=\"spark-dialog-app-wrapper\"/>").select("#spark-dialog-app-wrapper");
+
+            Elements headContent = document.head().children().not("title,meta[name=decorator],content").remove();
+            Elements allBodyContent = document.body().children().not("#spark-dialog-app-wrapper").remove();
+
+            appWrapper.append(allBodyContent.outerHtml())
+                    .append(headContent.outerHtml());
+
+            fixScriptSrcs(appWrapper);
+            fixLinkHrefs(appWrapper);
+        }
+
+        indexHtml = document.outerHtml();
+        return indexHtml;
+    }
+
+
+    private boolean isAdminApp(Document document) {
+        return (document.select("meta[name=decorator][content=atl.admin]").size() != 0);
+    }
+
+
+    private boolean isDialogApp(Document document) {
+        return (document.select("meta[name=decorator][content=spark.dialog-app]").size() != 0);
+    }
+
+
+    /**
+     * Change relative references to load CSS from the app servlet.
+     */
+    private void fixScriptSrcs(Elements appWrapper) {
+        Elements scriptElements = appWrapper.select("script[src$=.js]");
+
+        for (Element scriptEl : scriptElements) {
+            // TODO it would be better for HTTP to create paths starting with '/'
+            appWrapper.append("<meta name=\"script\" content=\"" + scriptEl.absUrl("src") + "\"/>");
+        }
+
+        scriptElements.remove();
+    }
+
+
+    /**
+     * Change relative references to load CSS from the app servlet.
+     */
+    private void fixLinkHrefs(Elements appWrapper) throws IOException {
+        Elements linkElements = appWrapper.select("link[href$=.css]");
+
+        for (Element linkEl : linkElements) {
+            // TODO it would be better for HTTP to create paths starting with '/'
+            linkEl.attr("href", linkEl.absUrl("href"));
+        }
     }
 
 

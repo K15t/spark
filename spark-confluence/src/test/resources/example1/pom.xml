@@ -129,6 +129,24 @@
                             <arguments>--gulpfile space_app/gulpfile.js</arguments>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>gulp-dialog-app1</id>
+                        <goals>
+                            <goal>gulp</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>--gulpfile dialog_app/gulpfile.js</arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>gulp-dialog-app2</id>
+                        <goals>
+                            <goal>gulp</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>--gulpfile dialog_app_v14/gulpfile.js</arguments>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
         </plugins>

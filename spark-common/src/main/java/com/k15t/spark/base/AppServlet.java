@@ -43,7 +43,6 @@ abstract public class AppServlet extends HttpServlet {
 
     protected final Set<String> VELOCITY_TYPES = Collections.unmodifiableSet(new HashSet<String>() {{
         add("text/html");
-        add("text/css");
     }});
 
     protected final Set<String> JAVASCRIPT_I18N_TYPES = Collections.unmodifiableSet(new HashSet<String>() {{
@@ -85,6 +84,17 @@ abstract public class AppServlet extends HttpServlet {
             response.setHeader("Cache-Control", "no-cache,must-revalidate");
         }
 
+        // when the URL is /confluence/plugins/servlet/<appPrefix>
+        // we need to redirect to /confluence/plugins/servlet/<appPrefix>/
+        // (note the trailing slash). Otherwise loading resources will not
+        // work.
+        if ("index.html".equals(props.getLocalPath())) {
+            if ("".equals(props.getUrlLocalPart())) {
+                response.sendRedirect(request.getRequestURI() + "/");
+                return;
+            }
+        }
+
         response.setContentType(props.getContentType());
 
         if (!sendOutput(props, response)) {
@@ -98,22 +108,27 @@ abstract public class AppServlet extends HttpServlet {
     }
 
 
+    protected boolean verifyPermissions(RequestProperties props, HttpServletResponse response) throws IOException {
+        return true;
+    }
+
+
     protected boolean sendOutput(RequestProperties props, HttpServletResponse response) throws IOException {
         InputStream resource = getPluginResource(props.getLocalPath());
         if (resource == null) {
             return false;
         }
 
-        // this is a bit of a hack to set the contextPath as global variable in JavaScript
-        /*if ("index.html".equals(path)) {
-            String rendered = renderer.renderFragment(IOUtils.toString(in, "UTF-8"),
-                ImmutableMap.<String, Object>of("contextPath", contextPath));
-            in = new ByteArrayInputStream(rendered.getBytes(Charset.forName("UTF-8")));
-        }*/
-
         String shortType = StringUtils.substringBefore(props.getContentType(), ";");
         if (VELOCITY_TYPES.contains(shortType)) {
-            renderVelocity(props, response, IOUtils.toString(resource, "UTF-8"));
+            String result = renderVelocity(IOUtils.toString(resource, "UTF-8"), props);
+
+            if ("index.html".equals(props.getLocalPath())) {
+                result = prepareIndexHtml(result, props);
+            }
+
+            IOUtils.write(result, response.getOutputStream());
+
         } else if (JAVASCRIPT_I18N_TYPES.contains(shortType)) {
             renderJavaScriptI18n(props, response, resource);
         } else {
@@ -121,23 +136,6 @@ abstract public class AppServlet extends HttpServlet {
         }
 
         return true;
-    }
-
-
-    abstract protected void renderVelocity(RequestProperties props, HttpServletResponse response, String template) throws IOException;
-
-
-    protected boolean verifyPermissions(RequestProperties props, HttpServletResponse response) throws IOException {
-        return true;
-    }
-
-
-    protected String getPluginResourcePath(String localPath) {
-        if (StringUtils.startsWith(localPath, "auing/")) {
-            return "/com/k15t/auing/common/" + StringUtils.removeStart(localPath, "auing/");
-        } else {
-            return resourcePath + localPath;
-        }
     }
 
 
@@ -182,6 +180,17 @@ abstract public class AppServlet extends HttpServlet {
         }
 
         return fileIn;
+    }
+
+
+    abstract protected String renderVelocity(String template, RequestProperties props) throws IOException;
+
+
+    abstract protected String prepareIndexHtml(String indexHtml, RequestProperties props) throws IOException;
+
+
+    protected String getPluginResourcePath(String localPath) {
+        return resourcePath + localPath;
     }
 
 

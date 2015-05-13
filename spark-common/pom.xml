@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
     <parent>
         <artifactId>spark</artifactId>
         <groupId>com.k15t.spark</groupId>
         <version>0.9.1-SNAPSHOT</version>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
 
     <artifactId>spark-common</artifactId>
 
     <dependencies>
-
         <dependency>
             <!-- jsoup HTML parser library @ http://jsoup.org/ -->
             <groupId>org.jsoup</groupId>
@@ -100,25 +101,6 @@
     </dependencies>
 
     <build>
-        <resources>
-            <!-- This filtering strategy is intentionally weird to trick the IDEA plugin into including the directory in the classpath -->
-            <resource>
-                <directory>src/main/resources</directory>
-                <excludes>
-                    <exclude>com/k15t/auing/common/auing/spark-version.js</exclude>
-                    <exclude>com/k15t/auing/common/auing/AuiNgVersion.properties</exclude>
-                </excludes>
-            </resource>
-            <resource>
-                <!-- This defines project.version transform targets. -->
-                <directory>src/main/resources</directory>
-                <filtering>true</filtering>
-                <includes>
-                    <include>com/k15t/auing/common/auing/spark-version.js</include>
-                    <include>com/k15t/auing/common/auing/AuiNgVersion.properties</include>
-                </includes>
-            </resource>
-        </resources>
         <plugins>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -157,7 +139,7 @@
                             <goal>create-timestamp</goal>
                         </goals>
                         <configuration>
-                            <timestampPropertyName>auiNg.buildNumber</timestampPropertyName>
+                            <timestampPropertyName>spark.buildNumber</timestampPropertyName>
                         </configuration>
                     </execution>
                 </executions>
