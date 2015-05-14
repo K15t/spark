@@ -37,6 +37,7 @@ public class ConfluenceSpaceAppAction extends AbstractSpaceAction implements Spa
     private String resourcePath;
     private String title;
     private String body;
+    private String selectedSpaceToolsWebItem;
 
 
     /**
@@ -46,18 +47,35 @@ public class ConfluenceSpaceAppAction extends AbstractSpaceAction implements Spa
      */
     @SuppressWarnings("unused") // references by add-ons xwork definition for Space Apps.
     public String index() {
-        initResourcePathFromActionConfig();
+        initFromActionConfig();
         initFromIndexHtml();
-
         return INPUT;
     }
 
 
-    private void initResourcePathFromActionConfig() {
+    private void initFromActionConfig() {
         ActionConfig actionConfig = ServletActionContext.getContext().getActionInvocation().getProxy().getConfig();
+        this.resourcePath = getResourcePathAsObject(actionConfig);
+        this.selectedSpaceToolsWebItem = getSelectedSpaceToolsWebItem(actionConfig);
+    }
+
+
+    private String getResourcePathAsObject(ActionConfig actionConfig) {
         Object resourcePathAsObject = actionConfig.getParams().get("resource-path");
         Validate.notNull(resourcePathAsObject, "No 'resource-path' param found for package 'actionConfig.getPackageName()'.");
-        this.resourcePath = StringUtils.removeEnd((String) resourcePathAsObject, "/");
+        return StringUtils.removeEnd((String) resourcePathAsObject, "/");
+    }
+
+
+    private String getSelectedSpaceToolsWebItem(ActionConfig actionConfig) {
+        Object selectedSpaceToolsWebItemAsObject = actionConfig.getParams().get("selectedSpaceToolsWebItem");
+
+        if (selectedSpaceToolsWebItemAsObject instanceof String) {
+            return (String) selectedSpaceToolsWebItemAsObject;
+        } else {
+            logger.warn("No 'selectedSpaceToolsWebItem' param for " + actionConfig.getClassName());
+            return "";
+        }
     }
 
 
@@ -201,6 +219,11 @@ public class ConfluenceSpaceAppAction extends AbstractSpaceAction implements Spa
      */
     public String getBodyAsHtml() {
         return body;
+    }
+
+
+    public String getSelectedSpaceToolsWebItem() {
+        return selectedSpaceToolsWebItem;
     }
 
 }

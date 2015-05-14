@@ -22,7 +22,7 @@
         <dependency>
             <groupId>com.k15t.spark</groupId>
             <artifactId>spark-confluence</artifactId>
-            <version>0.9.1</version>
+            <version>0.9.2-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.osgi</groupId>
@@ -117,16 +117,7 @@
                             <goal>gulp</goal>
                         </goals>
                         <configuration>
-                            <arguments>--gulpfile admin_app/gulpfile.js</arguments>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>gulp-space-app</id>
-                        <goals>
-                            <goal>gulp</goal>
-                        </goals>
-                        <configuration>
-                            <arguments>--gulpfile space_app/gulpfile.js</arguments>
+                            <arguments>--gulpfile admin-app/gulpfile.js</arguments>
                         </configuration>
                     </execution>
                     <execution>
@@ -145,6 +136,15 @@
                         </goals>
                         <configuration>
                             <arguments>--gulpfile dialog-app_v14/gulpfile.js</arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>gulp-space-app</id>
+                        <goals>
+                            <goal>gulp</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>--gulpfile space-app/gulpfile.js</arguments>
                         </configuration>
                     </execution>
                 </executions>

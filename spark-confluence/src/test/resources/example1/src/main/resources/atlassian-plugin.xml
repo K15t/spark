@@ -13,7 +13,7 @@
         <init-param>
             <!-- This is the path in your resource directory where the angularjs application lives -->
             <param-name>resource-path</param-name>
-            <param-value>/spark/admin_app</param-value>
+            <param-value>/spark/admin-app</param-value>
         </init-param>
     </servlet>
 
@@ -28,26 +28,34 @@
 
     <!-- === Space App ========================= -->
 
-    <servlet name="Space App Servlet" key="space-app-servlet" class="com.k15t.spark.confluence.ConfluenceAppServlet">
-        <description>Outputs the 'Hello World' SPARK space app.</description>
+    <servlet name="Space App SPARK App Servlet" key="spark-space-app-servlet" class="com.k15t.spark.confluence.ConfluenceAppServlet">
+        <description>Outputs the resources for the Space App SPARK app.</description>
         <url-pattern>/space-app*</url-pattern>
         <init-param>
-            <!-- This is the path in your resource directory where the angularjs application lives -->
             <param-name>resource-path</param-name>
-            <param-value>/spark/space_app</param-value>
+            <param-value>/spark/space-app</param-value>
         </init-param>
     </servlet>
 
     <xwork key="space-app-actions">
-        <package name="Space App Action" extends="default" namespace="/spaces/space-app">
+        <package name="Space App SPARK App Action" extends="default" namespace="/spaces/space-app">
             <default-interceptor-ref name="defaultStack"/>
             <action name="index" class="com.k15t.spark.confluence.ConfluenceSpaceAppAction" method="index">
                 <result name="input" type="velocity">/com/k15t/spark/confluence/space-app.vm</result>
                 <result name="notpermitted" type="redirect">/pages/pagenotpermitted.action</result>
-                <param name="resource-path">/spark/space_app</param>
+                <param name="resource-path">/spark/space-app</param>
+                <param name="selectedSpaceToolsWebItem">spark-space-app-webitem</param>
             </action>
         </package>
     </xwork>
+
+    <web-item name="Space App SPARK Web-Item" key="spark-space-app-webitem" section="system.space.tools/addons" weight="82">
+        <description>Adds a tab entry for the Space App SPARK app within the Space Tools / Add-ons section.</description>
+
+        <label>Space App</label>
+        <link id="spark-space-app-webitem">/spaces/space-app/index.action?key=$generalUtil.urlEncode($helper.spaceKey)</link>
+        <condition class="com.atlassian.confluence.plugin.descriptor.web.conditions.SpaceSidebarCondition" />
+    </web-item>
 
 
 
