@@ -1,4 +1,4 @@
-package com.k15t.spark.confluence;
+package com.k15t.spark.jira;
 
 import com.k15t.spark.atlassian.AtlassianAppServlet;
 import org.apache.commons.lang.BooleanUtils;
