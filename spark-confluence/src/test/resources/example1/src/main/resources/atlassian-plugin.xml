@@ -40,7 +40,7 @@
     <xwork key="space-app-actions">
         <package name="Space App SPARK App Action" extends="default" namespace="/spaces/space-app">
             <default-interceptor-ref name="defaultStack"/>
-            <action name="index" class="com.k15t.spark.confluence.ConfluenceSpaceAppAction" method="index">
+            <action name="index" class="spark.GENERATED.space_app.GeneratedSpaceAppAction" method="index">
                 <result name="input" type="velocity">/com/k15t/spark/confluence/space-app.vm</result>
                 <result name="notpermitted" type="redirect">/pages/pagenotpermitted.action</result>
                 <param name="resource-path">/spark/space-app</param>

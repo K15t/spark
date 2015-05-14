@@ -1,4 +1,4 @@
-package spark.generated.space_app;
+package spark.GENERATED.space_app;
 
 /**
  * This class serves as a XWork action for the Space App SPARK app. It should
