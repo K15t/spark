@@ -13,7 +13,7 @@
         <init-param>
             <!-- This is the path in your resource directory where the angularjs application lives -->
             <param-name>resource-path</param-name>
-            <param-value>/admin_app</param-value>
+            <param-value>/spark/admin_app</param-value>
         </init-param>
     </servlet>
 
@@ -27,7 +27,7 @@
         <init-param>
             <!-- This is the path in your resource directory where the angularjs application lives -->
             <param-name>resource-path</param-name>
-            <param-value>/space_app</param-value>
+            <param-value>/spark/space_app</param-value>
         </init-param>
     </servlet>
 
@@ -37,7 +37,7 @@
             <action name="index" class="com.k15t.spark.confluence.ConfluenceSpaceAppAction" method="index">
                 <result name="input" type="velocity">/com/k15t/spark/confluence/space-app.vm</result>
                 <result name="notpermitted" type="redirect">/pages/pagenotpermitted.action</result>
-                <param name="resource-path">/space_app</param>
+                <param name="resource-path">/spark/space_app</param>
             </action>
         </package>
     </xwork>
@@ -52,7 +52,7 @@
         <init-param>
             <!-- This is the path in your resource directory where the angularjs application lives -->
             <param-name>resource-path</param-name>
-            <param-value>/dialog_app</param-value>
+            <param-value>/spark/dialog_app</param-value>
         </init-param>
     </servlet>
 
@@ -84,7 +84,7 @@
         <init-param>
             <!-- This is the path in your resource directory where the angularjs application lives -->
             <param-name>resource-path</param-name>
-            <param-value>/dialog_app_v14</param-value>
+            <param-value>/spark/dialog_app_v14</param-value>
         </init-param>
     </servlet>
 

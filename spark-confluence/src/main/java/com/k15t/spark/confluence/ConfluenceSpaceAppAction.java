@@ -23,7 +23,7 @@ import java.io.InputStream;
 
 
 /**
- * The AbstractAppAction must be extended when a frontend app needs to be displayed in the space admin section.
+ * The AbstractAppAction must be extended when a SPARK app needs to be displayed in the space admin section.
  */
 public class ConfluenceSpaceAppAction extends AbstractSpaceAction implements SpaceAware {
 
@@ -134,7 +134,7 @@ public class ConfluenceSpaceAppAction extends AbstractSpaceAction implements Spa
 
 
     /**
-     * Change relative references to load JS and CSS from the frontend app.
+     * Change relative references to load JS and CSS from the SPARK app.
      */
     private void fixRelativeReferences(Document document) throws IOException {
         Elements elements = document.head().select("link[href$=.css],script[src$=.js]");
@@ -197,7 +197,7 @@ public class ConfluenceSpaceAppAction extends AbstractSpaceAction implements Spa
 
 
     /**
-     * @return index.html of this frontend app to be included in the space tools section.
+     * @return index.html of this SPARK app to be included in the space tools section.
      */
     public String getBodyAsHtml() {
         return body;
