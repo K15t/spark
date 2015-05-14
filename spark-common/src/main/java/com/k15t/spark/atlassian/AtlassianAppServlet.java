@@ -113,7 +113,7 @@ abstract public class AtlassianAppServlet extends AppServlet implements BundleCo
         if (isAdminApp(document)) {
             // The Confluence decorators ignore anything inside the <head> of a velocity template. Thus we
             // move it into the body.
-            Elements scriptsAndStyles = document.head().children().not("title,meta[name=decorator],content").remove();
+            Elements scriptsAndStyles = document.head().children().not("title,meta,content").remove();
             document.body().prepend(scriptsAndStyles.outerHtml());
 
         } else if (isDialogApp(document) && props.isRequestedWithAjax()) {
@@ -133,6 +133,9 @@ abstract public class AtlassianAppServlet extends AppServlet implements BundleCo
             fixLinkHrefs(appWrapper);
         }
 
+        // don't let jsoup generate unwanted blanks. Otherwise decorator settings
+        // like <content tag="selectedWebItem">...</content> don;t work.
+        document.outputSettings().prettyPrint(false);
         indexHtml = document.outerHtml();
         return indexHtml;
     }

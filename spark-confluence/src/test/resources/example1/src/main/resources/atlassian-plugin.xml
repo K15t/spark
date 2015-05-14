@@ -17,6 +17,13 @@
         </init-param>
     </servlet>
 
+    <web-item name="Admin App Web-Item" key="spark-admin-app-webitem" section="system.admin/configuration" weight="10">
+        <description>Adds a menu entry for the Admin App SPARK app to the admin console.</description>
+
+        <label>Admin App</label>
+        <link linkId="spark-admin-app-webitem">/plugins/servlet/admin-app</link>
+    </web-item>
+
 
 
     <!-- === Space App ========================= -->
@@ -46,15 +53,21 @@
 
     <!-- === Dialog App ========================= -->
 
-    <servlet name="Dialog App 1 Servlet" key="dialog-app1-servlet" class="com.k15t.spark.confluence.ConfluenceAppServlet">
-        <description>Outputs the 'Hello World' SPARK dialog app.</description>
-        <url-pattern>/dialog-app1*</url-pattern>
+    <servlet name="Dialog App 1.3 SPARK App Servlet" key="spark-dialog-app13-servlet" class="com.k15t.spark.confluence.ConfluenceAppServlet">
+        <description>Outputs the resources for the Dialog App 1.3 SPARK app.</description>
+        <url-pattern>/dialog-app13*</url-pattern>
         <init-param>
-            <!-- This is the path in your resource directory where the angularjs application lives -->
             <param-name>resource-path</param-name>
-            <param-value>/spark/dialog_app</param-value>
+            <param-value>/spark/dialog-app_v13</param-value>
         </init-param>
     </servlet>
+
+    <web-item name="Dialog App 1.3 SPARK App Web-Item" key="spark-dialog-app13-webitem" section="system.content.action" weight="200">
+        <description>Adds a menu entry for the Dialog App 1.3 SPARK app to the tools menu.</description>
+
+        <label>Dialog App 1.3</label>
+        <link linkId="spark-dialog-app13-webitem">#</link>
+    </web-item>
 
     <web-resource name="Dialog App Bootstrap" key="dialog-app-web-resource">
         <description>Hooks in the Viewport Controller (in the Confluence UI).</description>
@@ -66,11 +79,8 @@
         <resource type="download" name="dialog-app.css" location="com/k15t/spark/confluence/angular1x/dialog-app.css"/>
         <resource type="download" name="spark-dialog-app-bootstrap.soy.js" location="com/k15t/spark/confluence/angular1x/dialog-app-bootstrap.soy"/>
         <resource type="download" name="spark-dialog-app-bootstrap.js" location="com/k15t/spark/confluence/angular1x/dialog-app-bootstrap.js"/>
-        <resource type="download" name="dialog-app-1.js" location="spark/dialog-app-1.js"/>
+        <resource type="download" name="dialog-apps.js" location="spark/dialog-apps.js"/>
 
-        <!--<transformation extension="js">-->
-        <!--<transformer key="jsI18n" />-->
-        <!--</transformation>-->
         <transformation extension="soy">
             <transformer key="soyTransformer">
                 <functions>com.atlassian.confluence.plugins.soy:soy-core-functions</functions>
@@ -78,14 +88,20 @@
         </transformation>
     </web-resource>
 
-    <servlet name="Dialog App 2 Servlet" key="dialog-app2-servlet" class="com.k15t.spark.confluence.ConfluenceAppServlet">
-        <description>Outputs the 'Hello World' SPARK dialog app 2.</description>
-        <url-pattern>/dialog-app2*</url-pattern>
+    <servlet name="Dialog App 1.4 SPARK App Servlet" key="spark-dialog-app14-servlet" class="com.k15t.spark.confluence.ConfluenceAppServlet">
+        <description>Outputs the resources for the Dialog App 1.4 SPARK app.</description>
+        <url-pattern>/dialog-app14*</url-pattern>
         <init-param>
-            <!-- This is the path in your resource directory where the angularjs application lives -->
             <param-name>resource-path</param-name>
-            <param-value>/spark/dialog_app_v14</param-value>
+            <param-value>/spark/dialog-app_v14</param-value>
         </init-param>
     </servlet>
+
+    <web-item name="Dialog App 1.4 SPARK App Web-Item" key="spark-dialog-app14-webitem" section="system.content.action" weight="200">
+        <description>Adds a menu entry for the Dialog App 1.4 SPARK app to the tools menu.</description>
+
+        <label>Dialog App 1.4</label>
+        <link linkId="spark-dialog-app14-webitem">#</link>
+    </web-item>
 
 </atlassian-plugin>

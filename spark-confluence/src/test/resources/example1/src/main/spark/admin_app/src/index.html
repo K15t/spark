@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
 
     <meta name="decorator" content="atl.admin">
+    <meta name="admin.active.section" content="system.admin/configuration"/>
+    <meta name="admin.active.tab" content="spark-admin-app-webitem"/>
 
     <script src="libs/angularjs/1.4.0-rc.0/angular.min.js"></script>
     <script src="js/app.js"></script>
@@ -13,6 +15,7 @@
 <body>
 
 <div id="admin-app" ng-controller="HelloController">
+    <content tag="selectedWebItem">spark-admin-app-webitem</content>
 
     <h3>Hello, {{user.name}}!</h3>
 
