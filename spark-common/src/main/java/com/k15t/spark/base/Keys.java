@@ -11,6 +11,6 @@ public class Keys {
     /**
      * The system property key to be used for the SPARK development directory.
      */
-    public static final String SPARK_RESOURCE_DIRECTORIES = "spark.dev.dir";
+    public static final String SPARK_DEV_RESOURCE_DIRECTORIES = "spark.dev.dir";
 
 }

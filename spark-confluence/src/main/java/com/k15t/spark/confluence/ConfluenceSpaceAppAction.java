@@ -120,7 +120,7 @@ public class ConfluenceSpaceAppAction extends AbstractSpaceAction implements Spa
 
     protected InputStream loadFromDevelopmentDirectory(String localPath) throws IOException {
         InputStream fileIn = null;
-        String resourceDirectoryPaths = System.getProperty(Keys.SPARK_RESOURCE_DIRECTORIES);
+        String resourceDirectoryPaths = System.getProperty(Keys.SPARK_DEV_RESOURCE_DIRECTORIES);
 
         if (resourceDirectoryPaths == null) {
             return null;
