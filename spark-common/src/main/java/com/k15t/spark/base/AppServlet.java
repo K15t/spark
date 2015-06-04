@@ -1,5 +1,6 @@
 package com.k15t.spark.base;
 
+import com.k15t.spark.base.util.NgTranslateMessageBundleProvider;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringEscapeUtils;
@@ -49,6 +50,8 @@ abstract public class AppServlet extends HttpServlet {
         add("application/javascript");
     }});
 
+    private MessageBundleProvider messageBundleProvider;
+
     private String resourcePath;
 
     // Copied from auiplugin
@@ -65,6 +68,17 @@ abstract public class AppServlet extends HttpServlet {
         if (!"/".equals(resourcePath.substring(resourcePath.length() - 1))) {
             resourcePath = resourcePath + "/";
         }
+
+        this.messageBundleProvider = initMessageBundleProvider();
+    }
+
+
+    protected MessageBundleProvider initMessageBundleProvider() {
+        String msgBundleResourcePath = getServletConfig().getInitParameter(Keys.NG_TRANS_MSG_BUNDLE);
+        if (msgBundleResourcePath != null) {
+            return new NgTranslateMessageBundleProvider(msgBundleResourcePath);
+        }
+        return null;
     }
 
 
@@ -114,6 +128,13 @@ abstract public class AppServlet extends HttpServlet {
 
 
     protected boolean sendOutput(RequestProperties props, HttpServletResponse response) throws IOException {
+
+        if (this.messageBundleProvider != null && this.messageBundleProvider.isMessageBundle(props)) {
+            response.setContentType(this.messageBundleProvider.getContentType());
+            IOUtils.write(this.messageBundleProvider.loadBundle(props), response.getOutputStream());
+            return true;
+        }
+
         InputStream resource = getPluginResource(props.getLocalPath());
         if (resource == null) {
             return false;

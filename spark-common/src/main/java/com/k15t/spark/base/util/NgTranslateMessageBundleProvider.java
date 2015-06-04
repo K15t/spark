@@ -1,0 +1,84 @@
+package com.k15t.spark.base.util;
+
+import com.k15t.spark.base.MessageBundleProvider;
+import com.k15t.spark.base.RequestProperties;
+import org.codehaus.jackson.node.JsonNodeFactory;
+import org.codehaus.jackson.node.ObjectNode;
+import org.omg.SendingContext.RunTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.UnsupportedEncodingException;
+import java.util.Locale;
+import java.util.ResourceBundle;
+
+
+/**
+ * Bundle provider to provide the message bundle and all properties as JSON representation for ng-translate
+ * including the required placeholder conversion ({{0}} => {{_0}}).
+ */
+public class NgTranslateMessageBundleProvider implements MessageBundleProvider {
+
+    private static final Logger logger = LoggerFactory.getLogger(NgTranslateMessageBundleProvider.class);
+
+    private String msgBundleResourcePath;
+
+
+    public NgTranslateMessageBundleProvider(String msgBundleResourcePath) {
+        this.msgBundleResourcePath = msgBundleResourcePath;
+    }
+
+
+    @Override
+    public boolean isMessageBundle(RequestProperties props) {
+
+        if (msgBundleResourcePath != null) {
+            return props.getLocalPath() != null && (this.msgBundleResourcePath).endsWith(props.getLocalPath());
+        }
+
+        return false;
+    }
+
+
+    @Override
+    public String loadBundle(RequestProperties props) {
+
+        ResourceBundle rb;
+        Locale locale = props.getLocale();
+        if (locale != null) {
+            logger.debug("Use local {} to load bundle from {}", locale, msgBundleResourcePath);
+            rb = ResourceBundle.getBundle(msgBundleResourcePath, locale);
+        } else {
+            logger.debug("Use local {} to load bundle from {}", Locale.getDefault(), msgBundleResourcePath);
+            rb = ResourceBundle.getBundle(msgBundleResourcePath);
+        }
+
+        JsonNodeFactory factory = JsonNodeFactory.instance;
+        ObjectNode i18Properties = factory.objectNode();
+        for (String key : rb.keySet()) {
+            i18Properties.put(key, convertValue(rb.getString(key)));
+        }
+
+        try {
+            return new String(i18Properties.toString().getBytes("UTF-8"));
+        } catch (UnsupportedEncodingException ex) {
+            throw new RuntimeException("Error on loading message bundle", ex);
+        }
+
+    }
+
+
+    @Override
+    public String getContentType() {
+        return "application/json";
+    }
+
+
+    /**
+     * Converts the value to work with ng-translate. Overwrite this method to enforce a custom transformation.
+     */
+    protected String convertValue(String value) {
+        return value.replaceAll("\\{(\\d)\\}", "{{_$1}}");
+    }
+
+}
