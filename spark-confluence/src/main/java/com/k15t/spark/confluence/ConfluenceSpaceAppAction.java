@@ -155,7 +155,7 @@ public class ConfluenceSpaceAppAction extends AbstractSpaceAction implements Spa
      * Change relative references to load JS and CSS from the SPARK app.
      */
     private void fixRelativeReferences(Document document) throws IOException {
-        Elements elements = document.head().select("link[href$=.css],script[src$=.js]");
+        Elements elements = document.select("link[href$=.css],script[src$=.js]");
         String appBaseUrl = getAppBaseUrl(document);
 
         for (Element element : elements) {
