@@ -5,15 +5,18 @@ import org.apache.commons.lang.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 
+import java.util.Locale;
+
 
 public class AtlassianRequestProperties extends RequestProperties {
 
     protected final String appPrefix;
 
 
-    public AtlassianRequestProperties(AtlassianAppServlet appServlet, HttpServletRequest request, String appPrefix) {
+    public AtlassianRequestProperties(AtlassianAppServlet appServlet, HttpServletRequest request, String appPrefix, Locale local) {
         super(appServlet, request);
         this.appPrefix = appPrefix;
+        this.locale = local;
     }
 
 

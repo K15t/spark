@@ -3,6 +3,7 @@ package com.k15t.spark.atlassian;
 import com.atlassian.plugin.servlet.descriptors.BaseServletModuleDescriptor;
 import com.atlassian.plugins.rest.common.util.ReflectionUtils;
 import com.atlassian.sal.api.auth.LoginUriProvider;
+import com.atlassian.sal.api.message.LocaleResolver;
 import com.atlassian.sal.api.user.UserManager;
 import com.atlassian.templaterenderer.TemplateRenderer;
 import com.k15t.spark.base.AppServlet;
@@ -32,6 +33,7 @@ abstract public class AtlassianAppServlet extends AppServlet implements BundleCo
     private ServiceTracker loginUriProviderTracker;
     private ServiceTracker userManagerTracker;
     private ServiceTracker templateRendererTracker;
+    private ServiceTracker localeResolverTracker;
 
     private String appPrefix;
 
@@ -87,7 +89,7 @@ abstract public class AtlassianAppServlet extends AppServlet implements BundleCo
 
     @Override
     protected RequestProperties getRequestProperties(HttpServletRequest request) {
-        return new AtlassianRequestProperties(this, request, appPrefix);
+        return new AtlassianRequestProperties(this, request, appPrefix, getLocaleResolver().getLocale(request));
     }
 
 
@@ -231,6 +233,9 @@ abstract public class AtlassianAppServlet extends AppServlet implements BundleCo
 
         templateRendererTracker = new ServiceTracker(bundleContext, TemplateRenderer.class.getName(), null);
         templateRendererTracker.open();
+
+        localeResolverTracker = new ServiceTracker(bundleContext, LocaleResolver.class.getName(), null);
+        localeResolverTracker.open();
     }
 
 
@@ -264,6 +269,16 @@ abstract public class AtlassianAppServlet extends AppServlet implements BundleCo
     }
 
 
+    protected LocaleResolver getLocaleResolver() {
+        Object proxy = localeResolverTracker.getService();
+        if ((proxy != null) && (proxy instanceof LocaleResolver)) {
+            return (LocaleResolver) proxy;
+        } else {
+            throw new RuntimeException("Could not get a valid LocaleResolver proxy.");
+        }
+    }
+
+
     @Override
     public void destroy() {
         super.destroy();
@@ -271,6 +286,7 @@ abstract public class AtlassianAppServlet extends AppServlet implements BundleCo
         loginUriProviderTracker.close();
         userManagerTracker.close();
         templateRendererTracker.close();
+        localeResolverTracker.close();
     }
 
 }

@@ -47,7 +47,12 @@ public class NgTranslateMessageBundleProvider implements MessageBundleProvider {
         Locale locale = props.getLocale();
         if (locale != null) {
             logger.debug("Use local {} to load bundle from {}", locale, msgBundleResourcePath);
-            rb = ResourceBundle.getBundle(msgBundleResourcePath, locale);
+            rb = ResourceBundle.getBundle(msgBundleResourcePath, locale, new ResourceBundle.Control() {
+                @Override
+                public Locale getFallbackLocale(String baseName, Locale locale) {
+                    return Locale.ROOT;
+                }
+            });
         } else {
             logger.debug("Use local {} to load bundle from {}", Locale.getDefault(), msgBundleResourcePath);
             rb = ResourceBundle.getBundle(msgBundleResourcePath);
