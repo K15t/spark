@@ -6,7 +6,7 @@
 
     <groupId>com.k15t.spark</groupId>
     <artifactId>spark</artifactId>
-    <version>0.9.3-SNAPSHOT</version>
+    <version>0.9.3</version>
 
     <name>SPARK</name>
 
@@ -34,7 +34,7 @@
     <scm>
         <connection>scm:git:git@github.com:K15t/spark.git</connection>
         <url>https://github.com/K15t/spark</url>
-        <tag>HEAD</tag>
+        <tag>0.9.3</tag>
     </scm>
 
     <distributionManagement>
