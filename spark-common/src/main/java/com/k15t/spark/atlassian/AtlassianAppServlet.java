@@ -3,7 +3,6 @@ package com.k15t.spark.atlassian;
 import com.atlassian.plugin.servlet.descriptors.BaseServletModuleDescriptor;
 import com.atlassian.plugins.rest.common.util.ReflectionUtils;
 import com.atlassian.sal.api.auth.LoginUriProvider;
-import com.atlassian.sal.api.message.I18nResolver;
 import com.atlassian.sal.api.user.UserManager;
 import com.atlassian.templaterenderer.TemplateRenderer;
 import com.k15t.spark.base.AppServlet;
@@ -33,7 +32,6 @@ abstract public class AtlassianAppServlet extends AppServlet implements BundleCo
     private ServiceTracker loginUriProviderTracker;
     private ServiceTracker userManagerTracker;
     private ServiceTracker templateRendererTracker;
-    private ServiceTracker i18nResolverTracker;
 
     private String appPrefix;
 
@@ -184,16 +182,9 @@ abstract public class AtlassianAppServlet extends AppServlet implements BundleCo
      * is used to render the HTML file.
      *
      * @param request
-     * @return
      */
     protected Map<String, Object> getVelocityContext(HttpServletRequest request) {
         return Collections.emptyMap();
-    }
-
-
-    @Override
-    protected String getText(String key) {
-        return getI18nResolver().getRawText(key);
     }
 
 
@@ -240,9 +231,6 @@ abstract public class AtlassianAppServlet extends AppServlet implements BundleCo
 
         templateRendererTracker = new ServiceTracker(bundleContext, TemplateRenderer.class.getName(), null);
         templateRendererTracker.open();
-
-        i18nResolverTracker = new ServiceTracker(bundleContext, I18nResolver.class.getName(), null);
-        i18nResolverTracker.open();
     }
 
 
@@ -272,16 +260,6 @@ abstract public class AtlassianAppServlet extends AppServlet implements BundleCo
             return (TemplateRenderer) proxy;
         } else {
             throw new RuntimeException("Could not get a valid TemplateRenderer proxy.");
-        }
-    }
-
-
-    protected I18nResolver getI18nResolver() {
-        Object proxy = i18nResolverTracker.getService();
-        if ((proxy != null) && (proxy instanceof I18nResolver)) {
-            return (I18nResolver) proxy;
-        } else {
-            throw new RuntimeException("Could not get a valid I18nResolver proxy.");
         }
     }
 
