@@ -16,6 +16,16 @@
             <groupId>${groupId}</groupId>
             <artifactId>spark-common</artifactId>
             <version>${version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-io</groupId>
+                    <artifactId>commons-io</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>commons-lang</groupId>
+                    <artifactId>commons-lang</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <!-- Provided by confluence -->
         <dependency>
