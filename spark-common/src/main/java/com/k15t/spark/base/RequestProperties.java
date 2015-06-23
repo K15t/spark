@@ -3,8 +3,11 @@ package com.k15t.spark.base;
 import org.apache.commons.lang.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
+
 import java.net.URI;
+import java.util.Locale;
 import java.util.regex.Pattern;
+
 
 public class RequestProperties {
 
@@ -18,6 +21,7 @@ public class RequestProperties {
     protected Boolean hasCacheKey;
     protected String contentType;
     protected Boolean shouldCache;
+    protected Locale locale;
     protected URI uri;
 
 
@@ -59,7 +63,7 @@ public class RequestProperties {
 
     protected boolean hasCacheKey() {
         if (hasCacheKey == null) {
-            hasCacheKey = !(getUrlLocalPart().length() == getLocalPath().length()+1); // localPath does not contain leading slash
+            hasCacheKey = !(getUrlLocalPart().length() == getLocalPath().length() + 1); // localPath does not contain leading slash
         }
 
         return hasCacheKey;
@@ -111,7 +115,8 @@ public class RequestProperties {
 
     public boolean shouldCache() {
         if (shouldCache == null) {
-            shouldCache = !appServlet.isDevMode() && hasCacheKey() && !("text/html".equals(StringUtils.substringBefore(getContentType(), ";")));
+            shouldCache = !appServlet.isDevMode() && hasCacheKey()
+                    && !("text/html".equals(StringUtils.substringBefore(getContentType(), ";")));
         }
 
         return shouldCache;
@@ -129,6 +134,14 @@ public class RequestProperties {
         }
 
         return uri;
+    }
+
+
+    public Locale getLocale() {
+        if (this.locale == null) {
+            this.locale = request.getLocale();
+        }
+        return locale;
     }
 
 

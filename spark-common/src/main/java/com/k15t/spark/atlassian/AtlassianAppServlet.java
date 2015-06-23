@@ -3,7 +3,7 @@ package com.k15t.spark.atlassian;
 import com.atlassian.plugin.servlet.descriptors.BaseServletModuleDescriptor;
 import com.atlassian.plugins.rest.common.util.ReflectionUtils;
 import com.atlassian.sal.api.auth.LoginUriProvider;
-import com.atlassian.sal.api.message.I18nResolver;
+import com.atlassian.sal.api.message.LocaleResolver;
 import com.atlassian.sal.api.user.UserManager;
 import com.atlassian.templaterenderer.TemplateRenderer;
 import com.k15t.spark.base.AppServlet;
@@ -33,7 +33,7 @@ abstract public class AtlassianAppServlet extends AppServlet implements BundleCo
     private ServiceTracker loginUriProviderTracker;
     private ServiceTracker userManagerTracker;
     private ServiceTracker templateRendererTracker;
-    private ServiceTracker i18nResolverTracker;
+    private ServiceTracker localeResolverTracker;
 
     private String appPrefix;
 
@@ -89,7 +89,7 @@ abstract public class AtlassianAppServlet extends AppServlet implements BundleCo
 
     @Override
     protected RequestProperties getRequestProperties(HttpServletRequest request) {
-        return new AtlassianRequestProperties(this, request, appPrefix);
+        return new AtlassianRequestProperties(this, request, appPrefix, getLocaleResolver().getLocale(request));
     }
 
 
@@ -184,16 +184,9 @@ abstract public class AtlassianAppServlet extends AppServlet implements BundleCo
      * is used to render the HTML file.
      *
      * @param request
-     * @return
      */
     protected Map<String, Object> getVelocityContext(HttpServletRequest request) {
         return Collections.emptyMap();
-    }
-
-
-    @Override
-    protected String getText(String key) {
-        return getI18nResolver().getRawText(key);
     }
 
 
@@ -241,8 +234,8 @@ abstract public class AtlassianAppServlet extends AppServlet implements BundleCo
         templateRendererTracker = new ServiceTracker(bundleContext, TemplateRenderer.class.getName(), null);
         templateRendererTracker.open();
 
-        i18nResolverTracker = new ServiceTracker(bundleContext, I18nResolver.class.getName(), null);
-        i18nResolverTracker.open();
+        localeResolverTracker = new ServiceTracker(bundleContext, LocaleResolver.class.getName(), null);
+        localeResolverTracker.open();
     }
 
 
@@ -276,12 +269,12 @@ abstract public class AtlassianAppServlet extends AppServlet implements BundleCo
     }
 
 
-    protected I18nResolver getI18nResolver() {
-        Object proxy = i18nResolverTracker.getService();
-        if ((proxy != null) && (proxy instanceof I18nResolver)) {
-            return (I18nResolver) proxy;
+    protected LocaleResolver getLocaleResolver() {
+        Object proxy = localeResolverTracker.getService();
+        if ((proxy != null) && (proxy instanceof LocaleResolver)) {
+            return (LocaleResolver) proxy;
         } else {
-            throw new RuntimeException("Could not get a valid I18nResolver proxy.");
+            throw new RuntimeException("Could not get a valid LocaleResolver proxy.");
         }
     }
 
@@ -293,6 +286,7 @@ abstract public class AtlassianAppServlet extends AppServlet implements BundleCo
         loginUriProviderTracker.close();
         userManagerTracker.close();
         templateRendererTracker.close();
+        localeResolverTracker.close();
     }
 
 }

@@ -1,5 +1,6 @@
 package com.k15t.spark.base;
 
+import com.k15t.spark.base.util.NgTranslateMessageBundleProvider;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringEscapeUtils;
@@ -45,14 +46,9 @@ abstract public class AppServlet extends HttpServlet {
         add("text/html");
     }});
 
-    protected final Set<String> JAVASCRIPT_I18N_TYPES = Collections.unmodifiableSet(new HashSet<String>() {{
-        add("application/javascript");
-    }});
+    private MessageBundleProvider messageBundleProvider;
 
     private String resourcePath;
-
-    // Copied from auiplugin
-    protected static final Pattern JAVASCRIPT_I18N_PATTERN = Pattern.compile("AJS\\.I18n\\.getText\\(\\s*(['\"])([\\w.-]+)\\1\\s*([\\),])");
 
 
     @Override
@@ -65,6 +61,17 @@ abstract public class AppServlet extends HttpServlet {
         if (!"/".equals(resourcePath.substring(resourcePath.length() - 1))) {
             resourcePath = resourcePath + "/";
         }
+
+        this.messageBundleProvider = initMessageBundleProvider();
+    }
+
+
+    protected MessageBundleProvider initMessageBundleProvider() {
+        String msgBundleResourcePath = getServletConfig().getInitParameter(Keys.NG_TRANS_MSG_BUNDLE);
+        if (msgBundleResourcePath != null) {
+            return new NgTranslateMessageBundleProvider(msgBundleResourcePath);
+        }
+        return null;
     }
 
 
@@ -114,6 +121,13 @@ abstract public class AppServlet extends HttpServlet {
 
 
     protected boolean sendOutput(RequestProperties props, HttpServletResponse response) throws IOException {
+
+        if (this.messageBundleProvider != null && this.messageBundleProvider.isMessageBundle(props)) {
+            response.setContentType(this.messageBundleProvider.getContentType());
+            IOUtils.write(this.messageBundleProvider.loadBundle(props), response.getOutputStream());
+            return true;
+        }
+
         InputStream resource = getPluginResource(props.getLocalPath());
         if (resource == null) {
             return false;
@@ -129,8 +143,6 @@ abstract public class AppServlet extends HttpServlet {
 
             IOUtils.write(result, response.getOutputStream());
 
-        } else if (JAVASCRIPT_I18N_TYPES.contains(shortType)) {
-            renderJavaScriptI18n(props, response, resource);
         } else {
             IOUtils.copy(resource, response.getOutputStream());
         }
@@ -192,37 +204,5 @@ abstract public class AppServlet extends HttpServlet {
     protected String getPluginResourcePath(String localPath) {
         return resourcePath + localPath;
     }
-
-
-    protected void renderJavaScriptI18n(RequestProperties props, HttpServletResponse response, InputStream template) throws IOException {
-        String javaScript = IOUtils.toString(template);
-
-        // Copied from auiplugin
-
-        Matcher matcher = JAVASCRIPT_I18N_PATTERN.matcher(javaScript);
-
-        PrintWriter out = response.getWriter();
-
-        int index = 0;
-        while (matcher.find()) {
-            out.write(javaScript.substring(index, matcher.start()));
-            index = matcher.end();
-
-            String key = matcher.group(2);
-            boolean format = ",".equals(matcher.group(3));
-
-            if (format) {
-                out.write("AJS.format(\"" + StringEscapeUtils.escapeJavaScript(getText(key)) + "\",");
-            } else {
-                out.write("\"" + StringEscapeUtils.escapeJavaScript(getText(key)) + "\"");
-            }
-        }
-        out.write(javaScript.substring(index, javaScript.length()));
-        out.close();
-    }
-
-
-    abstract protected String getText(String key);
-
 
 }
