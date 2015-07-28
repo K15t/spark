@@ -5,6 +5,5 @@
 
 /* While loading, we want to modify the blanket */
 [ng-cloak] ~ .aui-blanket.spark-loading {
-    /* TODO this is an example only, replace by loading animation */
     background-color: white;
 }
