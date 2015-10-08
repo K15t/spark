@@ -2,9 +2,8 @@ package com.k15t.spark.base.util;
 
 import com.k15t.spark.base.MessageBundleProvider;
 import com.k15t.spark.base.RequestProperties;
-import org.codehaus.jackson.node.JsonNodeFactory;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ObjectNode;
-import org.omg.SendingContext.RunTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,9 +56,8 @@ public class NgTranslateMessageBundleProvider implements MessageBundleProvider {
             logger.debug("Use local {} to load bundle from {}", Locale.getDefault(), msgBundleResourcePath);
             rb = ResourceBundle.getBundle(msgBundleResourcePath);
         }
-
-        JsonNodeFactory factory = JsonNodeFactory.instance;
-        ObjectNode i18Properties = factory.objectNode();
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode i18Properties = mapper.createObjectNode();
         for (String key : rb.keySet()) {
             i18Properties.put(key, convertValue(rb.getString(key)));
         }
@@ -83,7 +81,7 @@ public class NgTranslateMessageBundleProvider implements MessageBundleProvider {
      * Converts the value to work with ng-translate. Overwrite this method to enforce a custom transformation.
      */
     protected String convertValue(String value) {
-        return value.replaceAll("\\{(\\d)\\}", "{{_$1}}");
+        return value.replaceAll("\\{(\\d)\\}", "{{_$1}}").replaceAll("''", "'");
     }
 
 }
