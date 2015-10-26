@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.Collections;
+import java.util.Locale;
 import java.util.Map;
 
 
@@ -36,6 +37,7 @@ abstract public class AtlassianAppServlet extends AppServlet implements BundleCo
     private ServiceTracker localeResolverTracker;
 
     private String appPrefix;
+    private long pluginModifiedTimestamp;
 
 
     @Override
@@ -110,6 +112,10 @@ abstract public class AtlassianAppServlet extends AppServlet implements BundleCo
     protected String prepareIndexHtml(String indexHtml, RequestProperties props) throws IOException {
         Document document = Jsoup.parse(indexHtml, props.getUri().toString());
 
+        if (!isDevMode()) {
+            applyCacheKeysToResourceUrls(document, props);
+        }
+
         if (isAdminApp(document)) {
             // The Confluence decorators ignore anything inside the <head> of a velocity template. Thus we
             // move it into the body.
@@ -138,6 +144,27 @@ abstract public class AtlassianAppServlet extends AppServlet implements BundleCo
         document.outputSettings().prettyPrint(false);
         indexHtml = document.outerHtml();
         return indexHtml;
+    }
+
+
+    private void applyCacheKeysToResourceUrls(Document document, RequestProperties props) {
+        String cacheKey = getCacheKeyPathSegments(props.getRequest());
+
+        Elements injectedScripts = document.select("script[data-spark-injected]");
+        for (Element script : injectedScripts) {
+            script.attr("src", cacheKey + "/" + script.attr("src"));
+        }
+
+        Elements injectedStyles = document.select("link[data-spark-injected]");
+        for (Element style : injectedStyles) {
+            style.attr("href", cacheKey + "/" + style.attr("href"));
+        }
+    }
+
+
+    protected String getCacheKeyPathSegments(HttpServletRequest request) {
+        Locale locale = getLocaleResolver().getLocale(request);
+        return "_/" + pluginModifiedTimestamp + "/" + locale.toString();
     }
 
 
@@ -225,6 +252,8 @@ abstract public class AtlassianAppServlet extends AppServlet implements BundleCo
 
     @Override
     public void setBundleContext(BundleContext bundleContext) {
+        pluginModifiedTimestamp = bundleContext.getBundle().getLastModified();
+
         loginUriProviderTracker = new ServiceTracker(bundleContext, LoginUriProvider.class.getName(), null);
         loginUriProviderTracker.open();
 
