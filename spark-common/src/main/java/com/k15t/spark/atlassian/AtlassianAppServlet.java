@@ -8,6 +8,7 @@ import com.atlassian.sal.api.user.UserManager;
 import com.atlassian.templaterenderer.TemplateRenderer;
 import com.k15t.spark.base.AppServlet;
 import com.k15t.spark.base.RequestProperties;
+import com.k15t.spark.base.util.DocumentOutputUtil;
 import org.apache.commons.lang.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -147,24 +148,9 @@ abstract public class AtlassianAppServlet extends AppServlet implements BundleCo
     }
 
 
-    private void applyCacheKeysToResourceUrls(Document document, RequestProperties props) {
-        String cacheKey = getCacheKeyPathSegments(props.getRequest());
-
-        Elements injectedScripts = document.select("script[data-spark-injected]");
-        for (Element script : injectedScripts) {
-            script.attr("src", cacheKey + "/" + script.attr("src"));
-        }
-
-        Elements injectedStyles = document.select("link[data-spark-injected]");
-        for (Element style : injectedStyles) {
-            style.attr("href", cacheKey + "/" + style.attr("href"));
-        }
-    }
-
-
-    protected String getCacheKeyPathSegments(HttpServletRequest request) {
-        Locale locale = getLocaleResolver().getLocale(request);
-        return "_/" + pluginModifiedTimestamp + "/" + locale.toString();
+    protected void applyCacheKeysToResourceUrls(Document document, RequestProperties props) {
+        Locale locale = getLocaleResolver().getLocale(props.getRequest());
+        DocumentOutputUtil.applyCacheKeysToResourceUrls(document, pluginModifiedTimestamp, locale);
     }
 
 

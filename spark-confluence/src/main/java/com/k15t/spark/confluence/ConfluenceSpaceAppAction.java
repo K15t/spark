@@ -1,9 +1,12 @@
 package com.k15t.spark.confluence;
 
 import com.atlassian.confluence.core.ConfluenceSystemProperties;
+import com.atlassian.confluence.plugin.descriptor.PluginAwareActionConfig;
 import com.atlassian.confluence.spaces.actions.AbstractSpaceAction;
 import com.atlassian.confluence.spaces.actions.SpaceAware;
+import com.atlassian.sal.api.message.LocaleResolver;
 import com.k15t.spark.base.Keys;
+import com.k15t.spark.base.util.DocumentOutputUtil;
 import com.opensymphony.webwork.ServletActionContext;
 import com.opensymphony.xwork.config.entities.ActionConfig;
 import org.apache.commons.io.FileUtils;
@@ -17,9 +20,12 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.servlet.http.HttpServletRequest;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Locale;
 
 
 /**
@@ -34,6 +40,8 @@ public class ConfluenceSpaceAppAction extends AbstractSpaceAction implements Spa
      */
     public static final String SPA_BASE_URL = "spark.app-base-url";
 
+    private LocaleResolver localeResolver;
+
     private String resourcePath;
     private String title;
     private String body;
@@ -47,14 +55,14 @@ public class ConfluenceSpaceAppAction extends AbstractSpaceAction implements Spa
      */
     @SuppressWarnings("unused") // references by add-ons xwork definition for Space Apps.
     public String index() {
-        initFromActionConfig();
-        initFromIndexHtml();
+        ActionConfig actionConfig = ServletActionContext.getContext().getActionInvocation().getProxy().getConfig();
+        initFromActionConfig(actionConfig);
+        initFromIndexHtml(actionConfig);
         return INPUT;
     }
 
 
-    private void initFromActionConfig() {
-        ActionConfig actionConfig = ServletActionContext.getContext().getActionInvocation().getProxy().getConfig();
+    private void initFromActionConfig(ActionConfig actionConfig) {
         this.resourcePath = getResourcePathAsObject(actionConfig);
         this.selectedSpaceToolsWebItem = getSelectedSpaceToolsWebItem(actionConfig);
     }
@@ -79,7 +87,7 @@ public class ConfluenceSpaceAppAction extends AbstractSpaceAction implements Spa
     }
 
 
-    private void initFromIndexHtml() {
+    private void initFromIndexHtml(ActionConfig actionConfig) {
         String indexHtmlPath = resourcePath + "/index.html";
 
         try {
@@ -93,6 +101,11 @@ public class ConfluenceSpaceAppAction extends AbstractSpaceAction implements Spa
                 Document document = Jsoup.parse(indexHtml, "UTF-8", "");
 
                 this.title = document.title();
+
+                if (!isDevMode()) {
+                    applyCacheKeysToResourceUrls(document, actionConfig);
+                }
+
                 this.body = prepareBody(document);
             }
 
@@ -141,6 +154,17 @@ public class ConfluenceSpaceAppAction extends AbstractSpaceAction implements Spa
         }
 
         return fileIn;
+    }
+
+
+    protected void applyCacheKeysToResourceUrls(Document document, ActionConfig actionConfig) {
+        // If the actionConfig doesn't know the plugin, we cannot cache resources - bad luck.
+        if (actionConfig instanceof PluginAwareActionConfig) {
+            HttpServletRequest request = ServletActionContext.getRequest();
+            long pluginModifiedTimestamp = ((PluginAwareActionConfig) actionConfig).getPlugin().getDateLoaded().getTime();
+            Locale locale = localeResolver.getLocale(request);
+            DocumentOutputUtil.applyCacheKeysToResourceUrls(document, pluginModifiedTimestamp, locale);
+        }
     }
 
 
@@ -224,6 +248,16 @@ public class ConfluenceSpaceAppAction extends AbstractSpaceAction implements Spa
 
     public String getSelectedSpaceToolsWebItem() {
         return selectedSpaceToolsWebItem;
+    }
+
+
+    public LocaleResolver getLocaleResolver() {
+        return localeResolver;
+    }
+
+
+    public void setLocaleResolver(LocaleResolver localeResolver) {
+        this.localeResolver = localeResolver;
     }
 
 }
