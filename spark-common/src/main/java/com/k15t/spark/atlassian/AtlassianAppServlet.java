@@ -8,6 +8,7 @@ import com.atlassian.sal.api.user.UserManager;
 import com.atlassian.templaterenderer.TemplateRenderer;
 import com.k15t.spark.base.AppServlet;
 import com.k15t.spark.base.RequestProperties;
+import com.k15t.spark.base.util.DocumentOutputUtil;
 import org.apache.commons.lang.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -25,6 +26,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.Collections;
+import java.util.Locale;
 import java.util.Map;
 
 
@@ -36,6 +38,7 @@ abstract public class AtlassianAppServlet extends AppServlet implements BundleCo
     private ServiceTracker localeResolverTracker;
 
     private String appPrefix;
+    private long pluginModifiedTimestamp;
 
 
     @Override
@@ -110,6 +113,10 @@ abstract public class AtlassianAppServlet extends AppServlet implements BundleCo
     protected String prepareIndexHtml(String indexHtml, RequestProperties props) throws IOException {
         Document document = Jsoup.parse(indexHtml, props.getUri().toString());
 
+        if (!isDevMode()) {
+            applyCacheKeysToResourceUrls(document, props);
+        }
+
         if (isAdminApp(document)) {
             // The Confluence decorators ignore anything inside the <head> of a velocity template. Thus we
             // move it into the body.
@@ -138,6 +145,12 @@ abstract public class AtlassianAppServlet extends AppServlet implements BundleCo
         document.outputSettings().prettyPrint(false);
         indexHtml = document.outerHtml();
         return indexHtml;
+    }
+
+
+    protected void applyCacheKeysToResourceUrls(Document document, RequestProperties props) {
+        Locale locale = getLocaleResolver().getLocale(props.getRequest());
+        DocumentOutputUtil.applyCacheKeysToResourceUrls(document, pluginModifiedTimestamp, locale);
     }
 
 
@@ -225,6 +238,8 @@ abstract public class AtlassianAppServlet extends AppServlet implements BundleCo
 
     @Override
     public void setBundleContext(BundleContext bundleContext) {
+        pluginModifiedTimestamp = bundleContext.getBundle().getLastModified();
+
         loginUriProviderTracker = new ServiceTracker(bundleContext, LoginUriProvider.class.getName(), null);
         loginUriProviderTracker.open();
 

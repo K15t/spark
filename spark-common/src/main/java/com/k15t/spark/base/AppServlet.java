@@ -3,7 +3,6 @@ package com.k15t.spark.base;
 import com.k15t.spark.base.util.NgTranslateMessageBundleProvider;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 
 import javax.servlet.ServletException;
@@ -14,12 +13,9 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintWriter;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 
 /**
@@ -85,11 +81,7 @@ abstract public class AppServlet extends HttpServlet {
             return;
         }
 
-        if (props.shouldCache()) {
-            response.setHeader("Cache-Control", "public");
-        } else {
-            response.setHeader("Cache-Control", "no-cache,must-revalidate");
-        }
+        applyCacheHeaders(props, response);
 
         // when the URL is /confluence/plugins/servlet/<appPrefix>
         // we need to redirect to /confluence/plugins/servlet/<appPrefix>/
@@ -117,6 +109,15 @@ abstract public class AppServlet extends HttpServlet {
 
     protected boolean verifyPermissions(RequestProperties props, HttpServletResponse response) throws IOException {
         return true;
+    }
+
+
+    protected void applyCacheHeaders(RequestProperties props, HttpServletResponse response) {
+        if (props.shouldCache()) {
+            response.setHeader("Cache-Control", "public,max-age=31536000");
+        } else {
+            response.setHeader("Cache-Control", "no-cache,must-revalidate");
+        }
     }
 
 
