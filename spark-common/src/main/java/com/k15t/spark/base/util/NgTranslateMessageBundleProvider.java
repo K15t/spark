@@ -7,7 +7,6 @@ import org.codehaus.jackson.node.ObjectNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.UnsupportedEncodingException;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
@@ -62,12 +61,7 @@ public class NgTranslateMessageBundleProvider implements MessageBundleProvider {
             i18Properties.put(key, convertValue(rb.getString(key)));
         }
 
-        try {
-            return new String(i18Properties.toString().getBytes("UTF-8"));
-        } catch (UnsupportedEncodingException ex) {
-            throw new RuntimeException("Error on loading message bundle", ex);
-        }
-
+        return i18Properties.toString();
     }
 
 
