@@ -15,6 +15,13 @@ public class AtlassianRequestProperties extends RequestProperties {
     private String baseUrl;
 
 
+    /**
+     * Constructs the specific properties for an Atlassian product e.g. Confluence or Jira.
+     *
+     * @param baseUrl Url which should be used as base. It is recommend to use a relative one
+     * @param appPrefix Configured url pattern of the servlet configuration
+     * @param local Local to provide the best matching message properties for
+     */
     public AtlassianRequestProperties(
             AtlassianAppServlet appServlet, HttpServletRequest request, String baseUrl, String appPrefix, Locale local) {
 
@@ -36,7 +43,6 @@ public class AtlassianRequestProperties extends RequestProperties {
 
     @Override
     public URI getUri() {
-        // ... enforce to use the configured base url of the underlying system e.g. Confluence instead of url of the http request.
         return super.getUri(baseUrl);
     }
 

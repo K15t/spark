@@ -96,8 +96,8 @@ abstract public class AtlassianAppServlet extends AppServlet implements BundleCo
 
     @Override
     protected RequestProperties getRequestProperties(HttpServletRequest request) {
-        return new AtlassianRequestProperties(
-                this, request, getApplicationProperties().getBaseUrl(UrlMode.RELATIVE), appPrefix, getLocaleResolver().getLocale(request));
+        return new AtlassianRequestProperties(this, request, getApplicationProperties().getBaseUrl(
+                UrlMode.RELATIVE_CANONICAL), appPrefix, getLocaleResolver().getLocale(request));
     }
 
 
