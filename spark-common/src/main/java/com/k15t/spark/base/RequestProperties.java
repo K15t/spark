@@ -3,6 +3,7 @@ package com.k15t.spark.base;
 import org.apache.commons.lang.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.UriBuilder;
 
 import java.net.URI;
 import java.util.Locale;
@@ -123,9 +124,29 @@ public class RequestProperties {
     }
 
 
+    /**
+     * Gets the request uri including query parameters.
+     */
     public URI getUri() {
+        return getUri(null);
+    }
+
+
+    /**
+     * Gets the request uri including query parameters. If the baseUrl is null the base url of the http servlet request will be used.
+     */
+    protected URI getUri(String baseUrl) {
         if (uri == null) {
-            StringBuffer builder = request.getRequestURL();
+            StringBuffer builder;
+            if (baseUrl == null) {
+                builder = request.getRequestURL();
+            } else {
+                builder = new StringBuffer(UriBuilder.fromPath(baseUrl)
+                        .path(getRequest().getServletPath())
+                        .path(getRequest().getPathInfo() != null ? getRequest().getPathInfo() : "")
+                        .build()
+                        .toString());
+            }
             if (request.getQueryString() != null) {
                 builder.append("?");
                 builder.append(request.getQueryString());

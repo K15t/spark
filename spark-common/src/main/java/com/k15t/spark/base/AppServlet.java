@@ -125,7 +125,7 @@ abstract public class AppServlet extends HttpServlet {
 
         if (this.messageBundleProvider != null && this.messageBundleProvider.isMessageBundle(props)) {
             response.setContentType(this.messageBundleProvider.getContentType());
-            IOUtils.write(this.messageBundleProvider.loadBundle(props), response.getOutputStream());
+            IOUtils.write(this.messageBundleProvider.loadBundle(props), response.getOutputStream(), "UTF-8");
             return true;
         }
 

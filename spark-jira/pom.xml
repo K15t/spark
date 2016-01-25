@@ -43,6 +43,6 @@
     </dependencies>
 
     <properties>
-        <jira.version>6.0</jira.version>
+        <jira.version>6.1</jira.version>
     </properties>
 </project>

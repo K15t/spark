@@ -43,7 +43,7 @@ AJS.toInit(function($) {
 
                     if (status == "error") {
                         var dialog = createErrorDialog(angularAppName);
-                        var absoluteAppPath = location.protocol + '://' + location.host + fullAppPath;
+                        var absoluteAppPath = location.protocol + '//' + location.host + fullAppPath;
                         dialog.$titleEl.html('Error');
                         dialog.$contentEl.html(
                             '<h2>Could not load dialog app from \'' + fullAppPath + '\'</h2>' +

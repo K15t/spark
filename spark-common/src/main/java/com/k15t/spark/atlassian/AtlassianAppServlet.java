@@ -2,6 +2,8 @@ package com.k15t.spark.atlassian;
 
 import com.atlassian.plugin.servlet.descriptors.BaseServletModuleDescriptor;
 import com.atlassian.plugins.rest.common.util.ReflectionUtils;
+import com.atlassian.sal.api.ApplicationProperties;
+import com.atlassian.sal.api.UrlMode;
 import com.atlassian.sal.api.auth.LoginUriProvider;
 import com.atlassian.sal.api.message.LocaleResolver;
 import com.atlassian.sal.api.user.UserManager;
@@ -22,6 +24,7 @@ import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.UriBuilder;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -36,6 +39,7 @@ abstract public class AtlassianAppServlet extends AppServlet implements BundleCo
     private ServiceTracker userManagerTracker;
     private ServiceTracker templateRendererTracker;
     private ServiceTracker localeResolverTracker;
+    private ServiceTracker applicationProperties;
 
     private String appPrefix;
     private long pluginModifiedTimestamp;
@@ -92,7 +96,8 @@ abstract public class AtlassianAppServlet extends AppServlet implements BundleCo
 
     @Override
     protected RequestProperties getRequestProperties(HttpServletRequest request) {
-        return new AtlassianRequestProperties(this, request, appPrefix, getLocaleResolver().getLocale(request));
+        return new AtlassianRequestProperties(this, request, getApplicationProperties().getBaseUrl(
+                UrlMode.RELATIVE_CANONICAL), appPrefix, getLocaleResolver().getLocale(request));
     }
 
 
@@ -111,6 +116,7 @@ abstract public class AtlassianAppServlet extends AppServlet implements BundleCo
 
     @Override
     protected String prepareIndexHtml(String indexHtml, RequestProperties props) throws IOException {
+
         Document document = Jsoup.parse(indexHtml, props.getUri().toString());
 
         if (!isDevMode()) {
@@ -165,14 +171,14 @@ abstract public class AtlassianAppServlet extends AppServlet implements BundleCo
 
 
     /**
-     * Change relative references to load CSS from the app servlet.
+     * Change relative references to load js from the app servlet.
      */
     private void fixScriptSrcs(Elements appWrapper) {
         Elements scriptElements = appWrapper.select("script[src$=.js]");
 
         for (Element scriptEl : scriptElements) {
-            // TODO it would be better for HTTP to create paths starting with '/'
-            appWrapper.append("<meta name=\"script\" content=\"" + scriptEl.absUrl("src") + "\"/>");
+            String url = UriBuilder.fromUri(scriptEl.baseUri()).path(scriptEl.attr("src")).build().toString();
+            appWrapper.append("<meta name=\"script\" content=\"" + url + "\"/>");
         }
 
         scriptElements.remove();
@@ -186,8 +192,8 @@ abstract public class AtlassianAppServlet extends AppServlet implements BundleCo
         Elements linkElements = appWrapper.select("link[href$=.css]");
 
         for (Element linkEl : linkElements) {
-            // TODO it would be better for HTTP to create paths starting with '/'
-            linkEl.attr("href", linkEl.absUrl("href"));
+            String url = UriBuilder.fromUri(linkEl.baseUri()).path(linkEl.attr("href")).build().toString();
+            linkEl.attr("href", url);
         }
     }
 
@@ -195,8 +201,6 @@ abstract public class AtlassianAppServlet extends AppServlet implements BundleCo
     /**
      * Override this method to provide parameters to the Velocity context that
      * is used to render the HTML file.
-     *
-     * @param request
      */
     protected Map<String, Object> getVelocityContext(HttpServletRequest request) {
         return Collections.emptyMap();
@@ -230,8 +234,7 @@ abstract public class AtlassianAppServlet extends AppServlet implements BundleCo
     }
 
 
-    private void redirectToLogin(RequestProperties props,
-            HttpServletResponse response) throws IOException {
+    private void redirectToLogin(RequestProperties props, HttpServletResponse response) throws IOException {
         response.sendRedirect(getLoginUriProvider().getLoginUri(props.getUri()).toASCIIString());
     }
 
@@ -251,6 +254,9 @@ abstract public class AtlassianAppServlet extends AppServlet implements BundleCo
 
         localeResolverTracker = new ServiceTracker(bundleContext, LocaleResolver.class.getName(), null);
         localeResolverTracker.open();
+
+        applicationProperties = new ServiceTracker(bundleContext, ApplicationProperties.class.getName(), null);
+        applicationProperties.open();
     }
 
 
@@ -294,14 +300,24 @@ abstract public class AtlassianAppServlet extends AppServlet implements BundleCo
     }
 
 
+    protected ApplicationProperties getApplicationProperties() {
+        Object proxy = applicationProperties.getService();
+        if ((proxy != null) && (proxy instanceof ApplicationProperties)) {
+            return (ApplicationProperties) proxy;
+        } else {
+            throw new RuntimeException("Could not get a valid ApplicationProperties proxy.");
+        }
+    }
+
+
     @Override
     public void destroy() {
         super.destroy();
-
         loginUriProviderTracker.close();
         userManagerTracker.close();
         templateRendererTracker.close();
         localeResolverTracker.close();
+        applicationProperties.close();
     }
 
 }
