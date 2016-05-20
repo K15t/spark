@@ -7,29 +7,75 @@ AJS.toInit(function($) {
 
         var startedApps = {};
 
+        this.loadAppInDialog = function(title, angularAppName, appPath, createOptions, callbackStarted) {
+            var elementIdSparkAppContainer = angularAppName + '-spark-dialog-app-container';
+            var dialog = createDialog(elementIdSparkAppContainer, SPARK.Common.Templates.appBootstrapContainerDialog2WithiFrame({
+                id: elementIdSparkAppContainer,
+                title: title,
+                src: location.protocol + '//' + location.host + appPath,
+                createOptions: createOptions
+            }), createOptions.width, createOptions.height);
+
+            $('#' + elementIdSparkAppContainer + '-iframe').iFrameResize([{
+                log: true,
+                autoResize: true,
+                bodyBackground: 'red',
+                readyCallback: callbackStarted
+            }]);
+
+            dialog.show();
+
+            AJS.$('#closeDialogButton', dialog.$el).click(function(e) {
+                e.preventDefault();
+                dialog.hide();
+            });
+        };
 
         /**
-         * Creates an angular based dialog.
+         * Bootstraps an Angular application.
          *
          * @param element Dom element under which the angular application should be attached and bootstrapped
          * @param angularAppName Name of the angular application to bootstrap
          * @param appPath application path which will be used to load the necessary angular resources
          * @param callbackStarted Callback which will be called after the angular application was successfully started
+         * @param createOptions Advanced configuration for setting up the the dialog. Currently supported are:
+         *        openInIframe true in case to open the app in a iframe
+         *        width width of the dialog or iframe
+         *        height height of the dialog or iframe
          */
-        this.createDialog = function(element, angularAppName, appPath, callbackStarted) {
+        this.loadApp = function(element, angularAppName, appPath, createOptions, callbackStarted) {
 
             // append trailing slash if not there.
-            var fullAppPath = contextPath + (/\/$/.test(appPath) ? appPath : appPath + '/');
+            var fullAppPath = contextPath + (/\/$/.test(appPath) || /\.html$/.test(appPath) ? appPath : appPath + '/');
 
-            var elementIdSparkAppContainer = angularAppName + '-dialog-container';
+            var elementIdSparkAppContainer = angularAppName + '-spark-app-container';
             var appContainerAlreadyCreated = $('#' + elementIdSparkAppContainer).length > 0;
 
             if (appContainerAlreadyCreated) {
                 $('#' + elementIdSparkAppContainer).remove();
             }
 
+            if (createOptions !== undefined && createOptions.openInIframe) {
+
+                if (createOptions.width === undefined) {
+                    createOptions.width = '100%';
+                }
+
+                if (createOptions.height === undefined) {
+                    createOptions.height = '100%';
+                }
+
+                $(element).append(SPARK.Common.Templates.appBootstrapContaineriFrame({
+                    id: elementIdSparkAppContainer,
+                    src: location.protocol + '//' + location.host + fullAppPath,
+                    createOptions: createOptions
+                }));
+
+                return;
+            }
+
             $(element).append(SPARK.Common.Templates.appBootstrapContainer({
-                containerId: elementIdSparkAppContainer
+                id: elementIdSparkAppContainer
             }));
 
             // We have to use an additional element (div#spark-dialog-app-wrapper),
@@ -52,7 +98,7 @@ AJS.toInit(function($) {
                         );
                         dialog.show();
 
-                        AJS.$('#closeErrorDialogButton').click(function(e) {
+                        AJS.$('#closeErrorDialogButton', dialog.$el).click(function(e) {
                             e.preventDefault();
                             dialog.hide();
                         });
@@ -88,33 +134,47 @@ AJS.toInit(function($) {
             return startedApps[angularAppName];
         };
 
-        var createErrorDialog = function(dialogId) {
+
+        var createErrorDialog = function(id) {
+            var dialog;
+
+            if (AJS.dialog2) {
+                dialog = createDialog(id, SPARK.Common.Templates.errorDialog2({
+                    id: id,
+                    title: 'An error happened ...'
+                }));
+            } else {
+                dialog = createDialog(id, SPARK.Common.Templates.errorDialog({
+                    title: 'An error happened ...'
+                }), 800, 500);
+            }
+
+            $('.aui-blanket').addClass('spark-loading');
+
+            return dialog;
+        };
+
+
+        var createDialog = function(id, dialogMarkup, width, height) {
 
             var dialog;
 
             if (AJS.dialog2) {
-                $('body').append(SPARK.Common.Templates.errorDialog2({
-                    dialogId: dialogId
-                }));
-                dialog = AJS.dialog2('#' + dialogId);
+                $('body').append(dialogMarkup);
+                dialog = AJS.dialog2('#' + id);
                 dialog.$appEl = dialog.$el;
-                dialog.$titleEl = $('h2:contains({{app.title}})', dialog.$appEl);
                 dialog.$contentEl = $('.spark-app-content', dialog.$appEl);
-
             } else {
                 dialog = new AJS.Dialog({
-                    width: 800,
-                    height: 500,
-                    id: dialogId
+                    width: width,
+                    height: height,
+                    id: id
                 });
                 dialog.$appEl = dialog.popup.element;
-                dialog.$appEl.html(SPARK.Common.Templates.errorDialog());
-                dialog.$titleEl = $('h2:contains({{app.title}})', dialog.$appEl);
+                dialog.$appEl.html(dialogMarkup);
                 dialog.$contentEl = $('.spark-app-content', dialog.$appEl);
                 dialog.$contentEl.height(dialog.$appEl.height() - 105);
             }
-
-            $('.aui-blanket').addClass('spark-loading');
 
             return dialog;
         };
@@ -135,7 +195,7 @@ AJS.toInit(function($) {
 
     // init SPARK context ==================================================================
 
-    if(window.SPARK === undefined) {
+    if (window.SPARK === undefined) {
         window.SPARK = {};
     }
 

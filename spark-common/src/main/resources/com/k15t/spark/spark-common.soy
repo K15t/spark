@@ -1,23 +1,61 @@
 {namespace SPARK.Common.Templates}
 
 /**
+ * @param id Id of the HTML element
+ * @param src
+ * @param createOptions
+ */
+{template .appBootstrapContaineriFrame}
+    <iframe id="{$id}-iframe" src="{$src}" width="100%" height="{$createOptions.height}" scrolling="no">
+    </iframe>
+{/template}
+
+/**
+ * Template to create an error dialog 2
+ * @param id
+ * @param title
+ * @param src
+ * @param createOptions
+ */
+{template .appBootstrapContainerDialog2WithiFrame}
+    <section role="dialog" id="{$id}" class="aui-layer aui-dialog2 aui-dialog2-medium" aria-hidden="true">
+        <header class="aui-dialog2-header">
+            <h2 class="aui-dialog2-header-main">{$title}</h2>
+        </header>
+        <div class="aui-dialog2-content spark-app-content">
+            {call .appBootstrapContaineriFrame}
+                {param id: $id/}
+                {param src: $src /}
+                {param createOptions: $createOptions /}
+            {/call}
+        </div>
+        <footer class="aui-dialog2-footer">
+            <div class="aui-dialog2-footer-actions">
+                <button id="closeDialogButton" class="aui-button aui-button-link">Close</button>
+            </div>
+        </footer>
+    </section>
+{/template}
+
+/**
  * Template to create a general container for starting a SPARK application
  * @param containerId Id of the HTML element
  */
 {template .appBootstrapContainer}
-    <div id="{$containerId}" ng-cloak>
-    </div>
+    <div id="{$containerId}" ng-cloak></div>
 {/template}
 
 
 /**
  * Template to create an error dialog 2
- * @param dialogId
+ *
+ * @param id
+ * @param title
  */
 {template .errorDialog2}
-    <section role="dialog" id="{$dialogId}" class="aui-layer aui-dialog2 aui-dialog2-medium" aria-hidden="true">
+    <section role="dialog" id="{$id}" class="aui-layer aui-dialog2 aui-dialog2-medium" aria-hidden="true">
         <header class="aui-dialog2-header">
-            <h2 class="aui-dialog2-header-main">{lb}{lb}app.title{rb}{rb}</h2>
+            <h2 class="aui-dialog2-header-main">{$title}</h2>
         </header>
         <div class="aui-dialog2-content spark-app-content"></div>
         <footer class="aui-dialog2-footer">
@@ -31,15 +69,12 @@
 
 /**
  * Template to create an error dialog 1
+ *
+ * @param title
  */
 {template .errorDialog}
     <div class="dialog-components">
-        <h2 class="dialog-title">
-            <div class="dialog-help-link" ng-show="app.helpLink">
-                <a href="{lb}{lb}app.helpLink{rb}{rb}" target="_blank">Help</a>
-            </div>
-            {lb}{lb}app.title{rb}{rb}
-        </h2>
+        <h2 class="dialog-title">{$title}</h2>
         <div class="dialog-page-body">
             <div class="dialog-panel-body spark-app-content">
             </div>

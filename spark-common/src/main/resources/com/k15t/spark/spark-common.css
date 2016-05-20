@@ -7,3 +7,11 @@
 [ng-cloak] ~ .aui-blanket.spark-loading {
     background-color: white;
 }
+
+.spark-app-iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: transparent;
+    z-index: 9000;
+}
