@@ -19,7 +19,6 @@ AJS.toInit(function($) {
             $('#' + elementIdSparkAppContainer + '-iframe').iFrameResize([{
                 log: true,
                 autoResize: true,
-                bodyBackground: 'red',
                 readyCallback: callbackStarted
             }]);
 
