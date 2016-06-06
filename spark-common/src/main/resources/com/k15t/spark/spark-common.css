@@ -9,9 +9,10 @@
 }
 
 .spark-app-iframe {
-    position: absolute;
+    /*position: absolute;
     top: 0;
     left: 0;
     background: transparent;
-    z-index: 9000;
+    z-index: 9000;*/
+    border: none;
 }
