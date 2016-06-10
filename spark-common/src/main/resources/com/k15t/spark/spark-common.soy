@@ -6,7 +6,8 @@
  * @param createOptions
  */
 {template .appBootstrapContaineriFrame}
-    <iframe id="{$id}-iframe" class="spark-app-iframe" src="{$src}" width="100%" height="{$createOptions.height}" scrolling="no">
+    <iframe id="{$id}-iframe" class="spark-app-iframe" src="{$src}" width="{$createOptions.width}"
+            height="100%" scrolling="no">
     </iframe>
 {/template}
 
@@ -18,11 +19,13 @@
  * @param createOptions
  */
 {template .appBootstrapContainerDialog2WithiFrame}
-    <section role="dialog" id="{$id}" class="aui-layer aui-dialog2 aui-dialog2-medium" aria-hidden="true">
+    <section role="dialog" id="{$id}" class="aui-layer aui-dialog2" style="width:{$createOptions.width};"
+             aria-hidden="true">
         <header class="aui-dialog2-header">
             <h2 class="aui-dialog2-header-main">{$title}</h2>
         </header>
-        <div class="aui-dialog2-content spark-app-content">
+        <div class="aui-dialog2-content spark-app-content"
+             style="padding: 0; width:{$createOptions.width}; height: {$createOptions.height}; overflow: hidden;">
             {call .appBootstrapContaineriFrame}
                 {param id: $id/}
                 {param src: $src /}
@@ -31,7 +34,10 @@
         </div>
         <footer class="aui-dialog2-footer">
             <div class="aui-dialog2-footer-actions">
-                <button id="closeDialogButton" class="aui-button aui-button-link">Close</button>
+                {if $createOptions.showSubmitButton}
+                    <button id="submitDialogButton{$id}" class="aui-button aui-button">{$createOptions.label.submit}</button>
+                {/if}
+                <button id="closeDialogButton{$id}" class="aui-button aui-button-link">{$createOptions.label.close}</button>
             </div>
         </footer>
     </section>

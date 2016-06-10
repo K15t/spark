@@ -7,8 +7,27 @@ AJS.toInit(function($) {
 
         var startedApps = {};
 
-        this.loadAppInDialog = function(title, angularAppName, appPath, createOptions, callbackStarted) {
+        var startedAppDialog;
+
+        var defaultDialogOptions = {
+            width: '1000px',
+            height: '500px',
+            label: {
+                submit: 'Save',
+                close: 'Close'
+            }
+        };
+
+        this.loadAppInDialog = function(title, angularAppName, appPath, createOptions, startedCallback) {
+
+            if (startedAppDialog) {
+                startedAppDialog.$el.remove();
+                startedAppDialog = undefined;
+            }
+
+            createOptions = $.extend(defaultDialogOptions, createOptions);
             var elementIdSparkAppContainer = angularAppName + '-spark-dialog-app-container';
+
             var dialog = createDialog(elementIdSparkAppContainer, SPARK.Common.Templates.appBootstrapContainerDialog2WithiFrame({
                 id: elementIdSparkAppContainer,
                 title: title,
@@ -16,18 +35,39 @@ AJS.toInit(function($) {
                 createOptions: createOptions
             }), createOptions.width, createOptions.height);
 
-            $('#' + elementIdSparkAppContainer + '-iframe').iFrameResize([{
+            var closeDialogButton = AJS.$('#closeDialogButton' + elementIdSparkAppContainer, dialog.$el);
+            var submitDialogButton = AJS.$('#submitDialogButton' + elementIdSparkAppContainer, dialog.$el);
+            var iFrameContent = AJS.$('#' + elementIdSparkAppContainer + '-iframe');
+
+            closeDialogButton.click(function(e) {
+                dialog.close();
+            });
+
+            dialog['close'] = function() {
+                dialog.hide();
+                iFrameContent.remove();
+            };
+
+            dialog['getButton'] = function(type) {
+                if (type === 'submit') {
+                    return submitDialogButton;
+                } else {
+                    return closeDialogButton;
+                }
+            };
+
+            startedAppDialog = dialog;
+
+            iFrameContent.iFrameResize([{
                 log: true,
-                autoResize: true,
-                readyCallback: callbackStarted
+                autoResize: true
             }]);
 
             dialog.show();
 
-            AJS.$('#closeDialogButton', dialog.$el).click(function(e) {
-                e.preventDefault();
-                dialog.hide();
-            });
+            if (startedCallback) {
+                startedCallback(dialog, iFrameContent);
+            }
         };
 
         /**
@@ -56,18 +96,10 @@ AJS.toInit(function($) {
 
             if (createOptions !== undefined && createOptions.openInIframe) {
 
-                if (createOptions.width === undefined) {
-                    createOptions.width = '100%';
-                }
-
-                if (createOptions.height === undefined) {
-                    createOptions.height = '100%';
-                }
-
                 $(element).append(SPARK.Common.Templates.appBootstrapContaineriFrame({
                     id: elementIdSparkAppContainer,
                     src: location.protocol + '//' + location.host + fullAppPath,
-                    createOptions: createOptions
+                    createOptions: $.extend(defaultDialogOptions, createOptions)
                 }));
 
                 return;
@@ -134,6 +166,11 @@ AJS.toInit(function($) {
         };
 
 
+        this.getAppDialog = function() {
+            return startedAppDialog;
+        };
+
+
         var createErrorDialog = function(id) {
             var dialog;
 
@@ -154,7 +191,7 @@ AJS.toInit(function($) {
         };
 
 
-        var createDialog = function(id, dialogMarkup, width, height) {
+        var createDialog = function(id, dialogMarkup, cssClass, width, height) {
 
             var dialog;
 
