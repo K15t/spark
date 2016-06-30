@@ -2,7 +2,6 @@ AJS.toInit(function($) {
 
     'use strict';
 
-
     function AppLoader() {
 
         var startedApps = {};
@@ -18,6 +17,15 @@ AJS.toInit(function($) {
             }
         };
 
+        /**
+         * Open a dialog and bootstrap the application within a encapsulated iframe.
+         *
+         * @param title Title of the dialog
+         * @param angularAppName Name of the angular application to bootstrap
+         * @param appPath application path which will be used to load the necessary angular resources
+         * @param callbackStarted Callback which will be called after the angular application was successfully started
+         * @param createOptions see defaultDialogOptions
+         */
         this.loadAppInDialog = function(title, angularAppName, appPath, createOptions, startedCallback) {
 
             if (startedAppDialog) {
@@ -235,8 +243,8 @@ AJS.toInit(function($) {
         window.SPARK = {};
     }
 
-    if (window.SPARK.appLoader === undefined) {
-        window.SPARK.appLoader = new AppLoader();
+    if (window.SPARK.appLoader2 === undefined) {
+        window.SPARK.appLoader2 = new AppLoader();
     }
 
 })(AJS.$);
