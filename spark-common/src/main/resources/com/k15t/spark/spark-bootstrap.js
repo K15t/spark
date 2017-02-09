@@ -237,6 +237,79 @@ AJS.toInit(function($) {
         };
     }
 
+    var initIframeAppLoader = function() {
+
+        /**
+         * Creates a fullscreen iframe that will load the js app in given path.
+         *
+         * Simulates (quite loosely) how fullscreen dialog with an iframe
+         * in Atlassian Connect would work.
+         *
+         * @param appName name of the app (used as prefix for eg. element ids)
+         * @param appPath relative path from which the iframe content is to be loaded
+         */
+        var initInFullDialog = function(appName, appPath) {
+
+            var bodyEl = $('body');
+
+            var fullAppPath = AJS.contextPath() + appPath;
+
+            var elementIdSparkAppContainer = appName + '-spark-app-container';
+
+            // make sure that element with the id is not already there
+            // (in normal operation it is removed on dialog close)
+            var oldAppWrapper = $('#' + elementIdSparkAppContainer);
+            if (oldAppWrapper.length > 0) {
+                oldAppWrapper.remove();
+            }
+
+            // init a fullscreen dialog wrapper and iframe and add to body
+            var iframeWrapperElement = $(SPARK.Common.Templates.appFullscreenContaineriFrame({
+                id: elementIdSparkAppContainer,
+                src: location.protocol + '//' + location.host + fullAppPath
+            }));
+            iframeWrapperElement.appendTo(bodyEl);
+
+            // add needed extras to the loaded iframe
+
+            var iframeElement = iframeWrapperElement.find('iframe');
+
+            var iframeCloser = function() {
+                iframeWrapperElement.remove();
+            };
+
+            iframeElement.ready(function() {
+
+                // access the DOM of the js app loaded into the iframe and push
+                // an object into that context giving a simple way for the loaded
+                // app to eg. tell the parent window to close the dialog (and the iframe)
+
+                // should work as long as the parent and the app in the iframe share
+                // the same origin (which should be true for all SPARK apps)
+
+                var iframeDomEl = iframeElement.get()[0];
+                var iw = iframeDomEl.contentWindow ? iframeDomEl.contentWindow :
+                    iframeDomEl.contentDocument.defaultView;
+
+                if (!iw.SPARK) {
+                    iw.SPARK = {};
+                }
+                iw.SPARK.iframeControls = {
+                    'closeDialog': iframeCloser
+                };
+
+            });
+
+            // TODO return something?
+
+        };
+
+        return {
+            'initInFullDialog': initInFullDialog
+        };
+
+    };
+
     // init SPARK context ==================================================================
 
     if (window.SPARK === undefined) {
@@ -245,6 +318,7 @@ AJS.toInit(function($) {
 
     if (window.SPARK.appLoader2 === undefined) {
         window.SPARK.appLoader2 = new AppLoader();
+        window.SPARK.iframeAppLoader = initIframeAppLoader();
     }
 
 })(AJS.$);

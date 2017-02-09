@@ -16,3 +16,25 @@
     z-index: 9000;*/
     border: none;
 }
+
+/*
+ * Styles for iframe (full screen) dialog emulating Atlassian Connect
+ */
+
+.spark-fullscreen-wrapper {
+    position: fixed;
+    z-index: 9000;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: transparent;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+.spark-fullscreen-iframe {
+    width: 100%;
+    min-height: 100%;
+}
