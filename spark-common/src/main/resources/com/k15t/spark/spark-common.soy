@@ -97,7 +97,9 @@
  */
 {template .appFullscreenContaineriFrame}
     <div id="{$id}" class="spark-fullscreen-wrapper">
-        <iframe id="{$id}-iframe" class="spark-fullscreen-iframe" src="{$src}" scrolling="no">
-        </iframe>
+        <div class="spark-fullscreen-scroll-wrapper">
+            <iframe id="{$id}-iframe" class="spark-fullscreen-iframe" src="{$src}" scrolling="no">
+            </iframe>
+        </div>
     </div>
 {/template}

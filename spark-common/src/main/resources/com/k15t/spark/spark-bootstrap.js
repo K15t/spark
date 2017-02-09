@@ -273,12 +273,16 @@ AJS.toInit(function($) {
             // add needed extras to the loaded iframe
 
             var iframeElement = iframeWrapperElement.find('iframe');
+            var iframeDomEl = iframeElement.get()[0];
 
             // to remove scrollers from content below the iframe dialog
             bodyEl.addClass('spark-no-scroll');
 
             var iframeCloser = function() {
                 bodyEl.removeClass('spark-no-scroll');
+                if (iframeDomEl.iFrameResizer) {
+                    iframeDomEl.iFrameResizer.close();
+                }
                 iframeWrapperElement.remove();
             };
 
@@ -291,7 +295,6 @@ AJS.toInit(function($) {
                 // should work as long as the parent and the app in the iframe share
                 // the same origin (which should be true for all SPARK apps)
 
-                var iframeDomEl = iframeElement.get()[0];
                 var iw = iframeDomEl.contentWindow ? iframeDomEl.contentWindow :
                     iframeDomEl.contentDocument.defaultView;
 
@@ -301,6 +304,13 @@ AJS.toInit(function($) {
                 iw.SPARK.iframeControls = {
                     'closeDialog': iframeCloser
                 };
+
+                if (iframeElement.iFrameResize) {
+                    iframeElement.iFrameResize([{
+                        'autoResize': true,
+                        'heightCalculationMethod': 'max'
+                    }]);
+                }
 
             });
 
