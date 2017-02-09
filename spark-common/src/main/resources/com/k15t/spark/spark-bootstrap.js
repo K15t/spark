@@ -274,7 +274,11 @@ AJS.toInit(function($) {
 
             var iframeElement = iframeWrapperElement.find('iframe');
 
+            // to remove scrollers from content below the iframe dialog
+            bodyEl.addClass('spark-no-scroll');
+
             var iframeCloser = function() {
+                bodyEl.removeClass('spark-no-scroll');
                 iframeWrapperElement.remove();
             };
 

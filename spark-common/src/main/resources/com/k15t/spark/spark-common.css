@@ -21,6 +21,10 @@
  * Styles for iframe (full screen) dialog emulating Atlassian Connect
  */
 
+.spark-no-scroll {
+    overflow: hidden;
+}
+
 .spark-fullscreen-wrapper {
     position: fixed;
     z-index: 9000;
