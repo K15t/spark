@@ -49,3 +49,14 @@
         </div>
     </div>
 {/template}
+
+/**
+ * @param id Id of the HTML element
+ * @param src URL of the content to load to the iframe
+ */
+{template .appFullscreenContaineriFrame}
+    <div id="{$id}" class="spark-fullscreen-wrapper">
+        <iframe id="{$id}-iframe" class="spark-fullscreen-iframe" src="{$src}" scrolling="no">
+        </iframe>
+    </div>
+{/template}
