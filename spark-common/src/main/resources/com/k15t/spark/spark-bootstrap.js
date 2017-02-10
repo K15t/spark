@@ -2,34 +2,119 @@ AJS.toInit(function($) {
 
     'use strict';
 
-
     function AppLoader() {
 
         var startedApps = {};
 
+        var startedAppDialog;
+
+        var defaultDialogOptions = {
+            width: '1000px',
+            height: '500px',
+            label: {
+                submit: 'Save',
+                close: 'Close'
+            }
+        };
 
         /**
-         * Creates an angular based dialog.
+         * Open a dialog and bootstrap the application within a encapsulated iframe.
+         *
+         * @param title Title of the dialog
+         * @param angularAppName Name of the angular application to bootstrap
+         * @param appPath application path which will be used to load the necessary angular resources
+         * @param callbackStarted Callback which will be called after the angular application was successfully started
+         * @param createOptions see defaultDialogOptions
+         */
+        this.loadAppInDialog = function(title, angularAppName, appPath, createOptions, startedCallback) {
+
+            if (startedAppDialog) {
+                startedAppDialog.$el.remove();
+                startedAppDialog = undefined;
+            }
+
+            createOptions = $.extend(defaultDialogOptions, createOptions);
+            var elementIdSparkAppContainer = angularAppName + '-spark-dialog-app-container';
+
+            var dialog = createDialog(elementIdSparkAppContainer, SPARK.Common.Templates.appBootstrapContainerDialog2WithiFrame({
+                id: elementIdSparkAppContainer,
+                title: title,
+                src: location.protocol + '//' + location.host + appPath,
+                createOptions: createOptions
+            }), createOptions.width, createOptions.height);
+
+            var closeDialogButton = AJS.$('#closeDialogButton' + elementIdSparkAppContainer, dialog.$el);
+            var submitDialogButton = AJS.$('#submitDialogButton' + elementIdSparkAppContainer, dialog.$el);
+            var iFrameContent = AJS.$('#' + elementIdSparkAppContainer + '-iframe');
+
+            closeDialogButton.click(function(e) {
+                dialog.close();
+            });
+
+            dialog['close'] = function() {
+                dialog.hide();
+                iFrameContent.remove();
+            };
+
+            dialog['getButton'] = function(type) {
+                if (type === 'submit') {
+                    return submitDialogButton;
+                } else {
+                    return closeDialogButton;
+                }
+            };
+
+            startedAppDialog = dialog;
+
+            iFrameContent.iFrameResize([{
+                log: true,
+                autoResize: true
+            }]);
+
+            dialog.show();
+
+            if (startedCallback) {
+                startedCallback(dialog, iFrameContent);
+            }
+        };
+
+        /**
+         * Bootstraps an Angular application.
          *
          * @param element Dom element under which the angular application should be attached and bootstrapped
          * @param angularAppName Name of the angular application to bootstrap
          * @param appPath application path which will be used to load the necessary angular resources
          * @param callbackStarted Callback which will be called after the angular application was successfully started
+         * @param createOptions Advanced configuration for setting up the the dialog. Currently supported are:
+         *        openInIframe true in case to open the app in a iframe
+         *        width width of the dialog or iframe
+         *        height height of the dialog or iframe
          */
-        this.createDialog = function(element, angularAppName, appPath, callbackStarted) {
+        this.loadApp = function(element, angularAppName, appPath, createOptions, callbackStarted) {
 
             // append trailing slash if not there.
-            var fullAppPath = contextPath + (/\/$/.test(appPath) ? appPath : appPath + '/');
+            var fullAppPath = contextPath + (/\/$/.test(appPath) || /\.html$/.test(appPath) ? appPath : appPath + '/');
 
-            var elementIdSparkAppContainer = angularAppName + '-dialog-container';
+            var elementIdSparkAppContainer = angularAppName + '-spark-app-container';
             var appContainerAlreadyCreated = $('#' + elementIdSparkAppContainer).length > 0;
 
             if (appContainerAlreadyCreated) {
                 $('#' + elementIdSparkAppContainer).remove();
             }
 
+            if (createOptions !== undefined && createOptions.openInIframe) {
+
+                $(element).append(SPARK.Common.Templates.appBootstrapContaineriFrame({
+                    id: elementIdSparkAppContainer,
+                    src: location.protocol + '//' + location.host + fullAppPath,
+                    createOptions: $.extend(defaultDialogOptions, createOptions)
+                }));
+
+                return;
+            }
+
             $(element).append(SPARK.Common.Templates.appBootstrapContainer({
-                containerId: elementIdSparkAppContainer
+                id: elementIdSparkAppContainer
             }));
 
             // We have to use an additional element (div#spark-dialog-app-wrapper),
@@ -52,7 +137,7 @@ AJS.toInit(function($) {
                         );
                         dialog.show();
 
-                        AJS.$('#closeErrorDialogButton').click(function(e) {
+                        AJS.$('#closeErrorDialogButton', dialog.$el).click(function(e) {
                             e.preventDefault();
                             dialog.hide();
                         });
@@ -88,33 +173,52 @@ AJS.toInit(function($) {
             return startedApps[angularAppName];
         };
 
-        var createErrorDialog = function(dialogId) {
+
+        this.getAppDialog = function() {
+            return startedAppDialog;
+        };
+
+
+        var createErrorDialog = function(id) {
+            var dialog;
+
+            if (AJS.dialog2) {
+                dialog = createDialog(id, SPARK.Common.Templates.errorDialog2({
+                    id: id,
+                    title: 'An error happened ...'
+                }));
+            } else {
+                dialog = createDialog(id, SPARK.Common.Templates.errorDialog({
+                    title: 'An error happened ...'
+                }), 800, 500);
+            }
+
+            $('.aui-blanket').addClass('spark-loading');
+
+            return dialog;
+        };
+
+
+        var createDialog = function(id, dialogMarkup, cssClass, width, height) {
 
             var dialog;
 
             if (AJS.dialog2) {
-                $('body').append(SPARK.Common.Templates.errorDialog2({
-                    dialogId: dialogId
-                }));
-                dialog = AJS.dialog2('#' + dialogId);
+                $('body').append(dialogMarkup);
+                dialog = AJS.dialog2('#' + id);
                 dialog.$appEl = dialog.$el;
-                dialog.$titleEl = $('h2:contains({{app.title}})', dialog.$appEl);
                 dialog.$contentEl = $('.spark-app-content', dialog.$appEl);
-
             } else {
                 dialog = new AJS.Dialog({
-                    width: 800,
-                    height: 500,
-                    id: dialogId
+                    width: width,
+                    height: height,
+                    id: id
                 });
                 dialog.$appEl = dialog.popup.element;
-                dialog.$appEl.html(SPARK.Common.Templates.errorDialog());
-                dialog.$titleEl = $('h2:contains({{app.title}})', dialog.$appEl);
+                dialog.$appEl.html(dialogMarkup);
                 dialog.$contentEl = $('.spark-app-content', dialog.$appEl);
                 dialog.$contentEl.height(dialog.$appEl.height() - 105);
             }
-
-            $('.aui-blanket').addClass('spark-loading');
 
             return dialog;
         };
@@ -135,12 +239,12 @@ AJS.toInit(function($) {
 
     // init SPARK context ==================================================================
 
-    if(window.SPARK === undefined) {
+    if (window.SPARK === undefined) {
         window.SPARK = {};
     }
 
-    if (window.SPARK.appLoader === undefined) {
-        window.SPARK.appLoader = new AppLoader();
+    if (window.SPARK.appLoader2 === undefined) {
+        window.SPARK.appLoader2 = new AppLoader();
     }
 
 })(AJS.$);

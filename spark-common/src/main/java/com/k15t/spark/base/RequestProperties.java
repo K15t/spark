@@ -14,6 +14,8 @@ public class RequestProperties {
 
     protected static final Pattern CACHE_KEY_PATTERN = Pattern.compile("^/_/[^/]+/[^/]+/");
 
+    private Boolean loadAsIframe = false;
+
     protected final AppServlet appServlet;
     protected final HttpServletRequest request;
 
@@ -163,6 +165,14 @@ public class RequestProperties {
             this.locale = request.getLocale();
         }
         return locale;
+    }
+
+
+    public boolean shouldLoadAsIframe() {
+        if (this.loadAsIframe == null) {
+            this.loadAsIframe = Boolean.valueOf(request.getParameter("loadAsIframe"));
+        }
+        return loadAsIframe;
     }
 
 
