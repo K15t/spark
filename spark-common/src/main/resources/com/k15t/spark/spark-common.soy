@@ -100,17 +100,19 @@
     <div id="{$id}" class="spark-fullscreen-wrapper">
         {if $createOptions.addChrome}
         <div class="spark-fullscreen-chrome">
-            <div>
-                <button id="{$id}-chrome-submit">
+            <div class="spark-fullscreen-chrome-btnwrap">
+                <button id="{$id}-chrome-submit"
+                    class="aui-button aui-icon aui-icon-small aui-iconfont-success">
                     "Submit"
                 </button>
-                <button id="{$id}-chrome-cancel">
+                <button id="{$id}-chrome-cancel"
+                    class="aui-button aui-icon aui-icon-small aui-iconfont-close-dialog">
                     "Cancel"
                 </button>
             </div>
         </div>
         {/if}
-        <div class="spark-fullscreen-scroll-wrapper">
+        <div class="spark-fullscreen-scroll-wrapper {if $createOptions.addChrome}spark-fullscreen-haschrome{/if}">
             <iframe id="{$id}-iframe" class="spark-fullscreen-iframe" src="{$src}" scrolling="no">
             </iframe>
         </div>

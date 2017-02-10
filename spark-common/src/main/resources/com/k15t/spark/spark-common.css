@@ -55,3 +55,48 @@
     margin: 0;
     overflow: hidden;
 }
+
+/*
+ * Styling to imitate dialog chrome styling from Atlassian Connect (at least
+ * one specific version).
+ * If an add-on would like to override these styles, it could be done by
+ * prefixing with the predictable 'app-id' that will be added as an id
+ * to the main dialog wrapper div.
+ */
+
+.spark-fullscreen-scroll-wrapper.spark-fullscreen-haschrome {
+    height: calc(100% - 51px);
+}
+
+.spark-fullscreen-chrome {
+    width: 100%;
+    background: black;
+    height: 50px;
+    margin: 0;
+    padding: 0;
+    border: none;
+    border-bottom: 1px solid rgb(204, 204, 204);
+}
+
+.spark-fullscreen-chrome-btnwrap {
+    float: right;
+    margin: 0;
+    padding: 0;
+    height: 50px;
+}
+
+.spark-fullscreen-chrome-btnwrap .aui-icon-small::before {
+    margin-left: 16px;
+}
+
+.spark-fullscreen-chrome-btnwrap .aui-button {
+    height: 50px;
+    width: 50px;
+    border: none;
+    border-left: 1px solid #333;
+    border-radius: 0;
+    float: left;
+    margin-left: 0;
+    background: black;
+    color: white;
+}
