@@ -53,9 +53,22 @@
 /**
  * @param id Id of the HTML element
  * @param src URL of the content to load to the iframe
+ * @param createOptions extra options to customize the dialog
  */
 {template .appFullscreenContaineriFrame}
     <div id="{$id}" class="spark-fullscreen-wrapper">
+        {if $createOptions.addChrome}
+        <div class="spark-fullscreen-chrome">
+            <div>
+                <button id="{$id}-chrome-submit">
+                    "Submit"
+                </button>
+                <button id="{$id}-chrome-cancel">
+                    "Cancel"
+                </button>
+            </div>
+        </div>
+        {/if}
         <div class="spark-fullscreen-scroll-wrapper">
             <iframe id="{$id}-iframe" class="spark-fullscreen-iframe" src="{$src}" scrolling="no">
             </iframe>

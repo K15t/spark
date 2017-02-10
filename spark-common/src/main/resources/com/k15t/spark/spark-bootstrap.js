@@ -142,16 +142,22 @@ AJS.toInit(function($) {
          * Simulates (quite loosely) how fullscreen dialog with an iframe
          * in Atlassian Connect would work.
          *
+         * A chrome bar with can be added to the dialog by specifying 'addChrome': true
+         * in the 'dialogOptions' object.
+         *
          * @param appName name of the app (used as prefix for eg. element ids)
          * @param appPath relative path from which the iframe content is to be loaded
+         * @param dialogOptions optional extra parameters for dialog creation
          */
-        var initInFullDialog = function(appName, appPath) {
+        var initInFullDialog = function(appName, appPath, dialogOptions) {
 
             var bodyEl = $('body');
 
             var fullAppPath = AJS.contextPath() + appPath;
 
             var elementIdSparkAppContainer = appName + '-spark-app-container';
+
+            var dialogSettings = $.extend({'addChrome': false}, dialogOptions);
 
             // make sure that element with the id is not already there
             // (in normal operation it is removed on dialog close)
@@ -162,8 +168,9 @@ AJS.toInit(function($) {
 
             // init a fullscreen dialog wrapper and iframe and add to body
             var iframeWrapperElement = $(SPARK.Common.Templates.appFullscreenContaineriFrame({
-                id: elementIdSparkAppContainer,
-                src: location.protocol + '//' + location.host + fullAppPath
+                'id': elementIdSparkAppContainer,
+                'src': location.protocol + '//' + location.host + fullAppPath,
+                'createOptions': dialogSettings
             }));
             iframeWrapperElement.appendTo(bodyEl);
 
@@ -183,6 +190,18 @@ AJS.toInit(function($) {
                 iframeWrapperElement.remove();
             };
 
+            // add an easy way for the contained iframe to access the dialog chrome (if added)
+            var dialogChrome = null;
+            if ( dialogSettings.addChrome ) {
+                // TODO is it okay to share jQuery objects between frames (would plain JS be safer)?
+                dialogChrome = {
+                    'cancelBtn':
+                        iframeWrapperElement.find('#' + elementIdSparkAppContainer + '-chrome-cancel'),
+                    'confirmBtn':
+                        iframeWrapperElement.find('#' + elementIdSparkAppContainer + '-chrome-submit')
+                };
+            }
+
             iframeElement.ready(function() {
 
                 // access the DOM of the js app loaded into the iframe and push
@@ -199,7 +218,8 @@ AJS.toInit(function($) {
                     iw.SPARK = {};
                 }
                 iw.SPARK.iframeControls = {
-                    'closeDialog': iframeCloser
+                    'closeDialog': iframeCloser,
+                    'dialogChrome': dialogChrome
                 };
 
                 if (iframeElement.iFrameResize) {
