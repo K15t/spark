@@ -145,6 +145,20 @@ AJS.toInit(function($) {
          * A chrome bar with can be added to the dialog by specifying 'addChrome': true
          * in the 'dialogOptions' object.
          *
+         * A JS-object containing controls for interacting with the parent window (eg. closing
+         * the iframe dialog) will be added into the global scope of the app loaded into
+         * the iframe to path SPARK.iframeControls (this works as the app in the iframe will
+         * be loaded from the same origin as the parent app).
+         *
+         * The SPARK.iframeControls will contain method for closing the dialog 'closeDialog',
+         * and 'dialogChrome' object for controlling possible dialog toolbar. If there is
+         * no toolbar 'dialogChrome' is null, otherwise it will contain references to the buttons
+         * in the dialog chrome ('cancelBtn' and 'confirmBtn').
+         *
+         * It is possible to pass custom extra data to the context of the loaded iframe
+         * by setting an object to dialogOptions.extraData . A reference to this object
+         * will be added to SPARK.iframeControls.extraData in the iframe's context.
+         *
          * @param appName name of the app (used as prefix for eg. element ids)
          * @param appPath relative path from which the iframe content is to be loaded
          * @param dialogOptions optional extra parameters for dialog creation
@@ -219,7 +233,8 @@ AJS.toInit(function($) {
                 }
                 iw.SPARK.iframeControls = {
                     'closeDialog': iframeCloser,
-                    'dialogChrome': dialogChrome
+                    'dialogChrome': dialogChrome,
+                    'extraData': dialogSettings.extraData
                 };
 
                 if (iframeElement.iFrameResize) {
