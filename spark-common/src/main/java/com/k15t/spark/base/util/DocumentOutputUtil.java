@@ -28,4 +28,41 @@ public class DocumentOutputUtil {
         return "_/" + pluginModifiedTimestamp + "/" + locale.toString();
     }
 
+
+    /**
+     * Generates HTML code for an iframe with source at 'appBaseUrl' and tries to also add
+     * automatic iframeResizer functionality
+     *
+     * Generates script node for loading iframeResizer lib (from default path), iframe node
+     * loading the app from appBaseUrl, and script node with bootstrap code for the iframeResizer
+     *
+     * IframeResizer scripts (iframeResizer.min.js and iframeResizer.contentWindow.min.js) have to
+     * be placed at 'appBaseUrl(/)'libs/spark (appBaseUrl should already contain the trailing '/')
+     *
+     * @param appBaseUrl base url for the SPA (must already contain trailing '/')
+     * @param iframeIdToUse id to use for the iframe element
+     * @return the generated HTML code as a string
+     */
+    public static String generateResizedIframeHtml(String appBaseUrl, String iframeIdToUse) {
+
+        // script element trying to load the iframeResizer lib
+        String body = "<script src='" + appBaseUrl + "libs/spark/iframeResizer.min.js'></script>";
+
+        // main iframe element loading the app content with 'iframe_content=true' param
+        body += ("<iframe id='" + iframeIdToUse
+            + "' scrolling='no' style='width: 100%; border: none;' src='"
+            +    appBaseUrl + "?iframe_content=true'>"
+            + "</iframe>");
+
+        // run the iframeResizer initialitazion
+        body += ("<script>\n"
+                + "if (iFrameResize) {\n"
+                + "iFrameResize({'autoResize': true, 'heightCalculationMethod': 'max'}, "
+                + "'#" + iframeIdToUse + "');\n"
+                + "}\n</script>");
+
+        return body;
+
+    }
+
 }

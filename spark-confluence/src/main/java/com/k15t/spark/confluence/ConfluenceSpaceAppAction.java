@@ -169,9 +169,19 @@ public class ConfluenceSpaceAppAction extends AbstractSpaceAction implements Spa
 
 
     private String prepareBody(Document document) throws IOException {
-        fixRelativeReferences(document);
-        moveRequiredHeaderContentToBody(document);
-        return document.body().html();
+
+        if ( isIframeSpaceApp(document) ) {
+
+            String appBaseUrl = getAppBaseUrl(document);
+
+            return DocumentOutputUtil.generateResizedIframeHtml(appBaseUrl, "spark_space_adm_iframe");
+
+        } else {
+
+            fixRelativeReferences(document);
+            moveRequiredHeaderContentToBody(document);
+            return document.body().html();
+        }
     }
 
 
@@ -205,6 +215,15 @@ public class ConfluenceSpaceAppAction extends AbstractSpaceAction implements Spa
 
         return ServletActionContext.getRequest().getContextPath() + "/" +
                 StringUtils.removeStart(baseElement.attr("content"), "/");
+    }
+
+
+    /**
+     * @param document loaded {@link Document}
+     * @return true if the app is marked to be an 'iframe-space-app' (ie. main content should be loaded in an iframe)
+     */
+    private boolean isIframeSpaceApp(Document document) {
+        return (document.select("meta[name=decorator][content=spark.iframe-space-app]").size() != 0);
     }
 
 
