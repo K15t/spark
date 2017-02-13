@@ -123,7 +123,15 @@ abstract public class AtlassianAppServlet extends AppServlet implements BundleCo
             applyCacheKeysToResourceUrls(document, props);
         }
 
-        if (isAdminApp(document)) {
+        if ( isAskingIframeContent(props)) {
+
+            prepareIframeContentIndex(document);
+
+        } else if (isIframeAdminApp(document)) {
+
+            prepareAdminIframeWrapperIndex(document, props);
+
+        } else if (isAdminApp(document)) {
             // The Confluence decorators ignore anything inside the <head> of a velocity template. Thus we
             // move it into the body.
             Elements scriptsAndStyles = document.head().children().not("title,meta,content").remove();
@@ -169,6 +177,99 @@ abstract public class AtlassianAppServlet extends AppServlet implements BundleCo
         return (document.select("meta[name=decorator][content=spark.dialog-app]").size() != 0);
     }
 
+
+    /**
+     * @param document current {@link Document}
+     * @return true if the document contains meta-element marking it as 'iframe-admin-app'
+     */
+    private boolean isIframeAdminApp(Document document) {
+        return (document.select("meta[name=decorator][content=spark.iframe-admin-app]").size() != 0);
+    }
+
+
+    /**
+     * @param properties current {@link RequestProperties}
+     * @return true if the page is meant to be shown in an iframe
+     */
+    private boolean isAskingIframeContent(RequestProperties properties) {
+        String iframeContentValue =
+                properties.getRequest().getParameter("iframe_content");
+
+        return "true".equals(iframeContentValue);
+    }
+
+
+    /**
+     * Removes Atlassian decorators from the document to be served inside the iframe
+     *
+     * All script etc. elements and the main content of the document are left untouched
+     *
+     * Removes all the "meta" elements from the documents head that are not marked to be kept also
+     * for the iframe content by setting an attribute "spark" to value "iframe_keep" on the element.
+     * Also removes "content" elements from the body.
+     *
+     * Correct iframe-resizing operation requires that the libs/spark path contains iframeResizer.min.js and
+     * iframeResizer.contentWindow.min.js files (the required script elements will be added automatically)
+     *
+     * @param document {@link Document} of the index before processing
+     */
+    private void prepareIframeContentIndex(Document document) {
+
+        // remove meta arguments not marked to be kept also in the iframe, and other decorators
+        // also load contentWindow part of the iFrameResizer, otherwise left the app untouched
+
+        document.head().children().select("meta").not("[spark=iframe]").remove();
+        document.head().children().select("meta").removeAttr("spark");
+
+        document.head().append("<script src='libs/spark/iframeResizer.contentWindow.min.js'></script>");
+
+        document.body().children().select("content").remove();
+
+    }
+
+
+    /**
+     * Parse the part of the index document that is to be used as the main level page containing
+     * all needed Atlassian decorators and embedding rest of the content in a iframe
+     *
+     * Removes elements from the head that don't look like Atlassian decorators (eg. scripts and styles),
+     * and also removes meta elements that are marked to be relevant to the iframe content by setting
+     * "spark" attribute
+     *
+     * The body of the index-document will be substituted (except for "content" elements that might contain
+     * instructions for the Atlassian decorators) with an iframe. The same URL of the request will be set
+     * as the source of the iframe but with an extra query parameter telling that it is the content
+     * (then the {@link #prepareIframeContentIndex(Document)} method will be used instead).
+     *
+     * Correct iframe-resizing operation requires that the libs/spark path contains iframeResizer.min.js and
+     * iframeResizer.contentWindow.min.js files (the required script elements will be added automatically)
+     *
+     * @param document {@link Document} of the index before processing
+     * @param props {@link RequestProperties} of the current request
+     */
+    private void prepareAdminIframeWrapperIndex(Document document, RequestProperties props) {
+
+        // remove all the styles and wrappers from the iframe parent, they will only be needed in the actual content iframe
+        document.head().children().not("title,meta,content").remove();
+        // also remove meta attributes that the user has specified to be used when loaded into iframe
+        document.head().children().select("meta").select("[spark=iframe]").remove();
+
+        // fill the body with an iframe that will ask the actual app with 'iframe_content' query parameter
+        // remove all other (non-decorator) content - it will be shown when the app is loaded with iframe_content parameter
+
+        document.body().children().not("content").remove();
+
+        document.body().prepend("<script src='libs/spark/iframeResizer.min.js'></script>");
+
+        document.body().append("<iframe id='spark_admin_iframe' scrolling='no' style='width: 100%; border: none;' src='" +
+                props.getRequest().getRequestURI() + "?iframe_content=true'></iframe>");
+
+        document.body().append("<script>\n"
+                + "if (iFrameResize) {\n"
+                + "iFrameResize({'autoResize': true, 'heightCalculationMethod': 'max'}, '#spark_admin_iframe');\n"
+                + "}\n</script>");
+
+    }
 
     /**
      * Change relative references to load js from the app servlet.
