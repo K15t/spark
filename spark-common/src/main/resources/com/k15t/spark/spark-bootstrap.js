@@ -266,7 +266,7 @@ AJS.toInit(function($) {
          * @param appPath relative path from which the iframe content is to be loaded
          * @param dialogOptions optional extra parameters for dialog creation
          */
-        var initInFullDialog = function(appName, appPath, dialogOptions) {
+        var openFullscreenIframeDialog = function(appName, appPath, dialogOptions) {
 
             var bodyEl = $('body');
 
@@ -310,12 +310,11 @@ AJS.toInit(function($) {
             // add an easy way for the contained iframe to access the dialog chrome (if added)
             var dialogChrome = null;
             if ( dialogSettings.addChrome ) {
-                // TODO is it okay to share jQuery objects between frames (would plain JS be safer)?
+                var cancelBtnDomEl = iframeWrapperElement.find('#' + elementIdSparkAppContainer + '-chrome-cancel').get()[0];
+                var confirmBtnDomEl = iframeWrapperElement.find('#' + elementIdSparkAppContainer + '-chrome-submit').get()[0];
                 dialogChrome = {
-                    'cancelBtn':
-                        iframeWrapperElement.find('#' + elementIdSparkAppContainer + '-chrome-cancel'),
-                    'confirmBtn':
-                        iframeWrapperElement.find('#' + elementIdSparkAppContainer + '-chrome-submit')
+                    'cancelBtn': cancelBtnDomEl,
+                    'confirmBtn': confirmBtnDomEl
                 };
             }
 
@@ -354,7 +353,7 @@ AJS.toInit(function($) {
         };
 
         return {
-            'initInFullDialog': initInFullDialog
+            'openFullscreenIframeDialog': openFullscreenIframeDialog
         };
 
     };
