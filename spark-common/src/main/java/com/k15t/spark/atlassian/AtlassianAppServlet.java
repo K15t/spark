@@ -260,7 +260,8 @@ abstract public class AtlassianAppServlet extends AppServlet implements BundleCo
         document.body().children().not("content").remove();
 
         String iframeHtml = DocumentOutputUtil.generateResizedIframeHtml(
-                props.getRequest().getRequestURI(), "spark_admin_iframe");
+                props.getRequest().getRequestURI(), "spark_admin_iframe",
+                "admin", null);
 
         document.body().append(iframeHtml);
 
