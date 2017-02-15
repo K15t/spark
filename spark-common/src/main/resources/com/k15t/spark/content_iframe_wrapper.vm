@@ -1,0 +1,27 @@
+## appending WithHtml to variable name instructs Velocity not to add html escaping (like & -> &amp;)
+## which would otherwise broke the js embedded this way pretty badly...
+#set($iframeResizerJsWithHtml = $iframeResizerJs)
+<script>
+    ${iframeResizerJsWithHtml}
+</script>
+<iframe id="${iframeId}" scrolling="no" style="width: 100%; border: none;" src="${iframeSrc}"></iframe>
+<script>
+    if (iFrameResize) {
+        iFrameResize({
+            'autoResize': true,
+            'heightCalculationMethod': 'max',
+            'initCallback': function(loadedIframe) {
+                var contentWin = loadedIframe.contentWindow;
+                if (!contentWin.SPARK) {
+                    contentWin.SPARK = {};
+                }
+                contentWin.SPARK.iframeContext = "${escapedIframeContext}";
+                #if($iframeInitCallback)
+                    if ( contentWin.${iframeInitCallback} ) {
+                        contentWin.${iframeInitCallback}();
+                    }
+                #end
+            }
+        });
+    }
+</script>

@@ -247,7 +247,7 @@ abstract public class AtlassianAppServlet extends AppServlet implements BundleCo
      * @param document {@link Document} of the index before processing
      * @param props {@link RequestProperties} of the current request
      */
-    private void prepareAdminIframeWrapperIndex(Document document, RequestProperties props) {
+    private void prepareAdminIframeWrapperIndex(Document document, RequestProperties props) throws IOException {
 
         // remove all the styles and wrappers from the iframe parent, they will only be needed in the actual content iframe
         document.head().children().not("title,meta,content").remove();
@@ -259,9 +259,11 @@ abstract public class AtlassianAppServlet extends AppServlet implements BundleCo
 
         document.body().children().not("content").remove();
 
-        String iframeHtml = DocumentOutputUtil.generateResizedIframeHtml(
-                props.getRequest().getRequestURI(), "spark_admin_iframe",
-                "admin", null);
+        String iframeHtml = getTemplateRenderer().renderFragment(
+                DocumentOutputUtil.getIframeAdminContentWrapperTemplate(),
+                DocumentOutputUtil.generateAdminIframeTemplateContext(
+                        props.getRequest().getRequestURI(), "spark_admin_iframe",
+                        "admin", null));
 
         document.body().append(iframeHtml);
 

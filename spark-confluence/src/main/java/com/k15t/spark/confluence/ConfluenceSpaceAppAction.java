@@ -2,6 +2,7 @@ package com.k15t.spark.confluence;
 
 import com.atlassian.confluence.core.ConfluenceSystemProperties;
 import com.atlassian.confluence.plugin.descriptor.PluginAwareActionConfig;
+import com.atlassian.confluence.util.velocity.VelocityUtils;
 import com.atlassian.confluence.spaces.Space;
 import com.atlassian.confluence.spaces.actions.AbstractSpaceAction;
 import com.atlassian.confluence.spaces.actions.SpaceAware;
@@ -27,6 +28,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Locale;
+import java.util.Map;
 
 
 /**
@@ -175,9 +177,12 @@ public class ConfluenceSpaceAppAction extends AbstractSpaceAction implements Spa
 
             String appBaseUrl = getAppBaseUrl(document);
 
-            return DocumentOutputUtil.generateResizedIframeHtml(
+            String template = DocumentOutputUtil.getIframeAdminContentWrapperTemplate();
+            Map<String, Object> context = DocumentOutputUtil.generateAdminIframeTemplateContext(
                     appBaseUrl, "spark_space_adm_iframe",
                     getIframeContextInfo(), getIframeContextInitializedCallbackName());
+
+            return VelocityUtils.getRenderedContent(template, context);
 
         } else {
 
