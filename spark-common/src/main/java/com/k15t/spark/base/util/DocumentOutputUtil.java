@@ -15,7 +15,12 @@ import java.util.Locale;
 
 public class DocumentOutputUtil {
 
-    private final static Logger logger = LoggerFactory.getLogger(DocumentOutputUtil.class);
+    private static final Logger logger = LoggerFactory.getLogger(DocumentOutputUtil.class);
+
+    private static final String iframeResizeJsPath = "com/k15t/spark/iframeResizer.min.js";
+    private static final String iframeResizeContentWindowJsPath = "com/k15t/spark/iframeResizer.contentWindow.min.js";
+
+    private static final String iframeContentWrapperTemplatePath = "com/k15t/spark/content_iframe_wrapper.vm";
 
     public static void applyCacheKeysToResourceUrls(Document document, long pluginModifiedTimestamp, Locale locale) {
         String cacheKey = getCacheKeyPathSegments(pluginModifiedTimestamp, locale);
@@ -49,8 +54,13 @@ public class DocumentOutputUtil {
         String iframeResizerContentWindowJs = "";
         try ( InputStream iframeResizeContentWindowFile =
                       DocumentOutputUtil.class.getClassLoader().
-                              getResourceAsStream("/com/k15t/spark/iframeResizer.contentWindow.min.js")) {
-            iframeResizerContentWindowJs = IOUtils.toString(iframeResizeContentWindowFile, "UTF-8");
+                              getResourceAsStream(iframeResizeContentWindowJsPath)) {
+            if (iframeResizeContentWindowFile != null) {
+                iframeResizerContentWindowJs = IOUtils.toString(iframeResizeContentWindowFile, "UTF-8");
+            } else {
+                logger.warn("Did not found iframeResize.contentWindow-library resource file from resource path: " +
+                        iframeResizeContentWindowJsPath);
+            }
         } catch (IOException iframeResizeExp) {
             logger.warn("Could not load iframeResize-library", iframeResizeExp);
         }
@@ -75,7 +85,8 @@ public class DocumentOutputUtil {
     public static String getIframeAdminContentWrapperTemplate() throws IOException {
 
         try ( InputStream templateStream =
-                      DocumentOutputUtil.class.getClassLoader().getResourceAsStream("/com/k15t/spark/content_iframe_wrapper.vm") ) {
+                      DocumentOutputUtil.class.getClassLoader().getResourceAsStream(iframeContentWrapperTemplatePath) ) {
+            // TODO if the resource was not found, this will throw null pointer... But can't really continue anyway?
             return IOUtils.toString(templateStream, "UTF-8");
         }
         // TODO could cache to template
@@ -116,14 +127,18 @@ public class DocumentOutputUtil {
 
         // no need to allow all possible js variable names, just a reasonable and safe subset
         if ( initCallbackFunctionName != null && ! initCallbackFunctionName.matches("^[a-zA-Z_$][0-9a-zA-Z_$]*$") ) {
-            logger.warn("Unsafe initCallbackFunctionName, must match '^[a-zA-Z_$][0-9a-zA-Z_$]*$', was: " + initCallbackFunctionName);
+            //logger.warn("Unsafe initCallbackFunctionName, must match '^[a-zA-Z_$][0-9a-zA-Z_$]*$', was: " + initCallbackFunctionName);
             initCallbackFunctionName = null;
         }
 
         String iframeResizerJs = "";
         try ( InputStream iframeResizeFile =
-            DocumentOutputUtil.class.getClassLoader().getResourceAsStream("/com/k15t/spark/iframeResizer.min.js")) {
-            iframeResizerJs = IOUtils.toString(iframeResizeFile, "UTF-8");
+            DocumentOutputUtil.class.getClassLoader().getResourceAsStream(iframeResizeJsPath)) {
+            if (iframeResizeFile != null) {
+                iframeResizerJs = IOUtils.toString(iframeResizeFile, "UTF-8");
+            } else {
+                logger.warn("Did not found iframeResize-library resource file from resource path: " + iframeResizeJsPath);
+            }
         } catch (IOException iframeResizeExp) {
             logger.warn("Could not load iframeResize-library", iframeResizeExp);
         }
