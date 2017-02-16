@@ -216,12 +216,13 @@ abstract public class AtlassianAppServlet extends AppServlet implements BundleCo
     private void prepareIframeContentIndex(Document document) {
 
         // remove meta arguments not marked to be kept also in the iframe, and other decorators
-        // also load contentWindow part of the iFrameResizer, otherwise left the app untouched
+        // also load contentWindow part of the iFrameResizer (inject as inline script), otherwise left the app untouched
 
         document.head().children().select("meta").not("[spark=iframe]").remove();
         document.head().children().select("meta").removeAttr("spark");
 
-        document.head().append("<script src='libs/spark/iframeResizer.contentWindow.min.js'></script>");
+        String iframeResizerContentWindowJs = DocumentOutputUtil.getIframeResizeContentWindowJs();
+        document.head().append("\n<script>\n" + iframeResizerContentWindowJs + "\n</script>\n");
 
         document.body().children().select("content").remove();
 

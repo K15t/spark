@@ -38,6 +38,27 @@ public class DocumentOutputUtil {
 
 
     /**
+     * Returns the contents of the iframe contentWindow side part of the iframeResizer JS library.
+     * The result can be injected into a loaded iframe as an script element containing the library
+     * as inline JS.
+     *
+     * @return iframeResizer.ContentWindow JS file as a string
+     */
+    public static String getIframeResizeContentWindowJs() {
+
+        String iframeResizerContentWindowJs = "";
+        try ( InputStream iframeResizeContentWindowFile =
+                      DocumentOutputUtil.class.getClassLoader().
+                              getResourceAsStream("/com/k15t/spark/iframeResizer.contentWindow.min.js")) {
+            iframeResizerContentWindowJs = IOUtils.toString(iframeResizeContentWindowFile, "UTF-8");
+        } catch (IOException iframeResizeExp) {
+            logger.warn("Could not load iframeResize-library", iframeResizeExp);
+        }
+        // TODO cache the file
+        return iframeResizerContentWindowJs;
+    }
+
+    /**
      * <p>
      * Returns velocity template that can be used for rendering the fragment to be used as the
      * iframe wrapper for an admin / space app
@@ -103,6 +124,8 @@ public class DocumentOutputUtil {
         try ( InputStream iframeResizeFile =
             DocumentOutputUtil.class.getClassLoader().getResourceAsStream("/com/k15t/spark/iframeResizer.min.js")) {
             iframeResizerJs = IOUtils.toString(iframeResizeFile, "UTF-8");
+        } catch (IOException iframeResizeExp) {
+            logger.warn("Could not load iframeResize-library", iframeResizeExp);
         }
 
         HashMap<String, Object> context = new HashMap<String, Object>();
