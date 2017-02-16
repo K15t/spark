@@ -264,7 +264,7 @@ abstract public class AtlassianAppServlet extends AppServlet implements BundleCo
                 DocumentOutputUtil.getIframeAdminContentWrapperTemplate(),
                 DocumentOutputUtil.generateAdminIframeTemplateContext(
                         props.getRequest().getRequestURI(), "spark_admin_iframe",
-                        "admin", null));
+                        "admin", null, props.getRequest().getQueryString()));
 
         document.body().append(iframeHtml);
 

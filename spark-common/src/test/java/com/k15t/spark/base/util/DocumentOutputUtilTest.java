@@ -35,7 +35,7 @@ public class DocumentOutputUtilTest {
         Map<String, Object> res =
                 DocumentOutputUtil.generateAdminIframeTemplateContext("/test/base/url/",
                         "iframe-id", "{\"test-key\": \"test-value\"}",
-                        null);
+                        null, "");
 
         Assert.assertEquals("iframe-id", res.get(iframeIdContextKey));
 
@@ -51,11 +51,11 @@ public class DocumentOutputUtilTest {
 
         res = DocumentOutputUtil.generateAdminIframeTemplateContext("/test2/",
                         "id_of_second_iframe", "context information string '+!&",
-                        "angular.initialized");
+                        "angular.initialized", "?space=32");
 
         Assert.assertEquals("id_of_second_iframe", res.get(iframeIdContextKey));
 
-        Assert.assertEquals("/test2/?iframe_content=true", res.get(iframeSrcContextKey));
+        Assert.assertEquals("/test2/?space=32&iframe_content=true", res.get(iframeSrcContextKey));
 
         Assert.assertEquals("/* test mockup of iframeResizer.min.js */", res.get(iframeResizerJsContextKey));
 
@@ -67,11 +67,11 @@ public class DocumentOutputUtilTest {
 
         res = DocumentOutputUtil.generateAdminIframeTemplateContext("/test/3/", "id3",
                 "{'context': {'pages': ['test1', 'test2'], 'result': {'success': false, 'code': 404}}}",
-                "sparkInitialized");
+                "sparkInitialized", "test_value=false&admin=true");
 
         Assert.assertEquals("id3", res.get(iframeIdContextKey));
 
-        Assert.assertEquals("/test/3/?iframe_content=true", res.get(iframeSrcContextKey));
+        Assert.assertEquals("/test/3/?iframe_content=true&test_value=false&admin=true", res.get(iframeSrcContextKey));
 
         Assert.assertEquals("/* test mockup of iframeResizer.min.js */", res.get(iframeResizerJsContextKey));
 

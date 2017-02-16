@@ -180,7 +180,7 @@ public class ConfluenceSpaceAppAction extends AbstractSpaceAction implements Spa
             String template = DocumentOutputUtil.getIframeAdminContentWrapperTemplate();
             Map<String, Object> context = DocumentOutputUtil.generateAdminIframeTemplateContext(
                     appBaseUrl, "spark_space_adm_iframe",
-                    getIframeContextInfo(), getIframeContextInitializedCallbackName());
+                    getIframeContextInfo(), getIframeContextInitializedCallbackName(), getSpaQueryString());
 
             return VelocityUtils.getRenderedContent(template, context);
 
@@ -277,6 +277,18 @@ public class ConfluenceSpaceAppAction extends AbstractSpaceAction implements Spa
         return null;
     }
 
+
+    /**
+     * The query parameter to add as the current parameter to the url of the SPA app when it is loaded into
+     * the iframe context ("iframe_content=true" will always be added and used by the SPARK framework)
+     *
+     * Default implementation returns the query string used when running the action
+     *
+     * @return query string to use when loading the SPA in the iframe
+     */
+    protected String getSpaQueryString() {
+        return ServletActionContext.getRequest().getQueryString();
+    }
 
     private boolean isRelativeReference(String reference) {
         return StringUtils.isNotBlank(reference) &&
