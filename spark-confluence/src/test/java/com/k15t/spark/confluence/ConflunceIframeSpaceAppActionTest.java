@@ -96,7 +96,6 @@ public class ConflunceIframeSpaceAppActionTest extends ConfluenceSpaceAppActionT
                 anyString(), anyString(),
                 eq("{\"space_key\": \"KEY57\"}"), isNull(String.class), isNull(String.class));
 
-
     }
 
     @Test
@@ -142,6 +141,100 @@ public class ConflunceIframeSpaceAppActionTest extends ConfluenceSpaceAppActionT
 
     }
 
+    @Test
+    public void useSubclassSpecifiedQueryParam() throws Exception {
+
+        ConfluenceIframeSpaceAppAction instanceOverridingQuery = new ConfluenceIframeSpaceAppAction() {
+
+            @Override
+            protected String getSpaQueryString() {
+                return "start_view=admin_v42";
+            }
+
+        };
+        instanceOverridingQuery.setSpace(spaceMock);
+
+        Mockito.when(servletRequest.getQueryString()).thenReturn("query_param=to_be_overwritten");
+
+        String result = instanceOverridingQuery.index();
+
+        Assert.assertEquals(Action.INPUT, result);
+
+        // except to be called once and with expected arguments
+        PowerMockito.verifyStatic(times(1));
+        DocumentOutputUtil.generateAdminIframeTemplateContext(
+                eq(requestContextPath + "/spark/space/testapp/baseurl/"), eq("spark_space_adm_iframe"),
+                anyString(), isNull(String.class), eq("start_view=admin_v42"));
+
+        // small sanity check that action was really completed as expected
+        String genBody = instanceOverridingQuery.getBodyAsHtml();
+        Assert.assertEquals(renderedVelocityToReturn, genBody);
+
+    }
+
+    @Test
+    public void useSubclassSpecifiedIframeContextParams() throws Exception {
+
+        ConfluenceIframeSpaceAppAction instanceOverridingIframeContext = new ConfluenceIframeSpaceAppAction() {
+
+            @Override
+            protected String getIframeContextInfo() {
+                return "use_special_test_spa_type";
+            }
+
+            @Override
+            protected String getIframeContextInitializedCallbackName() {
+                return "sparkInitReady";
+            }
+        };
+
+        String result = instanceOverridingIframeContext.index();
+
+        Assert.assertEquals(Action.INPUT, result);
+
+        // except to be called once and with expected arguments
+        PowerMockito.verifyStatic(times(1));
+        DocumentOutputUtil.generateAdminIframeTemplateContext(
+                anyString(), anyString(),
+                eq("use_special_test_spa_type"), eq("sparkInitReady"), anyString());
+
+        // small sanity check that action was really completed as expected
+        String genBody = instanceOverridingIframeContext.getBodyAsHtml();
+        Assert.assertEquals(renderedVelocityToReturn, genBody);
+
+        ConfluenceIframeSpaceAppAction otherIframeContextOverrideTest = new ConfluenceIframeSpaceAppAction() {
+
+            @Override
+            protected String getIframeContextInfo() {
+                return "space-key: " + getSpace().getKey() + "; space-name: " + getSpace().getName() +
+                        "; start-view: space-admin;";
+            }
+
+            @Override
+            protected String getIframeContextInitializedCallbackName() {
+                return "sparkInit2";
+            }
+        };
+        otherIframeContextOverrideTest.setSpace(spaceMock);
+        Mockito.when(spaceMock.getKey()).thenReturn("key111");
+        Mockito.when(spaceMock.getName()).thenReturn("space name");
+
+        result = otherIframeContextOverrideTest.index();
+
+        Assert.assertEquals(Action.INPUT, result);
+
+        // except to be called once and with expected arguments
+        PowerMockito.verifyStatic(times(1));
+        DocumentOutputUtil.generateAdminIframeTemplateContext(
+                anyString(), anyString(),
+                eq("space-key: key111; space-name: space name; start-view: space-admin;"),
+                eq("sparkInit2"), anyString());
+
+        // small sanity check that action was really completed as expected
+        genBody = otherIframeContextOverrideTest.getBodyAsHtml();
+        Assert.assertEquals(renderedVelocityToReturn, genBody);
+
+    }
 
 
 }

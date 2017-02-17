@@ -196,15 +196,40 @@ public class ConfluenceSpaceAppAction extends AbstractSpaceAction implements Spa
      * @return the (global) base URL of the app.
      */
     protected String getAppBaseUrl(Document document) throws IOException {
-        Elements baseElement = document.select("meta[name=" + SPA_BASE_URL + "]");
+        String spaBaseUrl = getSpaBaseUrl();
 
-        if (baseElement == null) {
-            throw new IOException("Could not find meta element for SPA resources, e.g. "
-                    + "<meta name=\"spark.app-base-url\" content=\"/plugins/servlet/hello-world/\">.");
+        if (spaBaseUrl == null) {
+            Elements baseElement = document.select("meta[name=" + SPA_BASE_URL + "]");
+
+            if (baseElement == null || baseElement.isEmpty() || !baseElement.hasAttr("content")) {
+                throw new IOException("The getSpaBaseUrl() was not overridden to return the "
+                        + "browser visible base path of the SPA, and the information could not be found from index "
+                        + "(e.g. <meta name=\"spark.app-base-url\" content=\"/plugins/servlet/hello-world/\">.)");
+            }
+
+            spaBaseUrl = baseElement.attr("content");
         }
 
         return ServletActionContext.getRequest().getContextPath() + "/" +
-                StringUtils.removeStart(baseElement.attr("content"), "/");
+                StringUtils.removeStart(spaBaseUrl, "/");
+    }
+
+
+    /**
+     * <p>
+     * Returns the base url of the single base application (the browser visible url to the app resources
+     * relative to the Conflunce context path)
+     * </p><p>
+     * The default implementation returns null. In that case the base url of the spa must be contained in
+     * the index.html of the spa as "content" attribute of a "meta" tag with "name"="spark.app-base-url"
+     * (the index file can be accessed directly using resource path, but for correct link operation the
+     * http path has to be known)
+     * </p>
+     *
+     * @return the base url of the spa app, or null if the url should be read from a meta-tag
+     */
+    protected String getSpaBaseUrl() {
+        return null;
     }
 
 
