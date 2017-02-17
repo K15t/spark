@@ -18,4 +18,7 @@ public class Keys {
      */
     public static final String NG_TRANS_MSG_BUNDLE = "ng-translate-message-bundle";
 
+    public static final String META_DECORATORS_FOR_ADMIN_IFRAME_WRAPPER = "spark.iframe.admin.meta.decorators";
+
+    public static final String BODY_DECORATORS_FOR_ADMIN_IFRAME_WRAPPER = "spark.iframe.admin.content.decorators";
 }
