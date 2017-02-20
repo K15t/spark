@@ -17,8 +17,8 @@
                 }
                 contentWin.SPARK.iframeContext = "${escapedIframeContext}";
                 #if($iframeInitCallback)
-                    if ( contentWin.${iframeInitCallback} ) {
-                        contentWin.${iframeInitCallback}();
+                    if ( contentWin.SPARK.${iframeInitCallback} ) {
+                        contentWin.SPARK.${iframeInitCallback}();
                     }
                 #end
             }
