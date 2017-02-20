@@ -9,14 +9,12 @@ import org.jsoup.nodes.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.AbstractMap.SimpleEntry;
-
 import java.io.IOException;
 
 
+/**
+ * The servlet implementation (or sub-class) to use for SPARK iframe functionality.
+ */
 public abstract class AtlassianIframeAppServlet extends AtlassianAppServlet {
 
     private static final Logger logger = LoggerFactory.getLogger(AtlassianIframeAppServlet.class);
@@ -63,70 +61,60 @@ public abstract class AtlassianIframeAppServlet extends AtlassianAppServlet {
 
 
     /**
-     * Removes Atlassian decorators from the document to be served inside the iframe
-     *
-     * All script etc. elements and the main content of the document are left untouched
-     *
-     * Removes all the "meta" elements from the documents head that are not marked to be kept also
-     * for the iframe content by setting an attribute "spark" to value "iframe_keep" on the element.
-     * Also removes "content" elements from the body.
-     *
-     * Correct iframe-resizing operation requires that the libs/spark path contains iframeResizer.min.js and
-     * iframeResizer.contentWindow.min.js files (the required script elements will be added automatically)
+     * <p>
+     * Serves the index page in iframe content mode
+     * </p>
+     * <p>
+     * The contentWindow part of the iFrameResizer will be added to the document as inline script,
+     * otherwise the document will be left untouched.
+     * </p>
      *
      * @param document {@link Document} of the index before processing
      */
     private void prepareIframeContentIndex(Document document) {
 
-        // remove meta arguments not marked to be kept also in the iframe, and other decorators
-        // also load contentWindow part of the iFrameResizer (inject as inline script), otherwise left the app untouched
-
-        document.head().children().select("meta").not("[spark=iframe]").remove();
-        document.head().children().select("meta").removeAttr("spark");
+        // load contentWindow part of the iFrameResizer (inject as inline script), otherwise left the app untouched
 
         String iframeResizerContentWindowJs = DocumentOutputUtil.getIframeResizeContentWindowJs();
         document.head().append("\n<script>\n" + iframeResizerContentWindowJs + "\n</script>\n");
-
-        document.body().children().select("content").remove();
 
     }
 
 
     /**
-     * Parse the part of the index document that is to be used as the main level page containing
-     * all needed Atlassian decorators and embedding rest of the content in a iframe
-     *
-     * Removes elements from the head that don't look like Atlassian decorators (eg. scripts and styles),
-     * and also removes meta elements that are marked to be relevant to the iframe content by setting
-     * "spark" attribute
-     *
-     * The body of the index-document will be substituted (except for "content" elements that might contain
-     * instructions for the Atlassian decorators) with an iframe. The same URL of the request will be set
-     * as the source of the iframe but with an extra query parameter telling that it is the content
-     * (then the {@link #prepareIframeContentIndex(Document)} method will be used instead).
-     *
-     * Correct iframe-resizing operation requires that the libs/spark path contains iframeResizer.min.js and
-     * iframeResizer.contentWindow.min.js files (the required script elements will be added automatically)
+     * <p>
+     * Parse (or generate) a document to be used as the wrapper for the SPA with an iframe and needed decorators
+     * to get the admin view.
+     * </p><p>
+     * Adds the Atlassian admin decorator meta element and a content decorator element telling which webitem should
+     * be marked as selected. Then adds as the main body an iframe element that will ask loading the actual SPA.
+     * </p><p>
+     * Also adds iFrameResizer main window part to the page and some inline JavaScript needed for communicating all
+     * the context values to the contents of the iframe.
+     * </p>
      *
      * @param document {@link Document} of the index before processing
      * @param props {@link RequestProperties} of the current request
      */
     private void prepareAdminIframeWrapperIndex(Document document, RequestProperties props) throws IOException {
 
+        // add atlassian admin decorator meta element
 
-        addAdminIframeWrapperMetaTags(document);
+        Element metaElement = document.head().appendElement("meta");
+        metaElement.attr("name", "decorator");
+        metaElement.attr("content", "atl.admin");
 
         // remove all the styles and wrappers from the iframe parent, they will only be needed in the actual content iframe
         document.head().children().not("title,meta,content").remove();
-        // also remove meta attributes that the user has specified to be used when loaded into iframe
-        document.head().children().select("meta").select("[spark=iframe]").remove();
 
         // fill the body with an iframe that will ask the actual app with 'iframe_content' query parameter
-        // remove all other (non-decorator) content - it will be shown when the app is loaded with iframe_content parameter
+        // remove all other content - it will be shown when the app is loaded with iframe_content parameter
 
-        document.body().children().not("content").remove();
+        document.body().children().remove();
 
-        addAdminIframeBodyDecorators(document);
+        Element contEl = document.body().appendElement("content");
+        contEl.attr("tag", "selectedWebItem");
+        contEl.text(getSelectedWebItemKey());
 
         String iframeHtml = getTemplateRenderer().renderFragment(
                 DocumentOutputUtil.getIframeAdminContentWrapperTemplate(),
@@ -138,71 +126,17 @@ public abstract class AtlassianIframeAppServlet extends AtlassianAppServlet {
 
     }
 
-    protected String getMetaDecoratorSpec() {
-        return getServletConfig().getInitParameter(Keys.META_DECORATORS_FOR_ADMIN_IFRAME_WRAPPER);
+
+    /**
+     * Return the key of the web item. Needed for selecting the correct item in the admin side menu. The default implementation
+     * returns the value of servlet init parameter {@link Keys#SPARK_SELECTED_WEB_ITEM_KEY}
+     *
+     * @return key of the web item that should be marked as selected in the admin side menu
+     */
+    public String getSelectedWebItemKey() {
+        String res = getServletConfig().getInitParameter(Keys.SPARK_SELECTED_WEB_ITEM_KEY);
+
+        return res != null ? res : "";
     }
-
-    protected String getBodyContentDecoratorSpec() {
-        return getServletConfig().getInitParameter(Keys.BODY_DECORATORS_FOR_ADMIN_IFRAME_WRAPPER);
-    }
-
-    private void addAdminIframeWrapperMetaTags(Document document) {
-
-        for ( Entry<String, String> pair : parsePairListInitParam(getMetaDecoratorSpec())) {
-            Element metaElement = document.head().appendElement("meta");
-
-            metaElement.attr("name", pair.getKey());
-            metaElement.attr("content", pair.getValue());
-
-        }
-
-    }
-
-    private void addAdminIframeBodyDecorators(Document document) {
-
-        for ( Entry<String, String> pair : parsePairListInitParam(getBodyContentDecoratorSpec()) ) {
-
-            Element contentDecoratorElement = document.body().appendElement("content");
-
-            contentDecoratorElement.attr("tag", pair.getKey());
-            contentDecoratorElement.text(pair.getValue());
-
-        }
-
-    }
-
-    private List<Entry<String, String>> parsePairListInitParam(String initParam) {
-
-        List<Entry<String, String>> res = new ArrayList<>();
-
-        if ( initParam != null ) {
-            String[] metaTags = initParam.split(";");
-
-            for (String metaTag : metaTags) {
-
-                String[] parts = metaTag.split(":");
-
-                if ( parts.length == 2 ) {
-
-                    String name = parts[0].trim();
-                    String content = parts[1].trim();
-
-                    SimpleEntry<String, String> pair = new SimpleEntry<String, String>(name, content);
-
-                    res.add(pair);
-
-                } else {
-
-                    logger.warn("Illegal meta tag init-param: " + metaTag);
-
-                }
-
-            }
-        }
-
-        return res;
-
-    }
-
 
 }

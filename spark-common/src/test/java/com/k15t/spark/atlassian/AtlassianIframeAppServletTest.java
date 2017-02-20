@@ -5,7 +5,6 @@ import com.k15t.spark.base.Keys;
 import com.k15t.spark.base.RequestProperties;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.junit.Assert;
 import org.junit.Before;
@@ -66,127 +65,123 @@ public class AtlassianIframeAppServletTest {
 
     }
 
-    private static void assertMetaTagCorrect(Element metaEl, String name, String content) {
-        Assert.assertEquals(name, metaEl.attr("name"));
-        Assert.assertEquals(content, metaEl.attr("content"));
-    }
-
     @Test
-    public void testParsingMetaParamsFromInit() throws Exception {
+    public void servesAdminContentByDefault() throws Exception {
 
-        Mockito.when(servletConfig.getInitParameter(Keys.META_DECORATORS_FOR_ADMIN_IFRAME_WRAPPER)).
-                thenReturn("decorator:atl.admin;"
-                        + "admin.active.section:system.admin/configuration;"
-                        + "admin.active.tab:testing-webitem");
+        Mockito.when(servletConfig.getInitParameter(Keys.SPARK_SELECTED_WEB_ITEM_KEY)).thenReturn("test-web-item-id");
 
-        Document testDoc = Jsoup.parse(testInstance.
-                prepareIndexHtml("<html><head></head><body></body></html>", props));
+        String prepIndexRes = testInstance.prepareIndexHtml(
+                "<html><head><script src='test.js'/></head><body><p id='body-el'>test</p></body></html>",
+                props);
 
-        Elements addedMeta = testDoc.head().select("meta");
+        Document resDoc = Jsoup.parse(prepIndexRes);
 
-        Assert.assertEquals(3, addedMeta.size());
+        // adds 'atl.admin' decorator
+        Elements addedMetaTags = resDoc.select("meta");
+        Assert.assertEquals(1, addedMetaTags.size());
 
-        assertMetaTagCorrect(addedMeta.get(0), "decorator", "atl.admin");
-        assertMetaTagCorrect(addedMeta.get(1), "admin.active.section", "system.admin/configuration");
-        assertMetaTagCorrect(addedMeta.get(2), "admin.active.tab", "testing-webitem");
+        Assert.assertEquals("decorator", addedMetaTags.attr("name"));
+        Assert.assertEquals("atl.admin", addedMetaTags.attr("content"));
 
-        // other test case
-        Mockito.when(servletConfig.getInitParameter(Keys.META_DECORATORS_FOR_ADMIN_IFRAME_WRAPPER)).
-                thenReturn("test-that-should-be-ignored(with warning);valid:value;other ignaoeurd;m/o.r\\e:'v'a'l'i'd");
+        // selected web item decorator added
+        Elements selWebItemDec = resDoc.body().select("content");
+        Assert.assertEquals(1, selWebItemDec.size());
 
-        Document testDoc2 = Jsoup.parse(testInstance.
-                prepareIndexHtml("<html><head></head><body></body></html>", props));
+        Assert.assertEquals("selectedWebItem", selWebItemDec.attr("tag"));
+        Assert.assertEquals("test-web-item-id", selWebItemDec.text());
 
-        Elements addedMeta2 = testDoc2.head().select("meta");
+        // script element removed from head (wouldn't work there with admin decorator anyway)
+        Elements scriptEl = resDoc.head().select("script");
+        Assert.assertEquals(0,  scriptEl.size());
 
-        Assert.assertEquals(2, addedMeta2.size());
-
-        assertMetaTagCorrect(addedMeta2.get(0), "valid", "value");
-        assertMetaTagCorrect(addedMeta2.get(1), "m/o.r\\e", "'v'a'l'i'd");
-
-        // one more with some white space
-        Mockito.when(servletConfig.getInitParameter(Keys.META_DECORATORS_FOR_ADMIN_IFRAME_WRAPPER)).
-                thenReturn("decorator\n        : value\n;\n\n testing-parameter \t : testing-value\n\n\n");
-
-        Document testDoc3 = Jsoup.parse(testInstance.
-                prepareIndexHtml("<html><head></head><body></body></html>", props));
-
-        Elements addedMeta3 = testDoc3.head().select("meta");
-
-        Assert.assertEquals(2, addedMeta3.size());
-
-        assertMetaTagCorrect(addedMeta3.get(0), "decorator", "value");
-        assertMetaTagCorrect(addedMeta3.get(1), "testing-parameter", "testing-value");
-
-
-    }
-
-    private static void assertContentElementCorrect(Element contentEl, String name, String content) {
-        Assert.assertEquals(name, contentEl.attr("tag"));
-        Assert.assertEquals(content, contentEl.text());
-    }
-
-    @Test
-    public void testParsingContentDecoratorsFromInit() throws Exception {
-
-        Mockito.when(servletConfig.getInitParameter(Keys.BODY_DECORATORS_FOR_ADMIN_IFRAME_WRAPPER)).
-                thenReturn("selectedWebItem:test-webitem");
-
-        Document testDoc = Jsoup.parse(testInstance.
-                prepareIndexHtml("<html><head></head><body></body></html>", props));
-
-        Elements addedContentEls = testDoc.body().select("content");
-
-        Assert.assertEquals(1, addedContentEls.size());
-
-        assertContentElementCorrect(addedContentEls.get(0), "selectedWebItem", "test-webitem");
-
-        // other test with some white space
-        Mockito.when(servletConfig.getInitParameter(Keys.BODY_DECORATORS_FOR_ADMIN_IFRAME_WRAPPER)).
-                thenReturn("testing key\n        : value\n;illegal-param;"
-                        + "\n\n testing-parameter \t : testing value that should have spaces\n\n\n");
-
-        Document testDoc2 = Jsoup.parse(testInstance.
-                prepareIndexHtml("<html><head></head><body></body></html>", props));
-
-        Elements addedContentEls2 = testDoc2.body().select("content");
-
-        Assert.assertEquals(2, addedContentEls2.size());
-
-        assertContentElementCorrect(addedContentEls2.get(0), "testing key", "value");
-        assertContentElementCorrect(addedContentEls2.get(1), "testing-parameter",
-                "testing value that should have spaces");
+        // body contains the expected iframe wrapping template
+        // (and nothing else except for the selectedWebItem content decorator)
+        resDoc.body().select("content").remove();
+        Assert.assertEquals("test render result", resDoc.body().html());
 
     }
 
     @Test
-    public void testSettingParamSpecsProgrammatically() throws Exception {
+    public void setSelectedWebItemProgrammatically() throws Exception {
 
-        Mockito.when(servletConfig.getInitParameter(Keys.BODY_DECORATORS_FOR_ADMIN_IFRAME_WRAPPER)).
-                thenReturn("should-not:be-this");
-        Mockito.when(servletConfig.getInitParameter(Keys.META_DECORATORS_FOR_ADMIN_IFRAME_WRAPPER)).
-                thenReturn("meta-should-not:be-this");
+        Mockito.when(servletConfig.getInitParameter(Keys.SPARK_SELECTED_WEB_ITEM_KEY)).thenReturn("wrong-web-item-id");
 
-        Mockito.when(testInstance.getMetaDecoratorSpec()).
-                thenReturn("test-name:test-value;   meta 2 : value 2");
-        Mockito.when(testInstance.getBodyContentDecoratorSpec()).
-                thenReturn("body-content:body-value; other body content element : other value ");
+        // this should be added instead
+        Mockito.when(testInstance.getSelectedWebItemKey()).thenReturn("correct-web-key");
 
-        Document testDoc = Jsoup.parse(testInstance.
-                prepareIndexHtml("<html><head></head><body></body></html>", props));
+        String prepIndexRes = testInstance.prepareIndexHtml(
+                "<html><head><script src='test.js'/></head><body><p id='body-el'>test</p></body></html>",
+                props);
 
-        Elements addedMetaTags = testDoc.head().select("meta");
-        Elements addedContentEls = testDoc.body().select("content");
+        Document resDoc = Jsoup.parse(prepIndexRes);
 
-        Assert.assertEquals(2, addedMetaTags.size());
+        // selected web item decorator added
+        Elements selWebItemDec = resDoc.body().select("content");
+        Assert.assertEquals(1, selWebItemDec.size());
 
-        assertMetaTagCorrect(addedMetaTags.get(0), "test-name", "test-value");
-        assertMetaTagCorrect(addedMetaTags.get(1), "meta 2", "value 2");
+        Assert.assertEquals("selectedWebItem", selWebItemDec.attr("tag"));
+        Assert.assertEquals("correct-web-key", selWebItemDec.text());
 
-        Assert.assertEquals(2, addedContentEls.size());
+    }
 
-        assertContentElementCorrect(addedContentEls.get(0), "body-content", "body-value");
-        assertContentElementCorrect(addedContentEls.get(1), "other body content element", "other value");
+    @Test
+    public void selectedWebItemCanBeLeftUnspecified() throws Exception {
+
+        // test mostly just that not specifying the init param does not throw exceptions (even though empty
+        // selectedWebItem-tag won't be able to select anything, but that is not critical)
+
+        Mockito.when(servletConfig.getInitParameter(Keys.SPARK_SELECTED_WEB_ITEM_KEY)).thenReturn(null);
+
+        String prepIndexRes = testInstance.prepareIndexHtml(
+                "<html><head><script src='test.js'/></head><body><p id='body-el'>test</p></body></html>",
+                props);
+
+        Document resDoc = Jsoup.parse(prepIndexRes);
+
+        // selected web item decorator added
+        Elements selWebItemDec = resDoc.body().select("content");
+        Assert.assertEquals(1, selWebItemDec.size());
+
+        Assert.assertEquals("selectedWebItem", selWebItemDec.attr("tag"));
+        Assert.assertEquals("", selWebItemDec.text());
+
+    }
+
+    @Test
+    public void servesIframeContentOnQueryParameter() throws Exception {
+
+        Mockito.when(servletConfig.getInitParameter(Keys.SPARK_SELECTED_WEB_ITEM_KEY)).thenReturn("test-web-item-id");
+
+        Mockito.when(request.getParameter("iframe_content")).thenReturn("true");
+
+        String prepIndexRes = testInstance.prepareIndexHtml(
+                "<html><head><script src='test.js'/></head><body><p id='body-el'>test</p></body></html>",
+                props);
+
+        Document resDoc = Jsoup.parse(prepIndexRes);
+
+        // no meta added
+        Elements addedMetaTags = resDoc.select("meta");
+        Assert.assertEquals(0, addedMetaTags.size());
+
+        // no body decorators added
+        Elements addedBodyDocs = resDoc.select("content");
+        Assert.assertEquals(0, addedBodyDocs.size());
+
+        // script element still there, plus iframeResizer.contentWindow.js added
+        Elements scriptEl = resDoc.select("script");
+        Assert.assertEquals(2, scriptEl.size());
+        Assert.assertEquals("test.js", scriptEl.select("[src]").attr("src"));
+
+        // iframeResizer.contentWindow should be added inline (no src attribute)
+        Assert.assertEquals("/* test placeholder of iframeResizer.contentWindow.min.js */",
+                scriptEl.select(":not([src])").html());
+
+        // p element in the body still there
+        Elements bodyEl = resDoc.select("#body-el");
+        Assert.assertEquals(1, bodyEl.size());
+        Assert.assertEquals("body-el", bodyEl.attr("id"));
+        Assert.assertEquals("test", bodyEl.html());
 
     }
 
