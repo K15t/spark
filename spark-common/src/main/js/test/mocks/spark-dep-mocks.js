@@ -41,10 +41,25 @@ AJS.$ = $;
             initRun = true;
             var i = 0;
             for (i = 0; i < testController.toInitList.length; i++) {
-                testController.toInitList[i].call();
+                // TODO this is how AJS.toInit seems to work (ie. delegates
+                // to jQuery's document ready, which will call the function with $ as parameter)
+                // --> but do we want to depend on that behaviour?
+                testController.toInitList[i].call(null, AJS.$);
             }
         }
 
+    };
+
+})();
+
+var SPARK = SPARK || {};
+SPARK.Common = SPARK.Common || {};
+SPARK.Common.Templates = SPARK.Common.Templates || {};
+
+(function() {
+
+    SPARK.Common.Templates.appFullscreenContaineriFrame = function() {
+        return "<div class='spark-mock-template'></div>";
     };
 
 })();
