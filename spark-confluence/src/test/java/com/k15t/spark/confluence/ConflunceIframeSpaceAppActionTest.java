@@ -49,7 +49,7 @@ public class ConflunceIframeSpaceAppActionTest extends ConfluenceSpaceAppActionT
         PowerMockito.verifyStatic(times(1));
         DocumentOutputUtil.generateAdminIframeTemplateContext(
                 eq(requestContextPath + "/spark/space/testapp/baseurl/"), eq("spark_space_adm_iframe"),
-                anyString(), isNull(String.class), isNull(String.class));
+                anyString(), anyString(), isNull(String.class));
 
         PowerMockito.verifyStatic(times(1));
         DocumentOutputUtil.getIframeAdminContentWrapperTemplate();
@@ -81,7 +81,7 @@ public class ConflunceIframeSpaceAppActionTest extends ConfluenceSpaceAppActionT
         PowerMockito.verifyStatic(times(1));
         DocumentOutputUtil.generateAdminIframeTemplateContext(
                 anyString(), anyString(),
-                eq("{\"space_key\": \"test-space-key\"}"), isNull(String.class), isNull(String.class));
+                eq("{\"space_key\": \"test-space-key\"}"), eq("contextInitializedCallback"), isNull(String.class));
 
 
         Mockito.when(spaceMock.getKey()).thenReturn("KEY57");
@@ -94,7 +94,7 @@ public class ConflunceIframeSpaceAppActionTest extends ConfluenceSpaceAppActionT
         PowerMockito.verifyStatic(times(1));
         DocumentOutputUtil.generateAdminIframeTemplateContext(
                 anyString(), anyString(),
-                eq("{\"space_key\": \"KEY57\"}"), isNull(String.class), isNull(String.class));
+                eq("{\"space_key\": \"KEY57\"}"), eq("contextInitializedCallback"), isNull(String.class));
 
     }
 
@@ -111,7 +111,7 @@ public class ConflunceIframeSpaceAppActionTest extends ConfluenceSpaceAppActionT
         PowerMockito.verifyStatic(times(1));
         DocumentOutputUtil.generateAdminIframeTemplateContext(
                 anyString(), anyString(),
-                anyString(), isNull(String.class), eq("?space_key=TEST&user=admin"));
+                anyString(), anyString(), eq("?space_key=TEST&user=admin"));
 
 
         Mockito.when(servletRequest.getQueryString()).thenReturn("");
@@ -124,7 +124,7 @@ public class ConflunceIframeSpaceAppActionTest extends ConfluenceSpaceAppActionT
         PowerMockito.verifyStatic(times(1));
         DocumentOutputUtil.generateAdminIframeTemplateContext(
                 anyString(), anyString(),
-                anyString(), isNull(String.class), eq(""));
+                anyString(), anyString(), eq(""));
 
 
         Mockito.when(servletRequest.getQueryString()).thenReturn("test_param=value&other=42&third=75");
@@ -137,7 +137,7 @@ public class ConflunceIframeSpaceAppActionTest extends ConfluenceSpaceAppActionT
         PowerMockito.verifyStatic(times(1));
         DocumentOutputUtil.generateAdminIframeTemplateContext(
                 anyString(), anyString(),
-                anyString(), isNull(String.class), eq("test_param=value&other=42&third=75"));
+                anyString(), anyString(), eq("test_param=value&other=42&third=75"));
 
     }
 
@@ -164,7 +164,7 @@ public class ConflunceIframeSpaceAppActionTest extends ConfluenceSpaceAppActionT
         PowerMockito.verifyStatic(times(1));
         DocumentOutputUtil.generateAdminIframeTemplateContext(
                 eq(requestContextPath + "/spark/space/testapp/baseurl/"), eq("spark_space_adm_iframe"),
-                anyString(), isNull(String.class), eq("start_view=admin_v42"));
+                anyString(), anyString(), eq("start_view=admin_v42"));
 
         // small sanity check that action was really completed as expected
         String genBody = instanceOverridingQuery.getBodyAsHtml();
