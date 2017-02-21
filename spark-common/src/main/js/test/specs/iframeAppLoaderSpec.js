@@ -140,6 +140,14 @@ describe('iframeAppLoader', function() {
 
               };
 
+              this.addIframeResizerMock = function() {
+                  var iframeResizer = jasmine.createSpy('iFrameResize');
+
+                  $.fn.iFrameResize = iframeResizer;
+
+                  return iframeResizer;
+              };
+
           });
 
           it('the callback adds the SPARK controls to the iframe', function() {
@@ -223,6 +231,233 @@ describe('iframeAppLoader', function() {
 
               expect($('body').find('#iframe_test_el').length).toEqual(0);
               expect($('body').find('iframe').length).toEqual(0);
+
+          });
+
+          it('adds extra passes extra context data to iframe', function() {
+
+              var extraData = {
+                  'some': 'random',
+                  'extra': ['data', 'for', 'iframe']
+              };
+
+              this.iframeOpener('test-app-name', '/test/app/path', {
+                  'extraData': extraData
+              });
+              iw = this.getIframeContentWindow();
+              this.runReadyCb();
+
+              expect(iw.SPARK.iframeControls).toEqual(jasmine.any(Object));
+
+              expect(iw.SPARK.iframeControls.extraData).toEqual(jasmine.any(Object));
+
+              expect(iw.SPARK.iframeControls).toEqual({
+                  'closeDialog': jasmine.any(Function),
+                  'dialogChrome': null,
+                  'extraData': {
+                      'some': 'random',
+                      'extra': ['data', 'for', 'iframe']
+                  }
+              });
+
+          });
+
+          it('calls the iFrameResizer host window part', function() {
+
+              this.iframeOpener('test-app-name', '/test/app/path');
+
+              var iframeResizer = this.addIframeResizerMock();
+
+              this.runReadyCb();
+
+              expect(iframeResizer).toHaveBeenCalled();
+
+              expect(iframeResizer).toHaveBeenCalledWith([{
+                  'autoResize': true,
+                  'heightCalculationMethod': 'max'
+              }]);
+
+          });
+
+          it('calls iFrameResizer.close on closing dialog', function() {
+
+             this.iframeOpener('test-app-name', '/test/app/path');
+
+             var iframeResizer = jasmine.createSpyObj('iFrameResizer', ['close']);
+
+             var iframeDomEl = $('body').find('iframe').get()[0];
+
+             expect(iframeDomEl).toBeDefined();
+
+             iframeDomEl.iFrameResizer = iframeResizer;
+
+             this.runReadyCb();
+
+             expect(iframeResizer.close).not.toHaveBeenCalled();
+
+             var iw = this.getIframeContentWindow();
+
+             iw.SPARK.iframeControls.closeDialog();
+
+             expect(iframeResizer.close).toHaveBeenCalledTimes(1);
+
+          });
+
+          describe('dialog chrome handling', function() {
+
+             beforeEach(function() {
+
+                 // this has to match the id prefix used for the dialog buttons
+                 this.appNameToUse = 'test-app';
+
+                 // a template including the dialog chrome is needed for these test cases
+                 this.iframeTemplate.and.returnValue(
+                     "<div id='iframe_test_el'>" +
+                     "<div class='dialog-chrome'>" +
+                     "<button id='test-app-spark-app-container-chrome-submit'>Submit</button>" +
+                     "<button id='test-app-spark-app-container-chrome-cancel'>Cancel</button>" +
+                     "</div>" +
+                     "<iframe></iframe></div>");
+
+             });
+
+             it('adds chrome (and control object) when asked', function() {
+
+                 this.iframeOpener(this.appNameToUse, '/path/to/app', {
+                     'addChrome': true
+                 });
+
+                 // check that the 'addChrome': true is forwarded to the template
+
+                 expect(this.iframeTemplate).toHaveBeenCalledWith({
+                     'id': 'test-app-spark-app-container',
+                     'src': jasmine.any(String),
+                     'createOptions': {
+                         'addChrome': true
+                     }
+                 });
+
+                 // fire the ready callback and check that dialogChrome object added to iframe context
+                 this.runReadyCb();
+
+                 var iw = this.getIframeContentWindow();
+
+                 expect(iw.SPARK.iframeControls).toEqual({
+                     'closeDialog': jasmine.any(Function),
+                     'extraData': undefined,
+                     'dialogChrome': {
+                         'cancelBtn': jasmine.any(HTMLElement),
+                         'confirmBtn': jasmine.any(HTMLElement)
+                     }
+                 });
+
+                 var parentCancelEl = $('body')
+                     .find('#test-app-spark-app-container-chrome-cancel').get()[0];
+                 var parentSubmitEl = $('body')
+                     .find('#test-app-spark-app-container-chrome-submit').get()[0];
+
+                 expect(parentCancelEl).toBeDefined();
+                 expect(parentSubmitEl).toBeDefined();
+
+                 expect(iw.SPARK.iframeControls.dialogChrome.cancelBtn).toEqual(parentCancelEl);
+                 expect(iw.SPARK.iframeControls.dialogChrome.confirmBtn).toEqual(parentSubmitEl);
+
+             });
+
+             it('removes the dialog chrome on close', function() {
+
+                 this.iframeOpener(this.appNameToUse, '/path/to/app', {
+                     'addChrome': true
+                 });
+
+                 expect($('body')
+                     .find('#test-app-spark-app-container-chrome-cancel').length).toEqual(1);
+                 expect($('body')
+                     .find('#test-app-spark-app-container-chrome-submit').length).toEqual(1);
+
+                 this.runReadyCb();
+
+                 var iw = this.getIframeContentWindow();
+
+                 iw.SPARK.iframeControls.closeDialog();
+
+                 expect($('body')
+                     .find('#test-app-spark-app-container-chrome-cancel').length).toEqual(0);
+                 expect($('body')
+                     .find('#test-app-spark-app-container-chrome-submit').length).toEqual(0);
+
+             });
+
+             it('works as expected also with dialog chrome', function() {
+
+                 // wrap a bit more verifications into this test about things
+                 // that are already tested without having the dialog chrome
+
+                 expect($('body').hasClass('spark-no-scroll')).toBeFalsy();
+                 expect($('body').find('iframe').length).toEqual(0);
+
+                 this.iframeOpener(this.appNameToUse, '/path/to/app/', {
+                     'addChrome': true,
+                     'extraData': {'test': 'some extra', 'with': {'chrome': true}}
+                 });
+
+                 // chrome added
+                 expect($('body')
+                     .find('#test-app-spark-app-container-chrome-cancel').length).toEqual(1);
+                 expect($('body')
+                     .find('#test-app-spark-app-container-chrome-submit').length).toEqual(1);
+
+                 // scrollers blocked, iframe added
+                 expect($('body').hasClass('spark-no-scroll')).toBeTruthy();
+                 expect($('body').find('iframe').length).toEqual(1);
+
+                 // test also that iFrameResizer is called as expected
+                 var iframeResizer = this.addIframeResizerMock();
+
+                 this.runReadyCb();
+                 var iw = this.getIframeContentWindow();
+
+                 // added expected data to iframe's contextwindow
+                 expect(iw.SPARK).toEqual(jasmine.any(Object));
+                 expect(iw.SPARK.iframeControls).toEqual({
+                     'closeDialog': jasmine.any(Function),
+                     'dialogChrome': {
+                         'cancelBtn': jasmine.any(HTMLElement),
+                         'confirmBtn': jasmine.any(HTMLElement)
+                     },
+                     'extraData': {
+                         'test': 'some extra',
+                         'with': {'chrome': true}
+                     }
+                 });
+
+                 expect(iframeResizer).toHaveBeenCalled();
+                 expect(iframeResizer).toHaveBeenCalledWith([{
+                     'autoResize': true,
+                     'heightCalculationMethod': 'max'
+                 }]);
+
+                 var iframeDomElResizerObj = jasmine.createSpyObj('iFrameResizer', ['close']);
+
+                 var iframeDomEl = $('body').find('iframe').get()[0];
+                 expect(iframeDomEl).toBeDefined();
+
+                 iframeDomEl.iFrameResizer = iframeDomElResizerObj;
+
+                 // close dialog and check that everything is cleaned up
+                 iw.SPARK.iframeControls.closeDialog();
+
+                 expect($('body')
+                     .find('#test-app-spark-app-container-chrome-cancel').length).toEqual(0);
+                 expect($('body')
+                     .find('#test-app-spark-app-container-chrome-submit').length).toEqual(0);
+
+                 expect($('body').hasClass('spark-no-scroll')).toBeFalsy();
+                 expect($('body').find('iframe').length).toEqual(0);
+
+                 expect(iframeDomElResizerObj.close).toHaveBeenCalled();
+
+             });
 
           });
 
