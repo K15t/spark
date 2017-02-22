@@ -286,7 +286,7 @@ AJS.toInit(function($) {
             // init a fullscreen dialog wrapper and iframe and add to body
             var iframeWrapperElement = $(SPARK.Common.Templates.appFullscreenContaineriFrame({
                 'id': elementIdSparkAppContainer,
-                'src': location.protocol + '//' + location.host + fullAppPath,
+                'src': location.protocol + '//' + location.host + fullAppPath + '?iframe_content=true',
                 'createOptions': dialogSettings
             }));
             iframeWrapperElement.appendTo(bodyEl);

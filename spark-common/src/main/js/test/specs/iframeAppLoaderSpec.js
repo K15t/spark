@@ -58,9 +58,9 @@ describe('iframeAppLoader', function() {
 
           // location is bit cumbersome to mock, but its attributes should be same here as in tested path
           var expSrc = location.protocol + '//' + location.host +
-                  '/test/context/test/app/path';
+                  '/test/context/test/app/path/?iframe_content=true';
 
-          this.iframeOpener('test-app-name', '/test/app/path');
+          this.iframeOpener('test-app-name', '/test/app/path/');
 
           expect(this.iframeTemplate).toHaveBeenCalledWith({
               'id': 'test-app-name-spark-app-container',
