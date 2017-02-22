@@ -4,6 +4,7 @@ var karma = require('karma');
 var gutil = require('gulp-util');
 
 var soynode = require('gulp-soynode');
+var css2js = require('gulp-css2js');
 
 var concat = require('gulp-concat');
 
@@ -11,6 +12,15 @@ gulp.task('compile-soy', function() {
 
     return gulp.src('src/**/*.soy')
         .pipe(soynode())
+        .pipe(gulp.dest('target/build'));
+
+});
+
+gulp.task('compile-css-to-js', function() {
+
+    return gulp.src('src/*.css')
+        .pipe(concat('spark-styles.css'))
+        .pipe(css2js())
         .pipe(gulp.dest('target/build'));
 
 });
@@ -41,7 +51,7 @@ gulp.task('tdd', ['compile-soy'], function(done) {
 
 });
 
-gulp.task('build', ['compile-soy'], function(){
+gulp.task('build', ['compile-soy', 'compile-css-to-js'], function(){
 
       return gulp.src(['target/build/*.js', 'src/spark-bootstrap.js'])
            .pipe(concat('concated.js')) 

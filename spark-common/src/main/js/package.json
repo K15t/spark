@@ -12,7 +12,8 @@
         "jquery": "3.1.1",
         "gulp-soynode": "1.5.3",
         "soyutils": "2.0.0",
-        "gulp-concat": "2.6.1"
+        "gulp-concat": "2.6.1",
+        "gulp-css2js": "1.0.2"
     },
     "//": "jquery and soyutils are for testing, for live will be provided by AJS"
 }
