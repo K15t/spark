@@ -3,7 +3,17 @@ var gulp = require('gulp');
 var karma = require('karma');
 var gutil = require('gulp-util');
 
-gulp.task('test', function(done) {
+var soynode = require('gulp-soynode');
+
+gulp.task('compile-soy', function() {
+
+    return gulp.src('src/**/*.soy')
+        .pipe(soynode())
+        .pipe(gulp.dest('target/build'));
+
+});
+
+gulp.task('test', ['compile-soy'], function(done) {
 
     new karma.Server({
         configFile: __dirname + '/karma_conf.js'
@@ -19,7 +29,7 @@ gulp.task('test', function(done) {
 
 });
 
-gulp.task('tdd', function(done) {
+gulp.task('tdd', ['compile-soy'], function(done) {
 
     new karma.Server({
         configFile: __dirname + '/karma_conf.js',

@@ -27,7 +27,7 @@ describe('iframeAppLoader', function() {
       beforeEach(function() {
 
           this.iframeTemplate = spyOn(SPARK.Common.Templates, 'appFullscreenContaineriFrame')
-              .and.callThrough();
+              .and.returnValue('<div class="spark-mock-template"></div>');
 
           this.iframeOpener = this.iframeAppLoader.openFullscreenIframeDialog;
 

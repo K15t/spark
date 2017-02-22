@@ -9,7 +9,9 @@
         "karma-phantomjs-launcher": "1.0.2",
         "karma-chrome-launcher": "2.0.0",
         "karma-spec-reporter": "0.0.26",
-        "jquery": "3.1.1"
+        "jquery": "3.1.1",
+        "gulp-soynode": "1.5.3",
+        "soyutils": "2.0.0"
     },
-    "//": "jquery is for testing, for live will be provided by AJS"
+    "//": "jquery and soyutils are for testing, for live will be provided by AJS"
 }
