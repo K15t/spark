@@ -73,7 +73,10 @@ gulp.task('clean-dist', function(done) {
 
 gulp.task('dist', ['clean-dist', 'build'], function() {
 
-   return gulp.src(['target/gen/*.js', 'src/*', 'node_modules/iframe-resizer/js/iframeResizer.min.js',
+   return gulp.src(['target/gen/*.js', 'src/*',
+            'node_modules/iframe-resizer/js/iframeResizer.js',
+            'node_modules/iframe-resizer/js/iframeResizer.contentWindow.js',
+            'node_modules/iframe-resizer/js/iframeResizer.min.js',
             'node_modules/iframe-resizer/js/iframeResizer.contentWindow.min.js'])
        .pipe(gulp.dest(distDir));
 
