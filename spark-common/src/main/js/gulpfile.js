@@ -53,7 +53,8 @@ gulp.task('tdd', ['compile-soy'], function(done) {
 
 gulp.task('build', ['compile-soy', 'compile-css-to-js'], function(){
 
-      return gulp.src(['target/build/*.js', 'src/spark-bootstrap.js'])
+      return gulp.src([
+        'node_modules/iframe-resizer/js/iframeResizer.js', 'target/build/*.js', 'src/spark-bootstrap.js'])
            .pipe(concat('concated.js')) 
           .pipe(gulp.dest('target/dist'));
       

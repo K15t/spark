@@ -10,10 +10,12 @@
         "karma-chrome-launcher": "2.0.0",
         "karma-spec-reporter": "0.0.26",
         "jquery": "3.1.1",
+        "iframe-resizer": "3.5.10",
         "gulp-soynode": "1.5.3",
         "soyutils": "2.0.0",
         "gulp-concat": "2.6.1",
         "gulp-css2js": "1.0.2"
     },
-    "//": "jquery and soyutils are for testing, for live will be provided by AJS"
+    "//": "jquery and soyutils are for testing, for live will be provided by AJS",
+    "//": "iframeResizer will be concatenated to the resulting js dist-file"
 }
