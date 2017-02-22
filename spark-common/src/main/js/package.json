@@ -11,7 +11,8 @@
         "karma-spec-reporter": "0.0.26",
         "jquery": "3.1.1",
         "gulp-soynode": "1.5.3",
-        "soyutils": "2.0.0"
+        "soyutils": "2.0.0",
+        "gulp-concat": "2.6.1"
     },
     "//": "jquery and soyutils are for testing, for live will be provided by AJS"
 }

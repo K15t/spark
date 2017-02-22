@@ -5,6 +5,8 @@ var gutil = require('gulp-util');
 
 var soynode = require('gulp-soynode');
 
+var concat = require('gulp-concat');
+
 gulp.task('compile-soy', function() {
 
     return gulp.src('src/**/*.soy')
@@ -35,6 +37,14 @@ gulp.task('tdd', ['compile-soy'], function(done) {
         configFile: __dirname + '/karma_conf.js',
         singleRun: false,
         autoWatch: true
-    }).start();
+    }, done).start();
 
+});
+
+gulp.task('build', ['compile-soy'], function(){
+
+      return gulp.src(['target/build/*.js', 'src/spark-bootstrap.js'])
+           .pipe(concat('concated.js')) 
+          .pipe(gulp.dest('target/dist'));
+      
 });
