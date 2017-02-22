@@ -66,7 +66,7 @@ describe('SPARK soy templates', function() {
                 'id': 'testing-id',
                 'src': '/src/of/iframe',
                 'createOptions': {}
-            }) + '');
+            }));
 
             expect(resEl.attr('id')).toEqual('testing-id');
 
@@ -95,7 +95,7 @@ describe('SPARK soy templates', function() {
                     'createOptions': {
                         'addChrome': true
                     }
-                }) + '');
+                }));
 
             // test that the important parts about the main structure work also when chrome is added
 
