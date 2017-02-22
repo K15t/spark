@@ -8,6 +8,13 @@ var css2js = require('gulp-css2js');
 
 var concat = require('gulp-concat');
 
+var del = require('del');
+
+var distDir = 'target/dist';
+if (process.env.DIST_DIR) {
+    distDir = process.env.DIST_DIR;
+}
+
 gulp.task('compile-soy', function() {
 
     return gulp.src('src/**/*.soy')
@@ -51,11 +58,23 @@ gulp.task('tdd', ['compile-soy'], function(done) {
 
 });
 
-gulp.task('build', ['compile-soy', 'compile-css-to-js'], function(){
+gulp.task('build', ['test', 'compile-css-to-js'], function(){
 
       return gulp.src([
         'node_modules/iframe-resizer/js/iframeResizer.js', 'target/build/*.js', 'src/spark-bootstrap.js'])
-           .pipe(concat('concated.js')) 
-          .pipe(gulp.dest('target/dist'));
+           .pipe(concat('spark-dist.js')) 
+          .pipe(gulp.dest('target/gen'));
       
+});
+
+gulp.task('clean-dist', function(done) {
+    del('target/dist').then(done());
+});
+
+gulp.task('dist', ['clean-dist', 'build'], function() {
+
+   return gulp.src(['target/gen/*.js', 'src/*', 'node_modules/iframe-resizer/js/iframeResizer.min.js',
+            'node_modules/iframe-resizer/js/iframeResizer.contentWindow.min.js'])
+       .pipe(gulp.dest(distDir));
+
 });
