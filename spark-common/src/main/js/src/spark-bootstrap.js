@@ -361,7 +361,7 @@ AJS.toInit(function($) {
     // init SPARK context ==================================================================
 
     if (!SPARK) {
-        throw "Soy templates must be initialized to SPARK-namespace before loading spark-bootstrap.js";
+        throw new Error('Soy templates must be initialized to SPARK-namespace before loading spark-bootstrap.js');
     }
 
     if (!SPARK.__versions) {
@@ -384,4 +384,4 @@ AJS.toInit(function($) {
 
     }
 
-}); // TODO the (AJS.$) is not needed? fails with current 'spark-dep-mocks.js' version when testing
+});
