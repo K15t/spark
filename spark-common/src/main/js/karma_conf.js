@@ -7,6 +7,7 @@ module.exports = function(config) {
           'node_modules/jquery/dist/jquery.js',
           'node_modules/soyutils/soyutils_nogoog.js',
           'test/mocks/**/*.js',
+          'src/spark-noconflict-header.js',
           'target/build/**/*.soy.js',
           'src/spark-bootstrap.js',
           'test/specs/**/*.js'

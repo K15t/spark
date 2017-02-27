@@ -3,7 +3,8 @@ describe('SPARK soy templates', function() {
     describe('appFullscreenContaineriFrame', function() {
 
         beforeEach(function() {
-            this.iframeTemplate = SPARK.Common.Templates.appFullscreenContaineriFrame;
+            var currSpark = SPARK.__versions.get();
+            this.iframeTemplate = currSpark.Common.Templates.appFullscreenContaineriFrame;
         });
 
         it('valid arguments return a result', function() {

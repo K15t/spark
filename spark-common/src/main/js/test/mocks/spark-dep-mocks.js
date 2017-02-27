@@ -18,11 +18,15 @@ goog.debug = false;
 
 AJS.$ = $;
 
+var SPARK = {'mockupOldVersion': true};
+
 (function() {
 
     var testController = {};
 
     AJS.testControl = testController;
+
+    testController.oldSparkMockupVersion = SPARK;
 
     testController.toInitList = [];
 

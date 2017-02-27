@@ -2,7 +2,7 @@ AJS.toInit(function($) {
 
     'use strict';
 
-    function AppLoader() {
+    function AppLoader(soyTemplates) {
 
         var startedApps = {};
 
@@ -36,7 +36,7 @@ AJS.toInit(function($) {
             createOptions = $.extend(defaultDialogOptions, createOptions);
             var elementIdSparkAppContainer = angularAppName + '-spark-dialog-app-container';
 
-            var dialog = createDialog(elementIdSparkAppContainer, SPARK.Common.Templates.appBootstrapContainerDialog2WithiFrame({
+            var dialog = createDialog(elementIdSparkAppContainer, soyTemplates.appBootstrapContainerDialog2WithiFrame({
                 id: elementIdSparkAppContainer,
                 title: title,
                 src: location.protocol + '//' + location.host + appPath,
@@ -104,7 +104,7 @@ AJS.toInit(function($) {
 
             if (createOptions !== undefined && createOptions.openInIframe) {
 
-                $(element).append(SPARK.Common.Templates.appBootstrapContaineriFrame({
+                $(element).append(soyTemplates.appBootstrapContaineriFrame({
                     id: elementIdSparkAppContainer,
                     src: location.protocol + '//' + location.host + fullAppPath,
                     createOptions: $.extend(defaultDialogOptions, createOptions)
@@ -113,7 +113,7 @@ AJS.toInit(function($) {
                 return;
             }
 
-            $(element).append(SPARK.Common.Templates.appBootstrapContainer({
+            $(element).append(soyTemplates.appBootstrapContainer({
                 id: elementIdSparkAppContainer
             }));
 
@@ -183,12 +183,12 @@ AJS.toInit(function($) {
             var dialog;
 
             if (AJS.dialog2) {
-                dialog = createDialog(id, SPARK.Common.Templates.errorDialog2({
+                dialog = createDialog(id, soyTemplates.errorDialog2({
                     id: id,
                     title: 'An error happened ...'
                 }));
             } else {
-                dialog = createDialog(id, SPARK.Common.Templates.errorDialog({
+                dialog = createDialog(id, soyTemplates.errorDialog({
                     title: 'An error happened ...'
                 }), 800, 500);
             }
@@ -237,7 +237,7 @@ AJS.toInit(function($) {
         };
     }
 
-    var initIframeAppLoader = function() {
+    var initIframeAppLoader = function(templates) {
 
         /**
          * Creates a fullscreen iframe that will load the js app in given path.
@@ -284,7 +284,7 @@ AJS.toInit(function($) {
             }
 
             // init a fullscreen dialog wrapper and iframe and add to body
-            var iframeWrapperElement = $(SPARK.Common.Templates.appFullscreenContaineriFrame({
+            var iframeWrapperElement = $(templates.appFullscreenContaineriFrame({
                 'id': elementIdSparkAppContainer,
                 'src': location.protocol + '//' + location.host + fullAppPath + '?iframe_content=true',
                 'createOptions': dialogSettings
@@ -360,13 +360,28 @@ AJS.toInit(function($) {
 
     // init SPARK context ==================================================================
 
-    if (window.SPARK === undefined) {
-        window.SPARK = {};
+    if (!SPARK) {
+        throw "Soy templates must be initialized to SPARK-namespace before loading spark-bootstrap.js";
     }
 
-    if (window.SPARK.appLoader2 === undefined) {
-        window.SPARK.appLoader2 = new AppLoader();
-        window.SPARK.iframeAppLoader = initIframeAppLoader();
+    if (!SPARK.__versions) {
+        // this happens only in the case of loading the individual version of spark-bootstrap.js, not
+        // the version that bundles also the noconflict-header
+        if (!SPARK.appLoader2) {
+            SPARK.appLoader2 = new AppLoader(SPARK.Common.Templates);
+        }
+    } else {
+
+        var newVersion = SPARK;
+        var templates = newVersion.Common.Templates;
+
+        newVersion.__version = '2.0.0';
+
+        newVersion.iframeAppLoader = initIframeAppLoader(templates);
+        newVersion.appLoader2 = new AppLoader(templates);
+
+        SPARK.__versions.add(newVersion);
+
     }
 
 }); // TODO the (AJS.$) is not needed? fails with current 'spark-dep-mocks.js' version when testing

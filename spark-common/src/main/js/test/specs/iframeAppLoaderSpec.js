@@ -5,7 +5,7 @@ describe('iframeAppLoader', function() {
        AJS.testControl.initOnce();
 
        this.testControl = AJS.testControl;
-       this.iframeAppLoader = SPARK.iframeAppLoader;
+       this.iframeAppLoader = SPARK.__versions.get().iframeAppLoader;
 
    });
 
@@ -26,7 +26,8 @@ describe('iframeAppLoader', function() {
 
       beforeEach(function() {
 
-          this.iframeTemplate = spyOn(SPARK.Common.Templates, 'appFullscreenContaineriFrame')
+          var currSpark = SPARK.__versions.get();
+          this.iframeTemplate = spyOn(currSpark.Common.Templates, 'appFullscreenContaineriFrame')
               .and.returnValue('<div class="spark-mock-template"></div>');
 
           this.iframeOpener = this.iframeAppLoader.openFullscreenIframeDialog;
