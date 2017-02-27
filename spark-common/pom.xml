@@ -180,6 +180,7 @@
                             <arguments>dist</arguments>
                             <environmentVariables>
                                 <DIST_DIR>${project.build.directory}/classes/com/k15t/spark</DIST_DIR>
+                                <PROJ_VERSION>${project.version}</PROJ_VERSION>
                             </environmentVariables>
                         </configuration>
                     </execution>

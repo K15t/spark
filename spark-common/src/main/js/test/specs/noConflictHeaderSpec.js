@@ -42,13 +42,13 @@ describe('No conflict version handling', function() {
 
        var latestFakeSpark = SPARK.__versions.get();
 
-       var spark200byVersion = SPARK.__versions.get('{{gulp_build_version}}');
+       var sparkByVersion = SPARK.__versions.get('{{spark_gulp_build_version}}');
 
        var fakeByVersion = SPARK.__versions.get('0.0.1');
 
        expect(fakeByVersion).not.toEqual(latestRealSpark);
        expect(fakeByVersion).toEqual(latestFakeSpark);
-       expect(spark200byVersion).toEqual(latestRealSpark);
+       expect(sparkByVersion).toEqual(latestRealSpark);
 
        // has to restore the real version on top of the stack by re-adding
        // because some other tests expect to get the latest version by __versions.get()

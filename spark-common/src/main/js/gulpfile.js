@@ -10,9 +10,16 @@ var concat = require('gulp-concat');
 
 var del = require('del');
 
+var replace = require('gulp-replace');
+
 var distDir = 'target/dist';
 if (process.env.DIST_DIR) {
     distDir = process.env.DIST_DIR;
+}
+
+var version = 'dev-version';
+if (process.env.PROJ_VERSION) {
+    version = process.env.PROJ_VERSION;
 }
 
 gulp.task('compile-soy', function() {
@@ -61,7 +68,9 @@ gulp.task('tdd', ['compile-soy'], function(done) {
 gulp.task('build', ['test', 'compile-css-to-js'], function(){
 
       return gulp.src([
-        'node_modules/iframe-resizer/js/iframeResizer.js', 'target/build/*.js', 'src/spark-bootstrap.js'])
+        'node_modules/iframe-resizer/js/iframeResizer.js',
+          'src/spark-noconflict-header.js', 'target/build/*.js', 'src/spark-bootstrap.js'])
+          .pipe(replace('{{spark_gulp_build_version}}', version))
            .pipe(concat('spark-dist.js')) 
           .pipe(gulp.dest('target/gen'));
       

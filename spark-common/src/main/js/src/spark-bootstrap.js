@@ -375,7 +375,7 @@ AJS.toInit(function($) {
         var newVersion = SPARK;
         var templates = newVersion.Common.Templates;
 
-        newVersion.__version = '2.0.0';
+        newVersion.__version = '{{spark_gulp_build_version}}';
 
         newVersion.iframeAppLoader = initIframeAppLoader(templates);
         newVersion.appLoader2 = new AppLoader(templates);
