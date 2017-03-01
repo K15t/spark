@@ -9,7 +9,7 @@ describe('SPARK soy templates', function() {
 
         it('valid arguments return a result', function() {
 
-            var result = this.iframeTemplate({'id': 'test-id', 'src': 'test-src', 'createOptions': {}});
+            var result = this.iframeTemplate({ 'id': 'test-id', 'src': 'test-src', 'createOptions': {} });
 
             expect(result).toBeDefined();
 
@@ -23,27 +23,35 @@ describe('SPARK soy templates', function() {
             // to call the functions later with correct wrappers
             // if no arguments were needed, also this.iframeTemplate (but not this.iframeTemplate()) would work
 
-            expect(function() {this.iframeTemplate();}).toThrowError(TypeError);
+            expect(function() {
+                this.iframeTemplate();
+            }).toThrowError(TypeError);
 
-            expect(function() {this.iframeTemplate('test-id', 'test-src', {});}).toThrow();
+            expect(function() {
+                this.iframeTemplate('test-id', 'test-src', {});
+            }).toThrow();
+            
+            expect(function() {
+                this.iframeTemplate({
+                    'id': 'test-id',
+                    'srcc': 'typoed-src',
+                    'createOptions': {}
+                })
+            }).toThrow();
 
-            expect(function() {this.iframeTemplate({
-                'id': 'test-id',
-                'srcc': 'typoed-src',
-                'createOptions': {}
-            })}).toThrow();
-
-            expect(function() {this.iframeTemplate({
-                'id': 'test-id',
-                'src': 'test-src',
-                // missing createOptions
-            })}).toThrow();
+            expect(function() {
+                this.iframeTemplate({
+                    'id': 'test-id',
+                    'src': 'test-src',
+                    // missing createOptions
+                })
+            }).toThrow();
 
             // some calls that should work
             expect(this.iframeTemplate({
                 'id': 'test-id',
                 'src': 'test-src',
-                'createOptions': {'addChrome': false}
+                'createOptions': { 'addChrome': false }
             })).toBeDefined();
 
             // createOptions can also contain extra data
@@ -91,12 +99,12 @@ describe('SPARK soy templates', function() {
         it('creates expected elements when dialog chrome is asked', function() {
 
             var resEl = $(this.iframeTemplate({
-                    'id': 'testing-id',
-                    'src': '/src/of/iframe',
-                    'createOptions': {
-                        'addChrome': true
-                    }
-                }));
+                'id': 'testing-id',
+                'src': '/src/of/iframe',
+                'createOptions': {
+                    'addChrome': true
+                }
+            }));
 
             // test that the important parts about the main structure work also when chrome is added
 

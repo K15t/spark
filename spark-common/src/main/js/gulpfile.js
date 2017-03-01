@@ -1,15 +1,10 @@
 var gulp = require('gulp');
-
 var karma = require('karma');
 var gutil = require('gulp-util');
-
 var soynode = require('gulp-soynode');
 var css2js = require('gulp-css2js');
-
 var concat = require('gulp-concat');
-
 var del = require('del');
-
 var replace = require('gulp-replace');
 
 var distDir = 'target/dist';
@@ -65,15 +60,15 @@ gulp.task('tdd', ['compile-soy'], function(done) {
 
 });
 
-gulp.task('build', ['test', 'compile-css-to-js'], function(){
+gulp.task('build', ['test', 'compile-css-to-js'], function() {
 
-      return gulp.src([
+    return gulp.src([
         'node_modules/iframe-resizer/js/iframeResizer.js',
-          'src/spark-noconflict-header.js', 'target/build/*.js', 'src/spark-bootstrap.js'])
-          .pipe(replace('{{spark_gulp_build_version}}', version))
-           .pipe(concat('spark-dist.js')) 
-          .pipe(gulp.dest('target/gen'));
-      
+        'src/spark-noconflict-header.js', 'target/build/*.js', 'src/spark-bootstrap.js'])
+        .pipe(replace('{{spark_gulp_build_version}}', version))
+        .pipe(concat('spark-dist.js'))
+        .pipe(gulp.dest('target/gen'));
+
 });
 
 gulp.task('clean-dist', function(done) {
@@ -82,11 +77,11 @@ gulp.task('clean-dist', function(done) {
 
 gulp.task('dist', ['clean-dist', 'build'], function() {
 
-   return gulp.src(['target/gen/*.js', 'src/*',
-            'node_modules/iframe-resizer/js/iframeResizer.js',
-            'node_modules/iframe-resizer/js/iframeResizer.contentWindow.js',
-            'node_modules/iframe-resizer/js/iframeResizer.min.js',
-            'node_modules/iframe-resizer/js/iframeResizer.contentWindow.min.js'])
-       .pipe(gulp.dest(distDir));
+    return gulp.src(['target/gen/*.js', 'src/*',
+        'node_modules/iframe-resizer/js/iframeResizer.js',
+        'node_modules/iframe-resizer/js/iframeResizer.contentWindow.js',
+        'node_modules/iframe-resizer/js/iframeResizer.min.js',
+        'node_modules/iframe-resizer/js/iframeResizer.contentWindow.min.js'])
+        .pipe(gulp.dest(distDir));
 
 });

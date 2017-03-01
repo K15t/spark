@@ -16,9 +16,11 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.times;
 
+
 public class ConflunceIframeSpaceAppActionTest extends ConfluenceSpaceAppActionTestCommon {
 
     private ConfluenceIframeSpaceAppAction actionInstance;
+
 
     @Before
     public void setup() throws Exception {
@@ -31,6 +33,7 @@ public class ConflunceIframeSpaceAppActionTest extends ConfluenceSpaceAppActionT
         actionConfigParams.put("resource-path", "com/k15t/spark/confluence/testspa/");
 
     }
+
 
     @Test
     public void runActionWithIframeAppResourcePath() throws IOException {
@@ -68,6 +71,7 @@ public class ConflunceIframeSpaceAppActionTest extends ConfluenceSpaceAppActionT
 
     }
 
+
     @Test
     public void iframeSpaceActionDefaultContextInfo() throws IOException {
 
@@ -97,6 +101,7 @@ public class ConflunceIframeSpaceAppActionTest extends ConfluenceSpaceAppActionT
                 eq("{\"space_key\": \"KEY57\"}"), eq("contextInitializedCallback"), isNull(String.class));
 
     }
+
 
     @Test
     public void iframeSpaceActionDefaultQueryParamHandling() throws IOException {
@@ -141,6 +146,7 @@ public class ConflunceIframeSpaceAppActionTest extends ConfluenceSpaceAppActionT
 
     }
 
+
     @Test
     public void useSubclassSpecifiedQueryParam() throws Exception {
 
@@ -172,6 +178,7 @@ public class ConflunceIframeSpaceAppActionTest extends ConfluenceSpaceAppActionT
 
     }
 
+
     @Test
     public void useSubclassSpecifiedIframeContextParams() throws Exception {
 
@@ -181,6 +188,7 @@ public class ConflunceIframeSpaceAppActionTest extends ConfluenceSpaceAppActionT
             protected String getIframeContextInfo() {
                 return "use_special_test_spa_type";
             }
+
 
             @Override
             protected String getIframeContextInitializedCallbackName() {
@@ -209,6 +217,7 @@ public class ConflunceIframeSpaceAppActionTest extends ConfluenceSpaceAppActionT
                 return "space-key: " + getSpace().getKey() + "; space-name: " + getSpace().getName() +
                         "; start-view: space-admin;";
             }
+
 
             @Override
             protected String getIframeContextInitializedCallbackName() {

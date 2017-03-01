@@ -1,10 +1,10 @@
 package com.k15t.spark.base.util;
 
-import org.jsoup.nodes.Element;
-import org.junit.Assert;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -19,6 +19,7 @@ import java.util.regex.Pattern;
 import static org.hamcrest.core.AnyOf.anyOf;
 import static org.hamcrest.core.Is.is;
 
+
 public class DocumentOutputUtilTest {
 
     private static final String iframeIdContextKey = "iframeId";
@@ -26,6 +27,7 @@ public class DocumentOutputUtilTest {
     private static final String iframeResizerJsContextKey = "iframeResizerJs";
     private static final String iframeInjContextVelocityKey = "escapedIframeContext";
     private static final String iframeInitCallbackVelocityKey = "iframeInitCallback";
+
 
     @Test
     public void generateAdminIframeTemplateContext() throws IOException {
@@ -50,8 +52,8 @@ public class DocumentOutputUtilTest {
         // another try, main difference: invalid initCallback function name (should not be added to context)
 
         res = DocumentOutputUtil.generateAdminIframeTemplateContext("/test2/",
-                        "id_of_second_iframe", "context information string '+!&",
-                        "angular.initialized", "?space=32");
+                "id_of_second_iframe", "context information string '+!&",
+                "angular.initialized", "?space=32");
 
         Assert.assertEquals("id_of_second_iframe", res.get(iframeIdContextKey));
 
@@ -83,6 +85,7 @@ public class DocumentOutputUtilTest {
 
     }
 
+
     @Test
     public void getIframeContentWindowJs() {
 
@@ -91,6 +94,7 @@ public class DocumentOutputUtilTest {
         Assert.assertEquals("/* test placeholder of iframeResizer.contentWindow.min.js */", iframeContWinJs);
 
     }
+
 
     @Test
     public void getIframeAdminContentWrapperTemplate() throws IOException {
@@ -174,7 +178,7 @@ public class DocumentOutputUtilTest {
             foundRefs.add(velocityShortKeys.group(1));
         }
 
-        for ( String refKey : foundRefs) {
+        for (String refKey : foundRefs) {
 
             Integer currCount = refCount.get(refKey);
 

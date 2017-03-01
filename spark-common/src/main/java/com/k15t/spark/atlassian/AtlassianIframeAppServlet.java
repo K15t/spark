@@ -19,16 +19,16 @@ public abstract class AtlassianIframeAppServlet extends AtlassianAppServlet {
 
     private static final Logger logger = LoggerFactory.getLogger(AtlassianIframeAppServlet.class);
 
+
     @Override
     protected String prepareIndexHtml(String indexHtml, RequestProperties props) throws IOException {
-
         Document document = Jsoup.parse(indexHtml, props.getUri().toString());
 
         if (!isDevMode()) {
             applyCacheKeysToResourceUrls(document, props);
         }
 
-        if ( isAskingIframeContent(props)) {
+        if (isAskingIframeContent(props)) {
 
             prepareIframeContentIndex(document);
 
@@ -47,6 +47,7 @@ public abstract class AtlassianIframeAppServlet extends AtlassianAppServlet {
         indexHtml = document.outerHtml();
         return indexHtml;
     }
+
 
     /**
      * @param properties current {@link RequestProperties}
@@ -72,12 +73,9 @@ public abstract class AtlassianIframeAppServlet extends AtlassianAppServlet {
      * @param document {@link Document} of the index before processing
      */
     private void prepareIframeContentIndex(Document document) {
-
         // load contentWindow part of the iFrameResizer (inject as inline script), otherwise left the app untouched
-
         String iframeResizerContentWindowJs = DocumentOutputUtil.getIframeResizeContentWindowJs();
         document.head().append("\n<script>\n" + iframeResizerContentWindowJs + "\n</script>\n");
-
     }
 
 
@@ -97,9 +95,7 @@ public abstract class AtlassianIframeAppServlet extends AtlassianAppServlet {
      * @param props {@link RequestProperties} of the current request
      */
     private void prepareAdminIframeWrapperIndex(Document document, RequestProperties props) throws IOException {
-
         // add atlassian admin decorator meta element
-
         Element metaElement = document.head().appendElement("meta");
         metaElement.attr("name", "decorator");
         metaElement.attr("content", "atl.admin");
@@ -123,7 +119,6 @@ public abstract class AtlassianIframeAppServlet extends AtlassianAppServlet {
                         "admin", null, props.getRequest().getQueryString()));
 
         document.body().append(iframeHtml);
-
     }
 
 

@@ -34,6 +34,7 @@ public class AtlassianIframeAppServletTest {
 
     private static String renderResult;
 
+
     @Before
     public void setup() throws Exception {
         props = Mockito.mock(RequestProperties.class);
@@ -65,6 +66,7 @@ public class AtlassianIframeAppServletTest {
 
     }
 
+
     @Test
     public void servesAdminContentByDefault() throws Exception {
 
@@ -92,7 +94,7 @@ public class AtlassianIframeAppServletTest {
 
         // script element removed from head (wouldn't work there with admin decorator anyway)
         Elements scriptEl = resDoc.head().select("script");
-        Assert.assertEquals(0,  scriptEl.size());
+        Assert.assertEquals(0, scriptEl.size());
 
         // body contains the expected iframe wrapping template
         // (and nothing else except for the selectedWebItem content decorator)
@@ -100,6 +102,7 @@ public class AtlassianIframeAppServletTest {
         Assert.assertEquals("test render result", resDoc.body().html());
 
     }
+
 
     @Test
     public void setSelectedWebItemProgrammatically() throws Exception {
@@ -124,6 +127,7 @@ public class AtlassianIframeAppServletTest {
 
     }
 
+
     @Test
     public void selectedWebItemCanBeLeftUnspecified() throws Exception {
 
@@ -146,6 +150,7 @@ public class AtlassianIframeAppServletTest {
         Assert.assertEquals("", selWebItemDec.text());
 
     }
+
 
     @Test
     public void servesIframeContentOnQueryParameter() throws Exception {

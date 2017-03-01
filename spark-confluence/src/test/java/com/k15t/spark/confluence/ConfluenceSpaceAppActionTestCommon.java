@@ -22,6 +22,7 @@ import java.util.Map;
 import static org.mockito.Matchers.anyString;
 import static org.powermock.api.mockito.PowerMockito.mock;
 
+
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ServletActionContext.class, ActionContext.class, DocumentOutputUtil.class, VelocityUtils.class})
 public class ConfluenceSpaceAppActionTestCommon {
@@ -35,6 +36,7 @@ public class ConfluenceSpaceAppActionTestCommon {
     protected static Map<String, String> actionConfigParams = new HashMap<>();
     protected static String renderedVelocityToReturn = "velocity rendering result";
     protected static String requestContextPath = "/test/app";
+
 
     public void commonSetup() throws Exception {
 

@@ -17,7 +17,6 @@ public class ConfluenceIframeSpaceAppAction extends ConfluenceSpaceAppAction {
 
     @Override
     protected final String prepareBody(Document document) throws IOException {
-
         String appBaseUrl = getAppBaseUrl(document);
 
         String template = DocumentOutputUtil.getIframeAdminContentWrapperTemplate();
@@ -26,8 +25,8 @@ public class ConfluenceIframeSpaceAppAction extends ConfluenceSpaceAppAction {
                 getIframeContextInfo(), getIframeContextInitializedCallbackName(), getSpaQueryString());
 
         return VelocityUtils.getRenderedContent(template, context);
-
     }
+
 
     /**
      * <p>
@@ -44,7 +43,6 @@ public class ConfluenceIframeSpaceAppAction extends ConfluenceSpaceAppAction {
      * @return string that will be attached to SPARK.iframeContext variable as a JS string
      */
     protected String getIframeContextInfo() {
-
         Space space = getSpace();
 
         String res = "{\"space_key\": \"" + space.getKey() + "\"}";

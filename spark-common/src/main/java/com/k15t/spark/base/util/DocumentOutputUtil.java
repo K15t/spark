@@ -9,9 +9,10 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Map;
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
+
 
 public class DocumentOutputUtil {
 
@@ -21,6 +22,7 @@ public class DocumentOutputUtil {
     private static final String iframeResizeContentWindowJsPath = "com/k15t/spark/iframeResizer.contentWindow.min.js";
 
     private static final String iframeContentWrapperTemplatePath = "com/k15t/spark/content_iframe_wrapper.vm";
+
 
     public static void applyCacheKeysToResourceUrls(Document document, long pluginModifiedTimestamp, Locale locale) {
         String cacheKey = getCacheKeyPathSegments(pluginModifiedTimestamp, locale);
@@ -50,11 +52,10 @@ public class DocumentOutputUtil {
      * @return iframeResizer.ContentWindow JS file as a string
      */
     public static String getIframeResizeContentWindowJs() {
-
         String iframeResizerContentWindowJs = "";
-        try ( InputStream iframeResizeContentWindowFile =
-                      DocumentOutputUtil.class.getClassLoader().
-                              getResourceAsStream(iframeResizeContentWindowJsPath)) {
+        try (InputStream iframeResizeContentWindowFile =
+                     DocumentOutputUtil.class.getClassLoader().
+                             getResourceAsStream(iframeResizeContentWindowJsPath)) {
             if (iframeResizeContentWindowFile != null) {
                 iframeResizerContentWindowJs = IOUtils.toString(iframeResizeContentWindowFile, "UTF-8");
             } else {
@@ -64,9 +65,9 @@ public class DocumentOutputUtil {
         } catch (IOException iframeResizeExp) {
             logger.warn("Could not load iframeResize-library", iframeResizeExp);
         }
-        // TODO cache the file
         return iframeResizerContentWindowJs;
     }
+
 
     /**
      * <p>
@@ -83,14 +84,13 @@ public class DocumentOutputUtil {
      * </p>
      */
     public static String getIframeAdminContentWrapperTemplate() throws IOException {
-
-        try ( InputStream templateStream =
-                      DocumentOutputUtil.class.getClassLoader().getResourceAsStream(iframeContentWrapperTemplatePath) ) {
+        try (InputStream templateStream =
+                     DocumentOutputUtil.class.getClassLoader().getResourceAsStream(iframeContentWrapperTemplatePath)) {
             // TODO if the resource was not found, this will throw null pointer... But can't really continue anyway?
             return IOUtils.toString(templateStream, "UTF-8");
         }
-        // TODO could cache to template
     }
+
 
     /**
      * <p>
@@ -124,7 +124,6 @@ public class DocumentOutputUtil {
             String appBaseUrl, String iframeIdToUse,
             String iframeContextInfo, String initCallbackFunctionName,
             String queryString) throws IOException {
-
         // add (possibly one more) layer of "-escaping so that the string can be added to js variable with "" delimiters
         String escapedIframeContext = iframeContextInfo == null ? "null" :
                 iframeContextInfo.replace("\"", "\\\"");
@@ -143,14 +142,14 @@ public class DocumentOutputUtil {
         String iframeSource = appBaseUrl + queryStringToUse;
 
         // no need to allow all possible js variable names, just a reasonable and safe subset
-        if ( initCallbackFunctionName != null && ! initCallbackFunctionName.matches("^[a-zA-Z_$][0-9a-zA-Z_$]*$") ) {
+        if (initCallbackFunctionName != null && !initCallbackFunctionName.matches("^[a-zA-Z_$][0-9a-zA-Z_$]*$")) {
             //logger.warn("Unsafe initCallbackFunctionName, must match '^[a-zA-Z_$][0-9a-zA-Z_$]*$', was: " + initCallbackFunctionName);
             initCallbackFunctionName = null;
         }
 
         String iframeResizerJs = "";
-        try ( InputStream iframeResizeFile =
-            DocumentOutputUtil.class.getClassLoader().getResourceAsStream(iframeResizeJsPath)) {
+        try (InputStream iframeResizeFile =
+                     DocumentOutputUtil.class.getClassLoader().getResourceAsStream(iframeResizeJsPath)) {
             if (iframeResizeFile != null) {
                 iframeResizerJs = IOUtils.toString(iframeResizeFile, "UTF-8");
             } else {
@@ -169,7 +168,6 @@ public class DocumentOutputUtil {
         context.put("iframeInitCallback", initCallbackFunctionName);
 
         return context;
-
     }
 
 }

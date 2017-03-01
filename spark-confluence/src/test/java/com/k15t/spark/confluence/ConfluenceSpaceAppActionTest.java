@@ -9,13 +9,11 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.isNull;
-import static org.powermock.api.mockito.PowerMockito.mock;
 
 public class ConfluenceSpaceAppActionTest extends ConfluenceSpaceAppActionTestCommon {
 
     protected static ConfluenceSpaceAppAction actionInstance;
+
 
     @Before
     public void setup() throws Exception {
@@ -30,6 +28,7 @@ public class ConfluenceSpaceAppActionTest extends ConfluenceSpaceAppActionTestCo
         actionConfigParams.put("resource-path", "com/k15t/spark/confluence/testspa/");
 
     }
+
 
     @Test
     public void runActionWithNonIframeAppResourcePath() {
@@ -58,6 +57,7 @@ public class ConfluenceSpaceAppActionTest extends ConfluenceSpaceAppActionTestCo
 
     }
 
+
     @Test
     public void failsWhenSpaBasePathNotSpecified() {
 
@@ -71,6 +71,7 @@ public class ConfluenceSpaceAppActionTest extends ConfluenceSpaceAppActionTestCo
                 CoreMatchers.containsString("Error parsing HTML"));
 
     }
+
 
     @Test
     public void subclassesCanSpecifySpaBasePathProgrammatically() {
