@@ -17,9 +17,20 @@ if (process.env.PROJ_VERSION) {
     version = process.env.PROJ_VERSION;
 }
 
-gulp.task('compile-soy', function() {
-
+gulp.task('prepare-soy', function() {
+    // add the autoescape mode to the soy namespace that will produce an output matching the one
+    // from the soy compiler Atlassian uses
+    // the source file has to stay without the autoescape attribute to avoid problems with add-ons
+    // using the soy template directly as a webresource
     return gulp.src('src/**/*.soy')
+        .pipe(replace(/\{namespace ([^\}]*)\}/, '{namespace $1 autoescape="deprecated-contextual"}'))
+        .pipe(gulp.dest('target/gen'));
+
+});
+
+gulp.task('compile-soy', ['prepare-soy'], function() {
+
+    return gulp.src('target/gen/**/*.soy')
         .pipe(soynode())
         .pipe(gulp.dest('target/build'));
 
