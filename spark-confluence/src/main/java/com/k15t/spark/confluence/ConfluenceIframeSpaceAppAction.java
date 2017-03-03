@@ -18,10 +18,11 @@ public class ConfluenceIframeSpaceAppAction extends ConfluenceSpaceAppAction {
     @Override
     protected final String prepareBody(Document document) throws IOException {
         String appBaseUrl = getAppBaseUrl(document);
+        long idSuffix = System.currentTimeMillis();
 
         String template = DocumentOutputUtil.getIframeAdminContentWrapperTemplate();
         Map<String, Object> context = DocumentOutputUtil.generateAdminIframeTemplateContext(
-                appBaseUrl, "spark_space_adm_iframe",
+                appBaseUrl, "spark_space_adm_iframe_" + idSuffix,
                 getIframeContextInfo(), getIframeContextInitializedCallbackName(), getSpaQueryString());
 
         return VelocityUtils.getRenderedContent(template, context);

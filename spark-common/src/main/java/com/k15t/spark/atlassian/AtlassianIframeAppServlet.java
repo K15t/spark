@@ -3,11 +3,10 @@ package com.k15t.spark.atlassian;
 import com.k15t.spark.base.Keys;
 import com.k15t.spark.base.RequestProperties;
 import com.k15t.spark.base.util.DocumentOutputUtil;
+import org.apache.commons.lang.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
@@ -16,9 +15,6 @@ import java.io.IOException;
  * The servlet implementation (or sub-class) to use for SPARK iframe functionality.
  */
 public abstract class AtlassianIframeAppServlet extends AtlassianAppServlet {
-
-    private static final Logger logger = LoggerFactory.getLogger(AtlassianIframeAppServlet.class);
-
 
     @Override
     protected String prepareIndexHtml(String indexHtml, RequestProperties props) throws IOException {
@@ -29,16 +25,11 @@ public abstract class AtlassianIframeAppServlet extends AtlassianAppServlet {
         }
 
         if (isAskingIframeContent(props)) {
-
             prepareIframeContentIndex(document);
-
         } else {
-
             // serve as an admin page, this is the only way in which index is asked without iframe parameter at the moment,
             // dialog-mode adds the wrapper with JavaScript, and Space-action using Velocity
-
             prepareAdminIframeWrapperIndex(document, props);
-
         }
 
         // don't let jsoup generate unwanted blanks. Otherwise decorator settings
@@ -54,10 +45,7 @@ public abstract class AtlassianIframeAppServlet extends AtlassianAppServlet {
      * @return true if the page is meant to be shown in an iframe
      */
     private boolean isAskingIframeContent(RequestProperties properties) {
-        String iframeContentValue =
-                properties.getRequest().getParameter("iframe_content");
-
-        return "true".equals(iframeContentValue);
+        return "true".equals(properties.getRequest().getParameter("iframe_content"));
     }
 
 
@@ -129,9 +117,8 @@ public abstract class AtlassianIframeAppServlet extends AtlassianAppServlet {
      * @return key of the web item that should be marked as selected in the admin side menu
      */
     public String getSelectedWebItemKey() {
-        String res = getServletConfig().getInitParameter(Keys.SPARK_SELECTED_WEB_ITEM_KEY);
-
-        return res != null ? res : "";
+        return StringUtils.defaultString(
+                getServletConfig().getInitParameter(Keys.SPARK_SELECTED_WEB_ITEM_KEY));
     }
 
 }

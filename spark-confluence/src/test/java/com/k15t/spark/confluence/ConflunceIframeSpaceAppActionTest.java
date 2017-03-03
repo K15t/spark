@@ -14,6 +14,7 @@ import java.io.IOException;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isNull;
+import static org.mockito.Matchers.startsWith;
 import static org.mockito.Mockito.times;
 
 
@@ -51,7 +52,7 @@ public class ConflunceIframeSpaceAppActionTest extends ConfluenceSpaceAppActionT
         // except to be called once and with expected arguments
         PowerMockito.verifyStatic(times(1));
         DocumentOutputUtil.generateAdminIframeTemplateContext(
-                eq(requestContextPath + "/spark/space/testapp/baseurl/"), eq("spark_space_adm_iframe"),
+                eq(requestContextPath + "/spark/space/testapp/baseurl/"), startsWith("spark_space_adm_iframe_"),
                 anyString(), anyString(), isNull(String.class));
 
         PowerMockito.verifyStatic(times(1));
@@ -169,7 +170,7 @@ public class ConflunceIframeSpaceAppActionTest extends ConfluenceSpaceAppActionT
         // except to be called once and with expected arguments
         PowerMockito.verifyStatic(times(1));
         DocumentOutputUtil.generateAdminIframeTemplateContext(
-                eq(requestContextPath + "/spark/space/testapp/baseurl/"), eq("spark_space_adm_iframe"),
+                eq(requestContextPath + "/spark/space/testapp/baseurl/"), startsWith("spark_space_adm_iframe"),
                 anyString(), anyString(), eq("start_view=admin_v42"));
 
         // small sanity check that action was really completed as expected

@@ -274,14 +274,11 @@ AJS.toInit(function($) {
 
             var elementIdSparkAppContainer = appName + '-spark-app-container';
 
-            var dialogSettings = $.extend({'addChrome': false}, dialogOptions);
+            var dialogSettings = $.extend({ 'addChrome': false }, dialogOptions);
 
             // make sure that element with the id is not already there
             // (in normal operation it is removed on dialog close)
-            var oldAppWrapper = $('#' + elementIdSparkAppContainer);
-            if (oldAppWrapper.length > 0) {
-                oldAppWrapper.remove();
-            }
+            $('#' + elementIdSparkAppContainer).remove();
 
             // init a fullscreen dialog wrapper and iframe and add to body
             var iframeWrapperElement = $(templates.appFullscreenContaineriFrame({
@@ -309,7 +306,7 @@ AJS.toInit(function($) {
 
             // add an easy way for the contained iframe to access the dialog chrome (if added)
             var dialogChrome = null;
-            if ( dialogSettings.addChrome ) {
+            if (dialogSettings.addChrome) {
                 var cancelBtnDomEl = iframeWrapperElement.find('#' + elementIdSparkAppContainer + '-chrome-cancel').get()[0];
                 var confirmBtnDomEl = iframeWrapperElement.find('#' + elementIdSparkAppContainer + '-chrome-submit').get()[0];
                 dialogChrome = {
@@ -348,7 +345,7 @@ AJS.toInit(function($) {
 
             });
 
-            // TODO return something?
+            return elementIdSparkAppContainer;
 
         };
 

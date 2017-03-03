@@ -129,10 +129,12 @@ public class DocumentOutputUtilTest {
         String initScripElCont = initScriptEl.html();
 
         Map<String, Integer> refs = checkVelocityFragmentReferences(initScripElCont,
-                Arrays.asList(iframeInjContextVelocityKey, iframeInitCallbackVelocityKey), true);
+                Arrays.asList(iframeInjContextVelocityKey, iframeInitCallbackVelocityKey, iframeIdContextKey), true);
 
         Assert.assertTrue(refs.get(iframeInjContextVelocityKey) > 0);
         Assert.assertTrue(refs.get(iframeInitCallbackVelocityKey) > 0);
+        // should call iFrameResize on the iframe with correct id
+        Assert.assertTrue(refs.get(iframeIdContextKey) > 0);
 
     }
 
