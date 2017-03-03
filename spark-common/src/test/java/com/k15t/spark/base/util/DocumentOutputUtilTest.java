@@ -87,7 +87,7 @@ public class DocumentOutputUtilTest {
 
 
     @Test
-    public void getIframeContentWindowJs() {
+    public void getIframeContentWindowJs() throws IOException {
 
         String iframeContWinJs = DocumentOutputUtil.getIframeResizeContentWindowJs();
 

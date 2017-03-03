@@ -4,8 +4,6 @@ import org.apache.commons.io.IOUtils;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,12 +14,10 @@ import java.util.Map;
 
 public class DocumentOutputUtil {
 
-    private static final Logger logger = LoggerFactory.getLogger(DocumentOutputUtil.class);
+    private static final String IFRAME_RESIZE_JS_PATH = "com/k15t/spark/iframeResizer.min.js";
+    private static final String IFRAME_RESIZE_CONTENT_WINDOW_JS_PATH = "com/k15t/spark/iframeResizer.contentWindow.min.js";
 
-    private static final String iframeResizeJsPath = "com/k15t/spark/iframeResizer.min.js";
-    private static final String iframeResizeContentWindowJsPath = "com/k15t/spark/iframeResizer.contentWindow.min.js";
-
-    private static final String iframeContentWrapperTemplatePath = "com/k15t/spark/content_iframe_wrapper.vm";
+    private static final String IFRAME_CONTENT_WRAPPER_TEMPLATE_PATH = "com/k15t/spark/content_iframe_wrapper.vm";
 
 
     public static void applyCacheKeysToResourceUrls(Document document, long pluginModifiedTimestamp, Locale locale) {
@@ -50,22 +46,29 @@ public class DocumentOutputUtil {
      * as inline JS.
      *
      * @return iframeResizer.ContentWindow JS file as a string
+     * @throws NullPointerException if the resource cannot be found
      */
-    public static String getIframeResizeContentWindowJs() {
-        String iframeResizerContentWindowJs = "";
+    public static String getIframeResizeContentWindowJs() throws IOException {
         try (InputStream iframeResizeContentWindowFile =
                      DocumentOutputUtil.class.getClassLoader().
-                             getResourceAsStream(iframeResizeContentWindowJsPath)) {
-            if (iframeResizeContentWindowFile != null) {
-                iframeResizerContentWindowJs = IOUtils.toString(iframeResizeContentWindowFile, "UTF-8");
-            } else {
-                logger.warn("Did not found iframeResize.contentWindow-library resource file from resource path: " +
-                        iframeResizeContentWindowJsPath);
-            }
-        } catch (IOException iframeResizeExp) {
-            logger.warn("Could not load iframeResize-library", iframeResizeExp);
+                             getResourceAsStream(IFRAME_RESIZE_CONTENT_WINDOW_JS_PATH)) {
+            return IOUtils.toString(iframeResizeContentWindowFile, "UTF-8");
         }
-        return iframeResizerContentWindowJs;
+    }
+
+
+    /**
+     * Returns the contents of the iframe host window side part of the iframeResizer JS library.
+     *
+     * @return iframeResizer JS file as a string
+     * @throws NullPointerException if the resource cannot be found
+     */
+    private static String getIframeResizeJs() throws IOException {
+        try (InputStream iframeResizeContentWindowFile =
+                     DocumentOutputUtil.class.getClassLoader().
+                             getResourceAsStream(IFRAME_RESIZE_JS_PATH)) {
+            return IOUtils.toString(iframeResizeContentWindowFile, "UTF-8");
+        }
     }
 
 
@@ -82,11 +85,13 @@ public class DocumentOutputUtil {
      * The Velocity context used when rendering the template should be fetched by using
      * {@link #generateAdminIframeTemplateContext(String, String, String, String, String) generateAdminIframeTemplateContext()}
      * </p>
+     *
+     * @return iframe-content-wrapper Velocity template as a string
+     * @throws NullPointerException if the resource cannot be found
      */
     public static String getIframeAdminContentWrapperTemplate() throws IOException {
         try (InputStream templateStream =
-                     DocumentOutputUtil.class.getClassLoader().getResourceAsStream(iframeContentWrapperTemplatePath)) {
-            // TODO if the resource was not found, this will throw null pointer... But can't really continue anyway?
+                     DocumentOutputUtil.class.getClassLoader().getResourceAsStream(IFRAME_CONTENT_WRAPPER_TEMPLATE_PATH)) {
             return IOUtils.toString(templateStream, "UTF-8");
         }
     }
@@ -143,21 +148,10 @@ public class DocumentOutputUtil {
 
         // no need to allow all possible js variable names, just a reasonable and safe subset
         if (initCallbackFunctionName != null && !initCallbackFunctionName.matches("^[a-zA-Z_$][0-9a-zA-Z_$]*$")) {
-            //logger.warn("Unsafe initCallbackFunctionName, must match '^[a-zA-Z_$][0-9a-zA-Z_$]*$', was: " + initCallbackFunctionName);
             initCallbackFunctionName = null;
         }
 
-        String iframeResizerJs = "";
-        try (InputStream iframeResizeFile =
-                     DocumentOutputUtil.class.getClassLoader().getResourceAsStream(iframeResizeJsPath)) {
-            if (iframeResizeFile != null) {
-                iframeResizerJs = IOUtils.toString(iframeResizeFile, "UTF-8");
-            } else {
-                logger.warn("Did not found iframeResize-library resource file from resource path: " + iframeResizeJsPath);
-            }
-        } catch (IOException iframeResizeExp) {
-            logger.warn("Could not load iframeResize-library", iframeResizeExp);
-        }
+        String iframeResizerJs = getIframeResizeJs();
 
         HashMap<String, Object> context = new HashMap<String, Object>();
 

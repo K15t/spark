@@ -72,7 +72,7 @@ public abstract class AtlassianIframeAppServlet extends AtlassianAppServlet {
      *
      * @param document {@link Document} of the index before processing
      */
-    private void prepareIframeContentIndex(Document document) {
+    private void prepareIframeContentIndex(Document document) throws IOException {
         // load contentWindow part of the iFrameResizer (inject as inline script), otherwise left the app untouched
         String iframeResizerContentWindowJs = DocumentOutputUtil.getIframeResizeContentWindowJs();
         document.head().append("\n<script>\n" + iframeResizerContentWindowJs + "\n</script>\n");
