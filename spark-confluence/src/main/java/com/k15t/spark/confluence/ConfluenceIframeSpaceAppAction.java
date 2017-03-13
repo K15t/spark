@@ -1,10 +1,13 @@
 package com.k15t.spark.confluence;
 
 import com.atlassian.confluence.spaces.Space;
+import com.atlassian.confluence.spaces.actions.AbstractSpaceAction;
+import com.atlassian.confluence.spaces.actions.SpaceAware;
 import com.atlassian.confluence.util.velocity.VelocityUtils;
 import com.k15t.spark.base.util.DocumentOutputUtil;
 import com.opensymphony.webwork.ServletActionContext;
-import org.jsoup.nodes.Document;
+import com.opensymphony.xwork.config.entities.ActionConfig;
+import org.apache.commons.lang.StringUtils;
 
 import java.io.IOException;
 import java.util.Map;
@@ -13,11 +16,36 @@ import java.util.Map;
 /**
  * Class that can be extended for creating an action that opens a SPA in an iframe in the Space Tools view.
  */
-public class ConfluenceIframeSpaceAppAction extends ConfluenceSpaceAppAction {
+public abstract class ConfluenceIframeSpaceAppAction extends AbstractSpaceAction implements SpaceAware {
 
-    @Override
-    protected final String prepareBody(Document document) throws IOException {
-        String appBaseUrl = getAppBaseUrl(document);
+    private String body;
+
+
+    /**
+     * This method will be called by Confluence to output the SPA.
+     * <p/>
+     * Override to add permissions checks.
+     */
+    @SuppressWarnings("unused") // references by add-ons xwork definition for Space Apps.
+    public String index() {
+        ActionConfig actionConfig = ServletActionContext.getContext().getActionInvocation().getProxy().getConfig();
+
+        try {
+            this.body = prepareIframeWrapperBody();
+        } catch (IOException e) {
+            throw new RuntimeException("Cannot load iframe-space app template");
+        }
+
+        return INPUT;
+    }
+
+
+    /**
+     * @return main body html to be used for wrapping a SPA into an iframe
+     */
+    protected final String prepareIframeWrapperBody() throws IOException {
+        String appBaseUrl = ServletActionContext.getRequest().getContextPath() + "/" +
+                StringUtils.removeStart(getSpaBaseUrl(), "/");
         long idSuffix = System.currentTimeMillis();
 
         String template = DocumentOutputUtil.getIframeAdminContentWrapperTemplate();
@@ -89,5 +117,47 @@ public class ConfluenceIframeSpaceAppAction extends ConfluenceSpaceAppAction {
         return ServletActionContext.getRequest().getQueryString();
     }
 
+
+    /**
+     * <p>
+     * Returns the base url of the single page application (the browser visible url to the app resources
+     * relative to the Conflunce context path)
+     * </p>
+     *
+     * @return the base url of the spa app
+     */
+    protected abstract String getSpaBaseUrl();
+
+
+    /**
+     * @return string to be used as the title of the iframe wrapper page
+     */
+    public abstract String getTitleAsHtml();
+
+
+    /**
+     * @return space tools item to be marked as selected
+     */
+    public abstract String getSelectedSpaceToolsWebItem();
+
+
+    @Override
+    public boolean isSpaceRequired() {
+        return true;
+    }
+
+
+    @Override
+    public boolean isViewPermissionRequired() {
+        return true;
+    }
+
+
+    /**
+     * @return main body html of the iframe wrapper
+     */
+    public String getBodyAsHtml() {
+        return body;
+    }
 
 }

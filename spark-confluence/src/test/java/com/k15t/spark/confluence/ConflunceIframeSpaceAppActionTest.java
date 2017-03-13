@@ -22,16 +22,33 @@ public class ConflunceIframeSpaceAppActionTest extends ConfluenceSpaceAppActionT
 
     private ConfluenceIframeSpaceAppAction actionInstance;
 
+    public static class ConfluenceIframeSpaceAppActionBaseTestImpl extends ConfluenceIframeSpaceAppAction {
+
+        @Override
+        protected String getSpaBaseUrl() {
+            return "/spark/space/testapp/baseurl/";
+        }
+
+
+        @Override
+        public String getTitleAsHtml() {
+            return null;
+        }
+
+
+        @Override
+        public String getSelectedSpaceToolsWebItem() {
+            return null;
+        }
+    }
+
 
     @Before
     public void setup() throws Exception {
         super.commonSetup();
 
-        actionInstance = new ConfluenceIframeSpaceAppAction();
+        actionInstance = new ConfluenceIframeSpaceAppActionBaseTestImpl();
         actionInstance.setSpace(spaceMock);
-
-        // set the resource path to point to the test app
-        actionConfigParams.put("resource-path", "com/k15t/spark/confluence/testspa/");
 
     }
 
@@ -151,7 +168,7 @@ public class ConflunceIframeSpaceAppActionTest extends ConfluenceSpaceAppActionT
     @Test
     public void useSubclassSpecifiedQueryParam() throws Exception {
 
-        ConfluenceIframeSpaceAppAction instanceOverridingQuery = new ConfluenceIframeSpaceAppAction() {
+        ConfluenceIframeSpaceAppAction instanceOverridingQuery = new ConfluenceIframeSpaceAppActionBaseTestImpl() {
 
             @Override
             protected String getSpaQueryString() {
@@ -183,7 +200,7 @@ public class ConflunceIframeSpaceAppActionTest extends ConfluenceSpaceAppActionT
     @Test
     public void useSubclassSpecifiedIframeContextParams() throws Exception {
 
-        ConfluenceIframeSpaceAppAction instanceOverridingIframeContext = new ConfluenceIframeSpaceAppAction() {
+        ConfluenceIframeSpaceAppAction instanceOverridingIframeContext = new ConfluenceIframeSpaceAppActionBaseTestImpl() {
 
             @Override
             protected String getIframeContextInfo() {
@@ -211,7 +228,7 @@ public class ConflunceIframeSpaceAppActionTest extends ConfluenceSpaceAppActionT
         String genBody = instanceOverridingIframeContext.getBodyAsHtml();
         Assert.assertEquals(renderedVelocityToReturn, genBody);
 
-        ConfluenceIframeSpaceAppAction otherIframeContextOverrideTest = new ConfluenceIframeSpaceAppAction() {
+        ConfluenceIframeSpaceAppAction otherIframeContextOverrideTest = new ConfluenceIframeSpaceAppActionBaseTestImpl() {
 
             @Override
             protected String getIframeContextInfo() {
