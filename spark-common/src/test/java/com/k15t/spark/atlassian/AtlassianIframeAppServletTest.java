@@ -109,8 +109,10 @@ public class AtlassianIframeAppServletTest {
 
         Mockito.when(servletConfig.getInitParameter(Keys.SPARK_SELECTED_WEB_ITEM_KEY)).thenReturn("wrong-web-item-id");
 
+        Mockito.when(request.getParameter(Keys.SPARK_SELECTED_WEB_ITEM_KEY)).thenReturn("also-wrong-item-id");
+
         // this should be added instead
-        Mockito.when(testInstance.getSelectedWebItemKey()).thenReturn("correct-web-key");
+        Mockito.when(testInstance.getSelectedWebItemKey(props)).thenReturn("correct-web-key");
 
         String prepIndexRes = testInstance.prepareIndexHtml(
                 "<html><head><script src='test.js'/></head><body><p id='body-el'>test</p></body></html>",
@@ -148,6 +150,30 @@ public class AtlassianIframeAppServletTest {
 
         Assert.assertEquals("selectedWebItem", selWebItemDec.attr("tag"));
         Assert.assertEquals("", selWebItemDec.text());
+
+    }
+
+
+    @Test
+    public void selectedWebItemCanBeSetByQueryParam() throws Exception {
+
+        Mockito.when(servletConfig.getInitParameter(Keys.SPARK_SELECTED_WEB_ITEM_KEY)).thenReturn("wrong-web-item-id");
+
+        // this should win the selected web item set in the init config
+        Mockito.when(request.getParameter(Keys.SPARK_SELECTED_WEB_ITEM_KEY)).thenReturn("query-param-web-item-id");
+
+        String prepIndexRes = testInstance.prepareIndexHtml(
+                "<html><head><script src='test.js'/></head><body><p id='body-el'>test</p></body></html>",
+                props);
+
+        Document resDoc = Jsoup.parse(prepIndexRes);
+
+        // selected web item decorator added
+        Elements selWebItemDec = resDoc.body().select("content");
+        Assert.assertEquals(1, selWebItemDec.size());
+
+        Assert.assertEquals("selectedWebItem", selWebItemDec.attr("tag"));
+        Assert.assertEquals("query-param-web-item-id", selWebItemDec.text());
 
     }
 

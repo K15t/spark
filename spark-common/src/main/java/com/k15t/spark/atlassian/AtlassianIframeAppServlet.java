@@ -98,7 +98,7 @@ public abstract class AtlassianIframeAppServlet extends AtlassianAppServlet {
 
         Element contEl = document.body().appendElement("content");
         contEl.attr("tag", "selectedWebItem");
-        contEl.text(getSelectedWebItemKey());
+        contEl.text(getSelectedWebItemKey(props));
 
         String iframeHtml = getTemplateRenderer().renderFragment(
                 DocumentOutputUtil.getIframeAdminContentWrapperTemplate(),
@@ -112,13 +112,17 @@ public abstract class AtlassianIframeAppServlet extends AtlassianAppServlet {
 
     /**
      * Return the key of the web item. Needed for selecting the correct item in the admin side menu. The default implementation
-     * returns the value of servlet init parameter {@link Keys#SPARK_SELECTED_WEB_ITEM_KEY}
+     * returns the value of the query parameter {@link Keys#SPARK_SELECTED_WEB_ITEM_KEY} if set, if not the value of servlet
+     * init parameter {@link Keys#SPARK_SELECTED_WEB_ITEM_KEY} (and empty string if both are unset)
      *
      * @return key of the web item that should be marked as selected in the admin side menu
      */
-    public String getSelectedWebItemKey() {
-        return StringUtils.defaultString(
-                getServletConfig().getInitParameter(Keys.SPARK_SELECTED_WEB_ITEM_KEY));
+    public String getSelectedWebItemKey(RequestProperties props) {
+        String selItem = props.getRequest().getParameter(Keys.SPARK_SELECTED_WEB_ITEM_KEY);
+        if (selItem == null) {
+            selItem = getServletConfig().getInitParameter(Keys.SPARK_SELECTED_WEB_ITEM_KEY);
+        }
+        return StringUtils.defaultString(selItem);
     }
 
 }
