@@ -1,12 +1,10 @@
 package com.k15t.spark.confluence;
 
-import com.atlassian.confluence.spaces.Space;
 import com.atlassian.confluence.spaces.actions.AbstractSpaceAction;
 import com.atlassian.confluence.spaces.actions.SpaceAware;
 import com.atlassian.confluence.util.velocity.VelocityUtils;
 import com.k15t.spark.base.util.DocumentOutputUtil;
 import com.opensymphony.webwork.ServletActionContext;
-import com.opensymphony.xwork.config.entities.ActionConfig;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.IOException;
@@ -22,38 +20,28 @@ public abstract class ConfluenceIframeSpaceAppAction extends AbstractSpaceAction
 
 
     /**
-     * This method will be called by Confluence to output the SPA.
+     * This method will be called by Confluence to output the iframe SPA wrapper
      * <p/>
      * Override to add permissions checks.
      */
-    @SuppressWarnings("unused") // references by add-ons xwork definition for Space Apps.
     public String index() {
-        ActionConfig actionConfig = ServletActionContext.getContext().getActionInvocation().getProxy().getConfig();
 
         try {
-            this.body = prepareIframeWrapperBody();
+            String appBaseUrl = ServletActionContext.getRequest().getContextPath() + "/" +
+                    StringUtils.removeStart(getSpaBaseUrl(), "/");
+            long idSuffix = System.currentTimeMillis();
+
+            String template = DocumentOutputUtil.getIframeAdminContentWrapperTemplate();
+            Map<String, Object> context = DocumentOutputUtil.generateAdminIframeTemplateContext(
+                    appBaseUrl, "spark_space_adm_iframe_" + idSuffix,
+                    getIframeContextInfo(), getIframeContextInitializedCallbackName(), getSpaQueryString());
+
+            this.body = VelocityUtils.getRenderedContent(template, context);
         } catch (IOException e) {
             throw new RuntimeException("Cannot load iframe-space app template");
         }
 
         return INPUT;
-    }
-
-
-    /**
-     * @return main body html to be used for wrapping a SPA into an iframe
-     */
-    protected final String prepareIframeWrapperBody() throws IOException {
-        String appBaseUrl = ServletActionContext.getRequest().getContextPath() + "/" +
-                StringUtils.removeStart(getSpaBaseUrl(), "/");
-        long idSuffix = System.currentTimeMillis();
-
-        String template = DocumentOutputUtil.getIframeAdminContentWrapperTemplate();
-        Map<String, Object> context = DocumentOutputUtil.generateAdminIframeTemplateContext(
-                appBaseUrl, "spark_space_adm_iframe_" + idSuffix,
-                getIframeContextInfo(), getIframeContextInitializedCallbackName(), getSpaQueryString());
-
-        return VelocityUtils.getRenderedContent(template, context);
     }
 
 
@@ -72,11 +60,7 @@ public abstract class ConfluenceIframeSpaceAppAction extends AbstractSpaceAction
      * @return string that will be attached to SPARK.iframeContext variable as a JS string
      */
     protected String getIframeContextInfo() {
-        Space space = getSpace();
-
-        String res = "{\"space_key\": \"" + space.getKey() + "\"}";
-
-        return res;
+        return "{\"space_key\": \"" + getSpaceKey() + "\"}";
     }
 
 

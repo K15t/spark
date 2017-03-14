@@ -22,6 +22,8 @@ public class ConflunceIframeSpaceAppActionTest extends ConfluenceSpaceAppActionT
 
     private ConfluenceIframeSpaceAppAction actionInstance;
 
+    private static String testSpaceKey = "test-space-key";
+
     public static class ConfluenceIframeSpaceAppActionBaseTestImpl extends ConfluenceIframeSpaceAppAction {
 
         @Override
@@ -40,6 +42,13 @@ public class ConflunceIframeSpaceAppActionTest extends ConfluenceSpaceAppActionT
         public String getSelectedSpaceToolsWebItem() {
             return null;
         }
+
+
+        @Override
+        public String getSpaceKey() {
+            return testSpaceKey;
+        }
+
     }
 
 
@@ -56,7 +65,7 @@ public class ConflunceIframeSpaceAppActionTest extends ConfluenceSpaceAppActionT
     @Test
     public void runActionWithIframeAppResourcePath() throws IOException {
 
-        Mockito.when(spaceMock.getKey()).thenReturn("test-space-key");
+        testSpaceKey = "test-space-key";
 
         // running index (the method marked to be run by xwork) should initialize the velocity context
         // represented by the action object (ie. getBody() method should return what should be the parameter
@@ -93,7 +102,7 @@ public class ConflunceIframeSpaceAppActionTest extends ConfluenceSpaceAppActionT
     @Test
     public void iframeSpaceActionDefaultContextInfo() throws IOException {
 
-        Mockito.when(spaceMock.getKey()).thenReturn("test-space-key");
+        testSpaceKey = "test-space-key";
 
         String result = actionInstance.index();
 
@@ -106,7 +115,7 @@ public class ConflunceIframeSpaceAppActionTest extends ConfluenceSpaceAppActionT
                 eq("{\"space_key\": \"test-space-key\"}"), eq("contextInitializedCallback"), isNull(String.class));
 
 
-        Mockito.when(spaceMock.getKey()).thenReturn("KEY57");
+        testSpaceKey = "KEY57";
 
         result = actionInstance.index();
 
