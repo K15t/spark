@@ -280,10 +280,19 @@ AJS.toInit(function($) {
             // (in normal operation it is removed on dialog close)
             $('#' + elementIdSparkAppContainer).remove();
 
+            var iframeSrcQuery = '?iframe_content=true';
+            if (dialogSettings.queryString) {
+                var queryStrToAppend = dialogSettings.queryString;
+                if (queryStrToAppend.indexOf('?') === 0 || queryStrToAppend.indexOf('&') === 0) {
+                    queryStrToAppend = queryStrToAppend.substr(1);
+                }
+                iframeSrcQuery += '&' + queryStrToAppend;
+            }
+
             // init a fullscreen dialog wrapper and iframe and add to body
             var iframeWrapperElement = $(templates.appFullscreenContaineriFrame({
                 'id': elementIdSparkAppContainer,
-                'src': location.protocol + '//' + location.host + fullAppPath + '?iframe_content=true',
+                'src': location.protocol + '//' + location.host + fullAppPath + iframeSrcQuery,
                 'createOptions': dialogSettings
             }));
             iframeWrapperElement.appendTo(bodyEl);
