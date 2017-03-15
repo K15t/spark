@@ -1,6 +1,8 @@
 package com.k15t.spark.confluence;
 
 import com.atlassian.confluence.util.velocity.VelocityUtils;
+import com.google.common.collect.ImmutableMap;
+import com.k15t.spark.base.Keys;
 import com.k15t.spark.base.util.DocumentOutputUtil;
 import com.opensymphony.xwork.Action;
 import org.junit.Assert;
@@ -10,6 +12,7 @@ import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 
 import java.io.IOException;
+import java.util.Collections;
 
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -272,5 +275,71 @@ public class ConflunceIframeSpaceAppActionTest extends ConfluenceSpaceAppActionT
 
     }
 
+
+    @Test
+    public void spaBaseUrlIsTakenFromActionConfig() {
+        Mockito.when(actionConfig.getParams()).thenReturn(ImmutableMap.of(Keys.SPARK_SPA_BASE_URL, "/hello/world"));
+        actionInstance = new ConfluenceIframeSpaceAppAction() {
+            @Override
+            public String getTitleAsHtml() {
+                return null;
+            }
+        };
+        Assert.assertEquals("/hello/world", actionInstance.getSpaBaseUrl());
+    }
+
+
+    @Test(expected = IllegalStateException.class)
+    public void spaBaseUrlIsTakenFromActionConfig_MissingParam() {
+        Mockito.when(actionConfig.getParams()).thenReturn(Collections.emptyMap());
+        actionInstance = new ConfluenceIframeSpaceAppAction() {
+            @Override
+            public String getTitleAsHtml() {
+                return null;
+            }
+        };
+        actionInstance.getSpaBaseUrl();
+    }
+
+
+    @Test
+    public void getSelectedWebItem_FromActionConfig() {
+        Mockito.when(actionConfig.getParams()).thenReturn(ImmutableMap.of(Keys.SPARK_SELECTED_WEB_ITEM_KEY, "test-item"));
+        actionInstance = new ConfluenceIframeSpaceAppAction() {
+            @Override
+            public String getTitleAsHtml() {
+                return null;
+            }
+        };
+        Assert.assertEquals("test-item", actionInstance.getSelectedSpaceToolsWebItem());
+    }
+
+
+    @Test
+    public void getSelectedWebItem_RequestParamOverwritesActionConfig() {
+        Mockito.when(actionConfig.getParams()).thenReturn(ImmutableMap.of(Keys.SPARK_SELECTED_WEB_ITEM_KEY, "test-item"));
+        Mockito.when(servletRequest.getParameter(Keys.SPARK_SELECTED_WEB_ITEM_KEY)).thenReturn("from-request");
+        actionInstance = new ConfluenceIframeSpaceAppAction() {
+            @Override
+            public String getTitleAsHtml() {
+                return null;
+            }
+        };
+        Assert.assertEquals("from-request", actionInstance.getSelectedSpaceToolsWebItem());
+    }
+
+
+    @Test
+    public void getSelectedWebItem_AllParamsMissing() {
+        Mockito.when(actionConfig.getParams()).thenReturn(Collections.emptyMap());
+        Mockito.when(servletRequest.getParameter(Keys.SPARK_SELECTED_WEB_ITEM_KEY)).thenReturn(null);
+        actionInstance = new ConfluenceIframeSpaceAppAction() {
+            @Override
+            public String getTitleAsHtml() {
+                return null;
+            }
+        };
+        Assert.assertNull(actionInstance.getSelectedSpaceToolsWebItem());
+    }
 
 }
