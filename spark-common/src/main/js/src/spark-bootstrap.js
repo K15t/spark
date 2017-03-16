@@ -305,12 +305,15 @@ AJS.toInit(function($) {
             // to remove scrollers from content below the iframe dialog
             bodyEl.addClass('spark-no-scroll');
 
-            var iframeCloser = function() {
+            var iframeCloser = function(resultData) {
                 bodyEl.removeClass('spark-no-scroll');
                 if (iframeDomEl.iFrameResizer) {
                     iframeDomEl.iFrameResizer.close();
                 }
                 iframeWrapperElement.remove();
+                if (dialogSettings.onClose) {
+                    dialogSettings.onClose(resultData);
+                }
             };
 
             // add an easy way for the contained iframe to access the dialog chrome (if added)

@@ -280,6 +280,26 @@ describe('iframeAppLoader', function() {
 
             });
 
+            it('close-method invokes the onClose handler with result data', function() {
+                var closeCallback = jasmine.createSpy('dialogCloseCallback');
+                this.iframeOpener('test-app-name', '/test/app/path', { onClose: closeCallback });
+                var iframeResizer = jasmine.createSpyObj('iFrameResizer', ['close']);
+                var iframeDomEl = $('body').find('iframe').get()[0];
+                expect(iframeDomEl).toBeDefined();
+                iframeDomEl.iFrameResizer = iframeResizer;
+                this.runReadyCb();
+
+                expect(iframeResizer.close).not.toHaveBeenCalled();
+                var iw = this.getIframeContentWindow();
+
+                var resultData = { a: 'b', c: function () {}};
+
+                iw.SPARK.iframeControls.closeDialog(resultData);
+
+                expect(closeCallback).toHaveBeenCalledTimes(1);
+                expect(closeCallback).toHaveBeenCalledWith(resultData);
+            });
+
             it('adds extra passes extra context data to iframe', function() {
 
                 var extraData = {
