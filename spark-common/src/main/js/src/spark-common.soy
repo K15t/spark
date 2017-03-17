@@ -90,3 +90,31 @@
         </div>
     </div>
 {/template}
+
+/**
+ * @param id Id of the HTML element
+ * @param src URL of the content to load to the iframe
+ * @param createOptions extra options to customize the dialog
+ */
+{template .appFullscreenContaineriFrame}
+    <div id="{$id}" class="spark-fullscreen-wrapper">
+        {if $createOptions.addChrome}
+        <div class="spark-fullscreen-chrome">
+            <div class="spark-fullscreen-chrome-btnwrap">
+                <button id="{$id}-chrome-submit"
+                    class="aui-button aui-icon aui-icon-small aui-iconfont-success">
+                    "OK"
+                </button>
+                <button id="{$id}-chrome-cancel"
+                    class="aui-button aui-icon aui-icon-small aui-iconfont-close-dialog">
+                    "Cancel"
+                </button>
+            </div>
+        </div>
+        {/if}
+        <div class="spark-fullscreen-scroll-wrapper {if $createOptions.addChrome}spark-fullscreen-haschrome{/if}">
+            <iframe id="{$id}-iframe" class="spark-fullscreen-iframe" src="{$src}" scrolling="no">
+            </iframe>
+        </div>
+    </div>
+{/template}

@@ -1,0 +1,1 @@
+/* test placeholder of iframeResizer.contentWindow.min.js */
