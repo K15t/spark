@@ -26,6 +26,7 @@ public abstract class AtlassianIframeAppServlet extends AtlassianAppServlet {
 
         if (isAskingIframeContent(props)) {
             prepareIframeContentIndex(document);
+            customizeIframeContentDocument(document);
         } else {
             // serve as an admin page, this is the only way in which index is asked without iframe parameter at the moment,
             // dialog-mode adds the wrapper with JavaScript, and Space-action using Velocity
@@ -64,6 +65,14 @@ public abstract class AtlassianIframeAppServlet extends AtlassianAppServlet {
         // load contentWindow part of the iFrameResizer (inject as inline script), otherwise left the app untouched
         String iframeResizerContentWindowJs = DocumentOutputUtil.getIframeResizeContentWindowJs();
         document.head().append("\n<script>\n" + iframeResizerContentWindowJs + "\n</script>\n");
+    }
+
+
+    /**
+     * Callback that can be implemented by sub classes in order to modify the iframe content document, for example to inject information.
+     */
+    protected void customizeIframeContentDocument(Document document) {
+        // Noop by default
     }
 
 

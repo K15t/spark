@@ -19,8 +19,14 @@ public class Keys {
     public static final String NG_TRANS_MSG_BUNDLE = "ng-translate-message-bundle";
 
     /**
-     * The param key used in the atlassian-plugin.xml servlet configuration for specifying the item to select
+     * The param key used in the atlassian-plugin.xml action or servlet configuration for specifying the item to select
      * in the admin side menu
      */
     public static final String SPARK_SELECTED_WEB_ITEM_KEY = "spark-selected-web-item-key";
+
+    /**
+     * The param key used in the atlassian-plugin.xml action or servlet configuration for specifying the SPA base url.
+     */
+    public static final String SPARK_SPA_BASE_URL = "spark-spa-base-url";
+
 }
