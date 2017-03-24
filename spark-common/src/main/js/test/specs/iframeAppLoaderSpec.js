@@ -28,7 +28,7 @@ describe('iframeAppLoader', function() {
 
             var currSpark = SPARK.__versions.get();
             this.iframeTemplate = spyOn(currSpark.Common.Templates, 'appFullscreenContaineriFrame')
-                .and.returnValue('<div class="spark-mock-template"></div>');
+                .and.returnValue('<div class="spark-mock-template"><iframe></iframe></div>');
 
             this.iframeOpener = this.iframeAppLoader.openFullscreenIframeDialog;
 
@@ -163,12 +163,7 @@ describe('iframeAppLoader', function() {
                 );
 
                 this.getIframeContentWindow = function() {
-                    var iframeEl = $('body').find('iframe');
-
-                    expect(iframeEl).toBeDefined();
-
-                    var iframeDomEl = iframeEl.get()[0];
-                    expect(iframeDomEl).toBeDefined();
+                    var iframeDomEl = this.getIframeDomEl();
 
                     var iw = iframeDomEl.contentWindow;
                     expect(iw).toBeDefined();
@@ -176,13 +171,23 @@ describe('iframeAppLoader', function() {
                     return iw;
                 };
 
-                this.runReadyCb = function() {
+                this.getIframeDomEl = function() {
 
-                    // simulate the iframe becoming ready
-                    var readyCallback = this.$ready.calls.argsFor(0)[0];
-                    expect(readyCallback).toEqual(jasmine.any(Function));
+                    var iframeEl = $('body').find('iframe');
 
-                    readyCallback.call();
+                    expect(iframeEl).toBeDefined();
+
+                    var iframeDomEl = iframeEl.get()[0];
+                    expect(iframeDomEl).toBeDefined();
+
+                    return iframeDomEl;
+                };
+
+                this.getSparkIframeContext = function() {
+
+                    var iframeDomEl = this.getIframeDomEl();
+
+                    return iframeDomEl.SPARK;
 
                 };
 
@@ -196,20 +201,14 @@ describe('iframeAppLoader', function() {
 
             });
 
-            it('the callback adds the SPARK controls to the iframe', function() {
+            it('the callback adds the SPARK controls to the iframe element', function() {
 
                 this.iframeOpener('test-app-name', '/test/app/path');
 
-                var iw = this.getIframeContentWindow();
-
-                // the execution of the ready function is controlled through the spy here
-                // test that SPARK not added before 'ready'
-                expect(iw.SPARK).not.toBeDefined();
-
-                this.runReadyCb();
+                var iframeDomEl = this.getIframeDomEl();
 
                 // should have no added the SPARK context
-                expect(iw.SPARK).toBeDefined();
+                expect(iframeDomEl.SPARK).toBeDefined();
 
             });
 
@@ -217,37 +216,36 @@ describe('iframeAppLoader', function() {
 
                 this.iframeOpener('test-app-name', '/test/app/path');
 
-                var iw = this.getIframeContentWindow();
-
-                this.runReadyCb();
+                var iframeDomEl = this.getIframeDomEl();
 
                 // should have no added the SPARK context
-                expect(iw.SPARK).toBeDefined();
+                expect(iframeDomEl.SPARK).toBeDefined();
 
-                expect(iw.SPARK.iframeControls).toEqual(jasmine.any(Object));
+                expect(iframeDomEl.SPARK.iframeControls).toEqual(jasmine.any(Object));
 
-                expect(iw.SPARK.iframeControls.closeDialog).toEqual(jasmine.any(Function));
+                expect(iframeDomEl.SPARK.iframeControls.closeDialog).toEqual(jasmine.any(Function));
 
                 // check in the case that there is nothing unexpected in the iframe context
                 // - just the close method (dialogChrome is null by default, and the extraData
                 // what it was in dialog options, ending up undefined when not specified)
-                expect(iw.SPARK.iframeControls).toEqual({
+                expect(iframeDomEl.SPARK.iframeControls).toEqual({
                     'closeDialog': jasmine.any(Function),
-                    'dialogChrome': null,
-                    'extraData': undefined
+                    'dialogChrome': null
                 });
+
+                expect(iframeDomEl.SPARK.extraData).not.toBeDefined();
 
             });
 
             it('close-method restores main content scrollers', function() {
 
                 this.iframeOpener('test-app-name', '/test/app/path');
-                iw = this.getIframeContentWindow();
-                this.runReadyCb();
+
+                var iframeSparkCont = this.getSparkIframeContext();
 
                 expect($('body').hasClass('spark-no-scroll')).toBeTruthy();
 
-                iw.SPARK.iframeControls.closeDialog();
+                iframeSparkCont.iframeControls.closeDialog();
 
                 expect($('body').hasClass('spark-no-scroll')).toBeFalsy();
 
@@ -256,7 +254,7 @@ describe('iframeAppLoader', function() {
             it('close-method removes the dialog wrapper element', function() {
                 this.iframeOpener('test-app-name', '/test/app/path');
 
-                iw = this.getIframeContentWindow();
+                var iframeSpark = this.getSparkIframeContext();
 
                 // should have the expected 'iframe wrapper element'
 
@@ -264,16 +262,9 @@ describe('iframeAppLoader', function() {
                 expect(iframeWrapperEl.length).toEqual(1);
                 expect(iframeWrapperEl.find('iframe').length).toEqual(1);
 
-                // run the iframe ready callback, the dialog elements should still be there
-                this.runReadyCb();
-
-                var iframeWrapperEl2 = $('body').find('#iframe_test_el');
-                expect(iframeWrapperEl2.length).toEqual(1);
-                expect(iframeWrapperEl2.find('iframe').length).toEqual(1);
-
                 // call the close method, now the should iframe-dialog wrapper
                 // should not be there anymore
-                iw.SPARK.iframeControls.closeDialog();
+                iframeSpark.iframeControls.closeDialog();
 
                 expect($('body').find('#iframe_test_el').length).toEqual(0);
                 expect($('body').find('iframe').length).toEqual(0);
@@ -300,7 +291,7 @@ describe('iframeAppLoader', function() {
                 expect(closeCallback).toHaveBeenCalledWith(resultData);
             });
 
-            it('adds extra passes extra context data to iframe', function() {
+            it('passes extra context data to iframe context', function() {
 
                 var extraData = {
                     'some': 'random',
@@ -310,31 +301,25 @@ describe('iframeAppLoader', function() {
                 this.iframeOpener('test-app-name', '/test/app/path', {
                     'extraData': extraData
                 });
-                iw = this.getIframeContentWindow();
-                this.runReadyCb();
 
-                expect(iw.SPARK.iframeControls).toEqual(jasmine.any(Object));
+                var iframeSpark = this.getSparkIframeContext();
 
-                expect(iw.SPARK.iframeControls.extraData).toEqual(jasmine.any(Object));
+                expect(iframeSpark.iframeControls).toEqual(jasmine.any(Object));
 
-                expect(iw.SPARK.iframeControls).toEqual({
-                    'closeDialog': jasmine.any(Function),
-                    'dialogChrome': null,
-                    'extraData': {
-                        'some': 'random',
-                        'extra': ['data', 'for', 'iframe']
-                    }
+                expect(iframeSpark.extraData).toEqual(jasmine.any(Object));
+
+                expect(iframeSpark.extraData).toEqual({
+                    'some': 'random',
+                    'extra': ['data', 'for', 'iframe']
                 });
 
             });
 
             it('calls the iFrameResizer host window part', function() {
 
-                this.iframeOpener('test-app-name', '/test/app/path');
-
                 var iframeResizer = this.addIframeResizerMock();
 
-                this.runReadyCb();
+                this.iframeOpener('test-app-name', '/test/app/path');
 
                 expect(iframeResizer).toHaveBeenCalled();
 
@@ -347,9 +332,9 @@ describe('iframeAppLoader', function() {
 
             it('calls iFrameResizer.close on closing dialog', function() {
 
-                this.iframeOpener('test-app-name', '/test/app/path');
-
                 var iframeResizer = jasmine.createSpyObj('iFrameResizer', ['close']);
+
+                this.iframeOpener('test-app-name', '/test/app/path');
 
                 var iframeDomEl = $('body').find('iframe').get()[0];
 
@@ -357,13 +342,10 @@ describe('iframeAppLoader', function() {
 
                 iframeDomEl.iFrameResizer = iframeResizer;
 
-                this.runReadyCb();
-
                 expect(iframeResizer.close).not.toHaveBeenCalled();
 
-                var iw = this.getIframeContentWindow();
-
-                iw.SPARK.iframeControls.closeDialog();
+                var iframeSparkCont = this.getSparkIframeContext();
+                iframeSparkCont.iframeControls.closeDialog();
 
                 expect(iframeResizer.close).toHaveBeenCalledTimes(1);
 
@@ -404,14 +386,10 @@ describe('iframeAppLoader', function() {
                         }
                     });
 
-                    // fire the ready callback and check that dialogChrome object added to iframe context
-                    this.runReadyCb();
+                    var iframeSpark = this.getSparkIframeContext();
 
-                    var iw = this.getIframeContentWindow();
-
-                    expect(iw.SPARK.iframeControls).toEqual({
+                    expect(iframeSpark.iframeControls).toEqual({
                         'closeDialog': jasmine.any(Function),
-                        'extraData': undefined,
                         'dialogChrome': {
                             'cancelBtn': jasmine.any(HTMLElement),
                             'confirmBtn': jasmine.any(HTMLElement)
@@ -426,8 +404,8 @@ describe('iframeAppLoader', function() {
                     expect(parentCancelEl).toBeDefined();
                     expect(parentSubmitEl).toBeDefined();
 
-                    expect(iw.SPARK.iframeControls.dialogChrome.cancelBtn).toEqual(parentCancelEl);
-                    expect(iw.SPARK.iframeControls.dialogChrome.confirmBtn).toEqual(parentSubmitEl);
+                    expect(iframeSpark.iframeControls.dialogChrome.cancelBtn).toEqual(parentCancelEl);
+                    expect(iframeSpark.iframeControls.dialogChrome.confirmBtn).toEqual(parentSubmitEl);
 
                 });
 
@@ -442,11 +420,8 @@ describe('iframeAppLoader', function() {
                     expect($('body')
                         .find('#test-app-spark-app-container-chrome-submit').length).toEqual(1);
 
-                    this.runReadyCb();
-
-                    var iw = this.getIframeContentWindow();
-
-                    iw.SPARK.iframeControls.closeDialog();
+                    var iframeSparkCont = this.getSparkIframeContext();
+                    iframeSparkCont.iframeControls.closeDialog();
 
                     expect($('body')
                         .find('#test-app-spark-app-container-chrome-cancel').length).toEqual(0);
@@ -459,6 +434,9 @@ describe('iframeAppLoader', function() {
 
                     // wrap a bit more verifications into this test about things
                     // that are already tested without having the dialog chrome
+
+                    // test also later that iFrameResizer is called as expected
+                    var iframeResizer = this.addIframeResizerMock();
 
                     expect($('body').hasClass('spark-no-scroll')).toBeFalsy();
                     expect($('body').find('iframe').length).toEqual(0);
@@ -478,24 +456,20 @@ describe('iframeAppLoader', function() {
                     expect($('body').hasClass('spark-no-scroll')).toBeTruthy();
                     expect($('body').find('iframe').length).toEqual(1);
 
-                    // test also that iFrameResizer is called as expected
-                    var iframeResizer = this.addIframeResizerMock();
-
-                    this.runReadyCb();
-                    var iw = this.getIframeContentWindow();
+                    var iframeSparkCont = this.getSparkIframeContext();
 
                     // added expected data to iframe's contextwindow
-                    expect(iw.SPARK).toEqual(jasmine.any(Object));
-                    expect(iw.SPARK.iframeControls).toEqual({
+                    expect(iframeSparkCont).toEqual(jasmine.any(Object));
+                    expect(iframeSparkCont.iframeControls).toEqual({
                         'closeDialog': jasmine.any(Function),
                         'dialogChrome': {
                             'cancelBtn': jasmine.any(HTMLElement),
                             'confirmBtn': jasmine.any(HTMLElement)
-                        },
-                        'extraData': {
-                            'test': 'some extra',
-                            'with': { 'chrome': true }
                         }
+                    });
+                    expect(iframeSparkCont.extraData).toEqual({
+                        'test': 'some extra',
+                        'with': { 'chrome': true }
                     });
 
                     expect(iframeResizer).toHaveBeenCalled();
@@ -512,7 +486,7 @@ describe('iframeAppLoader', function() {
                     iframeDomEl.iFrameResizer = iframeDomElResizerObj;
 
                     // close dialog and check that everything is cleaned up
-                    iw.SPARK.iframeControls.closeDialog();
+                    iframeSparkCont.iframeControls.closeDialog();
 
                     expect($('body')
                         .find('#test-app-spark-app-container-chrome-cancel').length).toEqual(0);
