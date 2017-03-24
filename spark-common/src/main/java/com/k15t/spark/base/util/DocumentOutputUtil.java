@@ -15,7 +15,10 @@ import java.util.Map;
 public class DocumentOutputUtil {
 
     private static final String IFRAME_RESIZE_JS_PATH = "com/k15t/spark/iframeResizer.min.js";
-    private static final String IFRAME_RESIZE_CONTENT_WINDOW_JS_PATH = "com/k15t/spark/iframeResizer.contentWindow.min.js";
+
+    // TODO rename methods to not reference iframe_resize directly but something like
+    // content window deps...
+    private static final String IFRAME_RESIZE_CONTENT_WINDOW_JS_PATH = "com/k15t/spark/spark-dist.contentWindow.js";
 
     private static final String IFRAME_CONTENT_WRAPPER_TEMPLATE_PATH = "com/k15t/spark/content_iframe_wrapper.vm";
 

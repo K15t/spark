@@ -270,6 +270,9 @@ AJS.toInit(function($) {
 
             var bodyEl = $('body');
 
+            // to remove scrollers from content below the iframe dialog
+            bodyEl.addClass('spark-no-scroll');
+
             var fullAppPath = AJS.contextPath() + appPath;
 
             var elementIdSparkAppContainer = appName + '-spark-app-container';
@@ -295,26 +298,6 @@ AJS.toInit(function($) {
                 'src': location.protocol + '//' + location.host + fullAppPath + iframeSrcQuery,
                 'createOptions': dialogSettings
             }));
-            iframeWrapperElement.appendTo(bodyEl);
-
-            // add needed extras to the loaded iframe
-
-            var iframeElement = iframeWrapperElement.find('iframe');
-            var iframeDomEl = iframeElement.get()[0];
-
-            // to remove scrollers from content below the iframe dialog
-            bodyEl.addClass('spark-no-scroll');
-
-            var iframeCloser = function(resultData) {
-                bodyEl.removeClass('spark-no-scroll');
-                if (iframeDomEl.iFrameResizer) {
-                    iframeDomEl.iFrameResizer.close();
-                }
-                iframeWrapperElement.remove();
-                if (dialogSettings.onClose) {
-                    dialogSettings.onClose(resultData);
-                }
-            };
 
             // add an easy way for the contained iframe to access the dialog chrome (if added)
             var dialogChrome = null;
@@ -327,35 +310,60 @@ AJS.toInit(function($) {
                 };
             }
 
-            iframeElement.ready(function() {
+            // add needed extras to the loaded iframe
 
-                // access the DOM of the js app loaded into the iframe and push
-                // an object into that context giving a simple way for the loaded
-                // app to eg. tell the parent window to close the dialog (and the iframe)
+            var iframeElement = iframeWrapperElement.find('iframe');
+            var iframeDomEl = iframeElement.get()[0];
 
-                // should work as long as the parent and the app in the iframe share
-                // the same origin (which should be true for all SPARK apps)
-
-                var iw = iframeDomEl.contentWindow ? iframeDomEl.contentWindow :
-                    iframeDomEl.contentDocument.defaultView;
-
-                if (!iw.SPARK) {
-                    iw.SPARK = {};
+            var iframeCloser = function(resultData) {
+                bodyEl.removeClass('spark-no-scroll');
+                if (iframeDomEl.iFrameResizer) {
+                    iframeDomEl.iFrameResizer.close();
                 }
-                iw.SPARK.iframeControls = {
-                    'closeDialog': iframeCloser,
-                    'dialogChrome': dialogChrome,
-                    'extraData': dialogSettings.extraData
-                };
-
-                if (iframeElement.iFrameResize) {
-                    iframeElement.iFrameResize([{
-                        'autoResize': true,
-                        'heightCalculationMethod': 'max'
-                    }]);
+                iframeWrapperElement.remove();
+                if (dialogSettings.onClose) {
+                    dialogSettings.onClose(resultData);
                 }
+            };
 
-            });
+            // add needed extras to the loaded iframe
+
+            var iframeElement = iframeWrapperElement.find('iframe');
+            var iframeDomEl = iframeElement.get()[0];
+
+            var iframeCloser = function() {
+                bodyEl.removeClass('spark-no-scroll');
+                if (iframeDomEl.iFrameResizer) {
+                    iframeDomEl.iFrameResizer.close();
+                }
+                iframeWrapperElement.remove();
+            };
+
+            // access the DOM of the js app loaded into the iframe and push
+            // an object into that context giving a simple way for the loaded
+            // app to eg. tell the parent window to close the dialog (and the iframe)
+
+            // should work as long as the parent and the app in the iframe share
+            // the same origin (which should be true for all SPARK apps)
+
+            var iwSpark = {};
+            iframeDomEl.SPARK = iwSpark;
+
+            iwSpark.iframeControls = {
+                'closeDialog': iframeCloser,
+                'dialogChrome': dialogChrome
+            };
+
+            iwSpark.extraData = dialogSettings.extraData;
+
+            if (iframeElement.iFrameResize) {
+                iframeElement.iFrameResize([{
+                    'autoResize': true,
+                    'heightCalculationMethod': 'max'
+                }]);
+            }
+
+            iframeWrapperElement.appendTo(bodyEl);
 
             return elementIdSparkAppContainer;
 
