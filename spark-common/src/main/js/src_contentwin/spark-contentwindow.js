@@ -7,16 +7,12 @@ var SPARK = SPARK || {};
     var parentSpark = windowEl.frameElement.SPARK;
 
     var getData = function() {
-
         return parentSpark.extraData;
-
     };
 
     var getDialogControls = function() {
-
         // TODO rename iframeControls to dialogControls..?
         return parentSpark.iframeControls;
-
     };
 
     sparkInstance.getData = getData;

@@ -26,7 +26,6 @@ public class DocumentOutputUtilTest {
     private static final String iframeSrcContextKey = "iframeSrc";
     private static final String iframeResizerJsContextKey = "iframeResizerJs";
     private static final String iframeInjContextVelocityKey = "escapedIframeContext";
-    private static final String iframeInitCallbackVelocityKey = "iframeInitCallback";
 
 
     @Test
@@ -36,8 +35,7 @@ public class DocumentOutputUtilTest {
 
         Map<String, Object> res =
                 DocumentOutputUtil.generateAdminIframeTemplateContext("/test/base/url/",
-                        "iframe-id", "{\"test-key\": \"test-value\"}",
-                        null, "");
+                        "iframe-id", "{\"test-key\": \"test-value\"}", "");
 
         Assert.assertEquals("iframe-id", res.get(iframeIdContextKey));
 
@@ -47,13 +45,10 @@ public class DocumentOutputUtilTest {
 
         Assert.assertEquals("{\\\"test-key\\\": \\\"test-value\\\"}", res.get(iframeInjContextVelocityKey));
 
-        Assert.assertEquals(null, res.get(iframeInitCallbackVelocityKey));
-
         // another try, main difference: invalid initCallback function name (should not be added to context)
 
         res = DocumentOutputUtil.generateAdminIframeTemplateContext("/test2/",
-                "id_of_second_iframe", "context information string '+!&",
-                "angular.initialized", "?space=32");
+                "id_of_second_iframe", "context information string '+!&", "?space=32");
 
         Assert.assertEquals("id_of_second_iframe", res.get(iframeIdContextKey));
 
@@ -63,13 +58,11 @@ public class DocumentOutputUtilTest {
 
         Assert.assertEquals("context information string '+!&", res.get(iframeInjContextVelocityKey));
 
-        Assert.assertEquals(null, res.get(iframeInitCallbackVelocityKey));
-
         // one more time, this time also the init callback should be added as expected
 
         res = DocumentOutputUtil.generateAdminIframeTemplateContext("/test/3/", "id3",
                 "{'context': {'pages': ['test1', 'test2'], 'result': {'success': false, 'code': 404}}}",
-                "sparkInitialized", "test_value=false&admin=true");
+                "test_value=false&admin=true");
 
         Assert.assertEquals("id3", res.get(iframeIdContextKey));
 
@@ -81,15 +74,13 @@ public class DocumentOutputUtilTest {
                 "{'context': {'pages': ['test1', 'test2'], 'result': {'success': false, 'code': 404}}}",
                 res.get(iframeInjContextVelocityKey));
 
-        Assert.assertEquals("sparkInitialized", res.get(iframeInitCallbackVelocityKey));
-
     }
 
 
     @Test
     public void getIframeContentWindowJs() throws IOException {
 
-        String iframeContWinJs = DocumentOutputUtil.getIframeResizeContentWindowJs();
+        String iframeContWinJs = DocumentOutputUtil.getIframeContentWindowJs();
 
         Assert.assertEquals("/* test placeholder of iframeResizer.contentWindow.min.js */", iframeContWinJs);
 
@@ -129,10 +120,10 @@ public class DocumentOutputUtilTest {
         String initScripElCont = initScriptEl.html();
 
         Map<String, Integer> refs = checkVelocityFragmentReferences(initScripElCont,
-                Arrays.asList(iframeInjContextVelocityKey, iframeInitCallbackVelocityKey, iframeIdContextKey), true);
+                Arrays.asList(iframeInjContextVelocityKey, iframeIdContextKey), true);
 
         Assert.assertTrue(refs.get(iframeInjContextVelocityKey) > 0);
-        //Assert.assertTrue(refs.get(iframeInitCallbackVelocityKey) > 0);
+
         // should call iFrameResize on the iframe with correct id
         Assert.assertTrue(refs.get(iframeIdContextKey) > 0);
 
