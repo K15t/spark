@@ -11,8 +11,8 @@ var SPARK = SPARK || {};
     };
 
     var getDialogControls = function() {
-        // TODO rename iframeControls to dialogControls..?
-        return parentSpark.iframeControls;
+        // TODO rename dialogControls to dialogControls..?
+        return parentSpark.dialogControls;
     };
 
     sparkInstance.getContextData = getContextData;

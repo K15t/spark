@@ -209,14 +209,14 @@ describe('iframeAppLoader', function() {
                 // should have no added the SPARK context
                 expect(iframeDomEl.SPARK).toBeDefined();
 
-                expect(iframeDomEl.SPARK.iframeControls).toEqual(jasmine.any(Object));
+                expect(iframeDomEl.SPARK.dialogControls).toEqual(jasmine.any(Object));
 
-                expect(iframeDomEl.SPARK.iframeControls.closeDialog).toEqual(jasmine.any(Function));
+                expect(iframeDomEl.SPARK.dialogControls.closeDialog).toEqual(jasmine.any(Function));
 
                 // check in the case that there is nothing unexpected in the iframe context
                 // - just the close method (dialogChrome is null by default, and the contextData
                 // what it was in dialog options, ending up undefined when not specified)
-                expect(iframeDomEl.SPARK.iframeControls).toEqual({
+                expect(iframeDomEl.SPARK.dialogControls).toEqual({
                     'closeDialog': jasmine.any(Function),
                     'dialogChrome': null
                 });
@@ -233,7 +233,7 @@ describe('iframeAppLoader', function() {
 
                 expect($('body').hasClass('spark-no-scroll')).toBeTruthy();
 
-                iframeSparkCont.iframeControls.closeDialog();
+                iframeSparkCont.dialogControls.closeDialog();
 
                 expect($('body').hasClass('spark-no-scroll')).toBeFalsy();
 
@@ -252,7 +252,7 @@ describe('iframeAppLoader', function() {
 
                 // call the close method, now the should iframe-dialog wrapper
                 // should not be there anymore
-                iframeSpark.iframeControls.closeDialog();
+                iframeSpark.dialogControls.closeDialog();
 
                 expect($('body').find('#iframe_test_el').length).toEqual(0);
                 expect($('body').find('iframe').length).toEqual(0);
@@ -277,7 +277,7 @@ describe('iframeAppLoader', function() {
                     }
                 };
 
-                iframeSpark.iframeControls.closeDialog(resultData);
+                iframeSpark.dialogControls.closeDialog(resultData);
 
                 expect(closeCallback).toHaveBeenCalledTimes(1);
                 expect(closeCallback).toHaveBeenCalledWith(resultData);
@@ -296,7 +296,7 @@ describe('iframeAppLoader', function() {
 
                 var iframeSpark = this.getSparkIframeContext();
 
-                expect(iframeSpark.iframeControls).toEqual(jasmine.any(Object));
+                expect(iframeSpark.dialogControls).toEqual(jasmine.any(Object));
 
                 expect(iframeSpark.contextData).toEqual(jasmine.any(Object));
 
@@ -337,7 +337,7 @@ describe('iframeAppLoader', function() {
                 expect(iframeResizer.close).not.toHaveBeenCalled();
 
                 var iframeSparkCont = this.getSparkIframeContext();
-                iframeSparkCont.iframeControls.closeDialog();
+                iframeSparkCont.dialogControls.closeDialog();
 
                 expect(iframeResizer.close).toHaveBeenCalledTimes(1);
 
@@ -380,7 +380,7 @@ describe('iframeAppLoader', function() {
 
                     var iframeSpark = this.getSparkIframeContext();
 
-                    expect(iframeSpark.iframeControls).toEqual({
+                    expect(iframeSpark.dialogControls).toEqual({
                         'closeDialog': jasmine.any(Function),
                         'dialogChrome': {
                             'cancelBtn': jasmine.any(HTMLElement),
@@ -396,8 +396,8 @@ describe('iframeAppLoader', function() {
                     expect(parentCancelEl).toBeDefined();
                     expect(parentSubmitEl).toBeDefined();
 
-                    expect(iframeSpark.iframeControls.dialogChrome.cancelBtn).toEqual(parentCancelEl);
-                    expect(iframeSpark.iframeControls.dialogChrome.confirmBtn).toEqual(parentSubmitEl);
+                    expect(iframeSpark.dialogControls.dialogChrome.cancelBtn).toEqual(parentCancelEl);
+                    expect(iframeSpark.dialogControls.dialogChrome.confirmBtn).toEqual(parentSubmitEl);
 
                 });
 
@@ -413,7 +413,7 @@ describe('iframeAppLoader', function() {
                         .find('#test-app-spark-app-container-chrome-submit').length).toEqual(1);
 
                     var iframeSparkCont = this.getSparkIframeContext();
-                    iframeSparkCont.iframeControls.closeDialog();
+                    iframeSparkCont.dialogControls.closeDialog();
 
                     expect($('body')
                         .find('#test-app-spark-app-container-chrome-cancel').length).toEqual(0);
@@ -452,7 +452,7 @@ describe('iframeAppLoader', function() {
 
                     // added expected data to iframe's contextwindow
                     expect(iframeSparkCont).toEqual(jasmine.any(Object));
-                    expect(iframeSparkCont.iframeControls).toEqual({
+                    expect(iframeSparkCont.dialogControls).toEqual({
                         'closeDialog': jasmine.any(Function),
                         'dialogChrome': {
                             'cancelBtn': jasmine.any(HTMLElement),
@@ -478,7 +478,7 @@ describe('iframeAppLoader', function() {
                     iframeDomEl.iFrameResizer = iframeDomElResizerObj;
 
                     // close dialog and check that everything is cleaned up
-                    iframeSparkCont.iframeControls.closeDialog();
+                    iframeSparkCont.dialogControls.closeDialog();
 
                     expect($('body')
                         .find('#test-app-spark-app-container-chrome-cancel').length).toEqual(0);
