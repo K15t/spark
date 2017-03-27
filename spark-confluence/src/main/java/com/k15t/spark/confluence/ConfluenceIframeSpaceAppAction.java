@@ -49,7 +49,7 @@ public abstract class ConfluenceIframeSpaceAppAction extends AbstractSpaceAction
 
     /**
      * <p>
-     * The result of this method will be injected into the context of the loaded iframe as SPARK.iframeContext
+     * The result of this method will be available in the context of the loaded iframe using SPARK.getContextData()
      * </p><p>
      * The JS variable will be a string. To pass structured information eg. JSON can be used.
      * </p><p>

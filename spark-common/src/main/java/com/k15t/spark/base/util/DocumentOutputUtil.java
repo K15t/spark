@@ -113,13 +113,13 @@ public class DocumentOutputUtil {
      * parameter that is needed by the SPARK framework.
      * </p><p>
      * It is also possible to pass an information string to the content window of the iframe by using the
-     * argument 'iframeContextInfo' (it will be available at SPARK.iframeContext). The contents will
+     * argument 'iframeContextInfo' (it will be available using SPARK.getContextData()). The contents will
      * be added as a JS string, but that string can contain eg. JSON info that the iframe JS code can parse.
      * </p>
      *
      * @param appBaseUrl base url for the SPA (must already contain trailing '/')
      * @param iframeIdToUse id to use for the iframe element
-     * @param iframeContextInfo string to be added to the loaded iframe's window as 'SPARK.iframeContext'
+     * @param iframeContextInfo string that will be available in the iframe's context using SPARK.getContextData()
      * @param queryString queryString to add to the url of the iframe content source (in addition to iframe_content parameter)
      * @return velocity context ready to be used with the iframe-admin-wrapper velocity template
      */
