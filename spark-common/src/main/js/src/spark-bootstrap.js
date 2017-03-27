@@ -326,19 +326,6 @@ AJS.toInit(function($) {
                 }
             };
 
-            // add needed extras to the loaded iframe
-
-            var iframeElement = iframeWrapperElement.find('iframe');
-            var iframeDomEl = iframeElement.get()[0];
-
-            var iframeCloser = function() {
-                bodyEl.removeClass('spark-no-scroll');
-                if (iframeDomEl.iFrameResizer) {
-                    iframeDomEl.iFrameResizer.close();
-                }
-                iframeWrapperElement.remove();
-            };
-
             // access the DOM of the js app loaded into the iframe and push
             // an object into that context giving a simple way for the loaded
             // app to eg. tell the parent window to close the dialog (and the iframe)

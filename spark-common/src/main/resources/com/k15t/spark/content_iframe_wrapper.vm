@@ -7,21 +7,14 @@
 <iframe id="${iframeId}" scrolling="no" style="width: 100%; border: none;" src="${iframeSrc}"></iframe>
 <script>
     if (iFrameResize) {
+        var iframeEl = document.getElementById("${iframeId}");
+        if (!iframeEl.SPARK) {
+            iframeEl.SPARK = {};
+        }
+        iframeEl.SPARK.extraData = "${escapedIframeContext}";
         iFrameResize({
             'autoResize': true,
-            'heightCalculationMethod': 'max',
-            'initCallback': function(loadedIframe) {
-                var contentWin = loadedIframe.contentWindow;
-                if (!contentWin.SPARK) {
-                    contentWin.SPARK = {};
-                }
-                contentWin.SPARK.iframeContext = "${escapedIframeContext}";
-                #if($iframeInitCallback)
-                    if (contentWin.SPARK.${iframeInitCallback}) {
-                        contentWin.SPARK.${iframeInitCallback}();
-                    }
-                #end
-            }
+            'heightCalculationMethod': 'max'
         }, '#${iframeId}');
     }
 </script>

@@ -139,18 +139,6 @@ describe('iframeAppLoader', function() {
 
         });
 
-        it('adds a callback to be called once the iframe is loaded', function() {
-
-            this.iframeOpener('test-app-name', '/test/app/path');
-
-            expect(this.$ready).toHaveBeenCalled();
-
-            expect(this.$ready).toHaveBeenCalledTimes(1);
-
-            expect(this.$ready).toHaveBeenCalledWith(jasmine.any(Function));
-
-        });
-
         describe('Iframe context handling', function() {
 
             beforeEach(function() {
@@ -274,18 +262,22 @@ describe('iframeAppLoader', function() {
             it('close-method invokes the onClose handler with result data', function() {
                 var closeCallback = jasmine.createSpy('dialogCloseCallback');
                 this.iframeOpener('test-app-name', '/test/app/path', { onClose: closeCallback });
+
+                var iframeSpark = this.getSparkIframeContext();
+
                 var iframeResizer = jasmine.createSpyObj('iFrameResizer', ['close']);
                 var iframeDomEl = $('body').find('iframe').get()[0];
                 expect(iframeDomEl).toBeDefined();
                 iframeDomEl.iFrameResizer = iframeResizer;
-                this.runReadyCb();
 
                 expect(iframeResizer.close).not.toHaveBeenCalled();
-                var iw = this.getIframeContentWindow();
 
-                var resultData = { a: 'b', c: function () {}};
+                var resultData = {
+                    a: 'b', c: function() {
+                    }
+                };
 
-                iw.SPARK.iframeControls.closeDialog(resultData);
+                iframeSpark.iframeControls.closeDialog(resultData);
 
                 expect(closeCallback).toHaveBeenCalledTimes(1);
                 expect(closeCallback).toHaveBeenCalledWith(resultData);

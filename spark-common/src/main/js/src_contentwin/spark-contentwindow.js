@@ -19,9 +19,7 @@ var SPARK = SPARK || {};
 
     };
 
-    SPARK = {
-        getData: getData,
-        getDialogControls: getDialogControls
-    };
+    sparkInstance.getData = getData;
+    sparkInstance.getDialogControls = getDialogControls;
 
 })(SPARK, window);
