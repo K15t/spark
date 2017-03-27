@@ -214,14 +214,14 @@ describe('iframeAppLoader', function() {
                 expect(iframeDomEl.SPARK.iframeControls.closeDialog).toEqual(jasmine.any(Function));
 
                 // check in the case that there is nothing unexpected in the iframe context
-                // - just the close method (dialogChrome is null by default, and the extraData
+                // - just the close method (dialogChrome is null by default, and the contextData
                 // what it was in dialog options, ending up undefined when not specified)
                 expect(iframeDomEl.SPARK.iframeControls).toEqual({
                     'closeDialog': jasmine.any(Function),
                     'dialogChrome': null
                 });
 
-                expect(iframeDomEl.SPARK.extraData).not.toBeDefined();
+                expect(iframeDomEl.SPARK.contextData).not.toBeDefined();
 
             });
 
@@ -285,22 +285,22 @@ describe('iframeAppLoader', function() {
 
             it('passes extra context data to iframe context', function() {
 
-                var extraData = {
+                var contextData = {
                     'some': 'random',
                     'extra': ['data', 'for', 'iframe']
                 };
 
                 this.iframeOpener('test-app-name', '/test/app/path', {
-                    'extraData': extraData
+                    'contextData': contextData
                 });
 
                 var iframeSpark = this.getSparkIframeContext();
 
                 expect(iframeSpark.iframeControls).toEqual(jasmine.any(Object));
 
-                expect(iframeSpark.extraData).toEqual(jasmine.any(Object));
+                expect(iframeSpark.contextData).toEqual(jasmine.any(Object));
 
-                expect(iframeSpark.extraData).toEqual({
+                expect(iframeSpark.contextData).toEqual({
                     'some': 'random',
                     'extra': ['data', 'for', 'iframe']
                 });
@@ -435,7 +435,7 @@ describe('iframeAppLoader', function() {
 
                     this.iframeOpener(this.appNameToUse, '/path/to/app/', {
                         'addChrome': true,
-                        'extraData': { 'test': 'some extra', 'with': { 'chrome': true } }
+                        'contextData': { 'test': 'some extra', 'with': { 'chrome': true } }
                     });
 
                     // chrome added
@@ -459,7 +459,7 @@ describe('iframeAppLoader', function() {
                             'confirmBtn': jasmine.any(HTMLElement)
                         }
                     });
-                    expect(iframeSparkCont.extraData).toEqual({
+                    expect(iframeSparkCont.contextData).toEqual({
                         'test': 'some extra',
                         'with': { 'chrome': true }
                     });

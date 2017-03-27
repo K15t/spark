@@ -6,8 +6,8 @@ var SPARK = SPARK || {};
     // same domain is prereq for SPARK usage
     var parentSpark = windowEl.frameElement.SPARK;
 
-    var getData = function() {
-        return parentSpark.extraData;
+    var getContextData = function() {
+        return parentSpark.contextData;
     };
 
     var getDialogControls = function() {
@@ -15,7 +15,7 @@ var SPARK = SPARK || {};
         return parentSpark.iframeControls;
     };
 
-    sparkInstance.getData = getData;
+    sparkInstance.getContextData = getContextData;
     sparkInstance.getDialogControls = getDialogControls;
 
 })(SPARK, window);

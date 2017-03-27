@@ -11,7 +11,7 @@
         if (!iframeEl.SPARK) {
             iframeEl.SPARK = {};
         }
-        iframeEl.SPARK.extraData = "${escapedIframeContext}";
+        iframeEl.SPARK.contextData = "${escapedIframeContext}";
         iFrameResize({
             'autoResize': true,
             'heightCalculationMethod': 'max'

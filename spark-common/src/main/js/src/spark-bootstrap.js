@@ -259,8 +259,8 @@ AJS.toInit(function($) {
          * in the dialog chrome ('cancelBtn' and 'confirmBtn').
          *
          * It is possible to pass custom extra data to the context of the loaded iframe
-         * by setting an object to dialogOptions.extraData . A reference to this object
-         * will be added to SPARK.iframeControls.extraData in the iframe's context.
+         * by setting an object to dialogOptions.contextData . A reference to this object
+         * will be added to SPARK.iframeControls.contextData in the iframe's context.
          *
          * @param appName name of the app (used as prefix for eg. element ids)
          * @param appPath relative path from which the iframe content is to be loaded
@@ -341,7 +341,7 @@ AJS.toInit(function($) {
                 'dialogChrome': dialogChrome
             };
 
-            iwSpark.extraData = dialogSettings.extraData;
+            iwSpark.contextData = dialogSettings.contextData;
 
             if (iframeElement.iFrameResize) {
                 iframeElement.iFrameResize([{
