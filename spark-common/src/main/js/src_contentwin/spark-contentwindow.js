@@ -11,7 +11,6 @@ var SPARK = SPARK || {};
     };
 
     var getDialogControls = function() {
-        // TODO rename dialogControls to dialogControls..?
         return parentSpark.dialogControls;
     };
 
