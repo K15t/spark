@@ -36,7 +36,7 @@ public abstract class ConfluenceIframeSpaceAppAction extends AbstractSpaceAction
             String template = DocumentOutputUtil.getIframeAdminContentWrapperTemplate();
             Map<String, Object> context = DocumentOutputUtil.generateAdminIframeTemplateContext(
                     appBaseUrl, "spark_space_adm_iframe_" + idSuffix,
-                    getIframeContextInfo(), getIframeContextInitializedCallbackName(), getSpaQueryString());
+                    getIframeContextInfo(), getSpaQueryString());
 
             this.body = VelocityUtils.getRenderedContent(template, context);
         } catch (IOException e) {
@@ -49,7 +49,7 @@ public abstract class ConfluenceIframeSpaceAppAction extends AbstractSpaceAction
 
     /**
      * <p>
-     * The result of this method will be injected into the context of the loaded iframe as SPARK.iframeContext
+     * The result of this method will be available in the context of the loaded iframe using SPARK.getContextData()
      * </p><p>
      * The JS variable will be a string. To pass structured information eg. JSON can be used.
      * </p><p>
@@ -63,29 +63,6 @@ public abstract class ConfluenceIframeSpaceAppAction extends AbstractSpaceAction
      */
     protected String getIframeContextInfo() {
         return "{\"space_key\": \"" + getSpaceKey() + "\"}";
-    }
-
-
-    /**
-     * <p>
-     * It is possible to specify a callback function name that will be called once the context information
-     * is injected into the iframe.
-     * </p><p>
-     * A function with the given name must be present in the SPARK object in the iframe's global context. If the
-     * function with given name (or SPARK) object is not present, nothing is called. This can happen also in
-     * normal operation because of initialization race conditions.
-     * </p><p>
-     * Correct way to use the init-callback method is to first check in the iframe's normal init-method to check
-     * whether the SPARK.iframeContext already is present, and if not, then add the SPARK object (if needed) and
-     * the init method with correct name to it.
-     * </p><p>
-     * Defaults to 'contextInitializedCallback'. If no initialization method is needed, null can be returned.
-     * </p>
-     *
-     * @return name of an initialization callback (on SPARK global object in iframe's context), or null if not needed
-     */
-    protected String getIframeContextInitializedCallbackName() {
-        return "contextInitializedCallback";
     }
 
 

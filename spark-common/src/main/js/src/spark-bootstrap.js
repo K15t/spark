@@ -245,22 +245,20 @@ AJS.toInit(function($) {
          * Simulates (quite loosely) how fullscreen dialog with an iframe
          * in Atlassian Connect would work.
          *
-         * A chrome bar with can be added to the dialog by specifying 'addChrome': true
-         * in the 'dialogOptions' object.
+         * A chrome bar with close/submit buttons can be added to the dialog by specifying
+         * 'addChrome': true in the 'dialogOptions' object.
          *
          * A JS-object containing controls for interacting with the parent window (eg. closing
-         * the iframe dialog) will be added into the global scope of the app loaded into
-         * the iframe to path SPARK.iframeControls (this works as the app in the iframe will
-         * be loaded from the same origin as the parent app).
+         * the iframe dialog) will be available in the iframe context using SPARK.getDialogControls()
          *
-         * The SPARK.iframeControls will contain method for closing the dialog 'closeDialog',
+         * The SPARK.dialogControls will contain method for closing the dialog 'closeDialog',
          * and 'dialogChrome' object for controlling possible dialog toolbar. If there is
          * no toolbar 'dialogChrome' is null, otherwise it will contain references to the buttons
          * in the dialog chrome ('cancelBtn' and 'confirmBtn').
          *
-         * It is possible to pass custom extra data to the context of the loaded iframe
-         * by setting an object to dialogOptions.extraData . A reference to this object
-         * will be added to SPARK.iframeControls.extraData in the iframe's context.
+         * It is possible to pass custom context data to the context of the loaded iframe
+         * by setting an object to 'dialogOptions.contextData'. A reference to this object
+         * will be available in the iframe's context using SPARK.getContextData()
          *
          * @param appName name of the app (used as prefix for eg. element ids)
          * @param appPath relative path from which the iframe content is to be loaded
@@ -269,6 +267,9 @@ AJS.toInit(function($) {
         var openFullscreenIframeDialog = function(appName, appPath, dialogOptions) {
 
             var bodyEl = $('body');
+
+            // to remove scrollers from content below the iframe dialog
+            bodyEl.addClass('spark-no-scroll');
 
             var fullAppPath = AJS.contextPath() + appPath;
 
@@ -289,32 +290,12 @@ AJS.toInit(function($) {
                 iframeSrcQuery += '&' + queryStrToAppend;
             }
 
-            // init a fullscreen dialog wrapper and iframe and add to body
+            // init a fullscreen dialog wrapper and iframe (and add it to body later)
             var iframeWrapperElement = $(templates.appFullscreenContaineriFrame({
                 'id': elementIdSparkAppContainer,
                 'src': location.protocol + '//' + location.host + fullAppPath + iframeSrcQuery,
                 'createOptions': dialogSettings
             }));
-            iframeWrapperElement.appendTo(bodyEl);
-
-            // add needed extras to the loaded iframe
-
-            var iframeElement = iframeWrapperElement.find('iframe');
-            var iframeDomEl = iframeElement.get()[0];
-
-            // to remove scrollers from content below the iframe dialog
-            bodyEl.addClass('spark-no-scroll');
-
-            var iframeCloser = function(resultData) {
-                bodyEl.removeClass('spark-no-scroll');
-                if (iframeDomEl.iFrameResizer) {
-                    iframeDomEl.iFrameResizer.close();
-                }
-                iframeWrapperElement.remove();
-                if (dialogSettings.onClose) {
-                    dialogSettings.onClose(resultData);
-                }
-            };
 
             // add an easy way for the contained iframe to access the dialog chrome (if added)
             var dialogChrome = null;
@@ -327,35 +308,46 @@ AJS.toInit(function($) {
                 };
             }
 
-            iframeElement.ready(function() {
+            var iframeElement = iframeWrapperElement.find('iframe');
+            var iframeDomEl = iframeElement.get()[0];
 
-                // access the DOM of the js app loaded into the iframe and push
-                // an object into that context giving a simple way for the loaded
-                // app to eg. tell the parent window to close the dialog (and the iframe)
-
-                // should work as long as the parent and the app in the iframe share
-                // the same origin (which should be true for all SPARK apps)
-
-                var iw = iframeDomEl.contentWindow ? iframeDomEl.contentWindow :
-                    iframeDomEl.contentDocument.defaultView;
-
-                if (!iw.SPARK) {
-                    iw.SPARK = {};
+            var iframeCloser = function(resultData) {
+                bodyEl.removeClass('spark-no-scroll');
+                if (iframeDomEl.iFrameResizer) {
+                    iframeDomEl.iFrameResizer.close();
                 }
-                iw.SPARK.iframeControls = {
-                    'closeDialog': iframeCloser,
-                    'dialogChrome': dialogChrome,
-                    'extraData': dialogSettings.extraData
-                };
-
-                if (iframeElement.iFrameResize) {
-                    iframeElement.iFrameResize([{
-                        'autoResize': true,
-                        'heightCalculationMethod': 'max'
-                    }]);
+                iframeWrapperElement.remove();
+                if (dialogSettings.onClose) {
+                    dialogSettings.onClose(resultData);
                 }
+            };
 
-            });
+            // add contextdata to a path from which the SPARK counterpart injected into
+            // the iframe's content can find it
+            // the data is added as an extra field of the iframe DOM element, and it can
+            // be accessed from the content document by window.frameElement (works
+            // as long as the iframe and the host have same domain)
+            // client code in the iframe should always use SPARK.getContextData() etc to access
+            // this data (and not rely on the current internal implementation)
+
+            var sparkIframeContext = {};
+            iframeDomEl.SPARK = sparkIframeContext;
+
+            sparkIframeContext.dialogControls = {
+                'closeDialog': iframeCloser,
+                'dialogChrome': dialogChrome
+            };
+
+            sparkIframeContext.contextData = dialogSettings.contextData;
+
+            if (iframeElement.iFrameResize) {
+                iframeElement.iFrameResize([{
+                    'autoResize': true,
+                    'heightCalculationMethod': 'max'
+                }]);
+            }
+
+            iframeWrapperElement.appendTo(bodyEl);
 
             return elementIdSparkAppContainer;
 

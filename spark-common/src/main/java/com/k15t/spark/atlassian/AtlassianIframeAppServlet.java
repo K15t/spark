@@ -63,7 +63,7 @@ public abstract class AtlassianIframeAppServlet extends AtlassianAppServlet {
      */
     private void prepareIframeContentIndex(Document document) throws IOException {
         // load contentWindow part of the iFrameResizer (inject as inline script), otherwise left the app untouched
-        String iframeResizerContentWindowJs = DocumentOutputUtil.getIframeResizeContentWindowJs();
+        String iframeResizerContentWindowJs = DocumentOutputUtil.getIframeContentWindowJs();
         document.head().append("\n<script>\n" + iframeResizerContentWindowJs + "\n</script>\n");
     }
 
@@ -113,7 +113,7 @@ public abstract class AtlassianIframeAppServlet extends AtlassianAppServlet {
                 DocumentOutputUtil.getIframeAdminContentWrapperTemplate(),
                 DocumentOutputUtil.generateAdminIframeTemplateContext(
                         props.getRequest().getRequestURI(), "spark_admin_iframe",
-                        "admin", null, props.getRequest().getQueryString()));
+                        "admin", props.getRequest().getQueryString()));
 
         document.body().append(iframeHtml);
     }

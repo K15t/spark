@@ -66,7 +66,7 @@ SPARK.Common.Templates = SPARK.Common.Templates || {};
 (function() {
 
     SPARK.Common.Templates.appFullscreenContaineriFrame = function() {
-        return '<div class="spark-mock-template"></div>';
+        return '<div class="spark-mock-template"><iframe></iframe></div>';
     };
 
 })();

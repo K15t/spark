@@ -75,7 +75,7 @@ public class ConfluenceSpaceAppActionTestCommon {
         PowerMockito.mockStatic(DocumentOutputUtil.class);
 
         Mockito.when(DocumentOutputUtil.generateAdminIframeTemplateContext(anyString(), anyString(),
-                anyString(), anyString(), anyString())).thenReturn(velocityContextToReturn);
+                anyString(), anyString())).thenReturn(velocityContextToReturn);
 
         Mockito.when(DocumentOutputUtil.getIframeAdminContentWrapperTemplate()).thenReturn(velocityTemplateToReturn);
 

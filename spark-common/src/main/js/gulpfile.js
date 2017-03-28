@@ -82,11 +82,22 @@ gulp.task('build', ['test', 'compile-css-to-js'], function() {
 
 });
 
+gulp.task('build-cont-win', function() {
+
+    return gulp.src([
+        'node_modules/iframe-resizer/js/iframeResizer.contentWindow.js',
+        'src_contentwin/spark-contentwindow.js'
+    ])
+        .pipe(concat('spark-dist.contentWindow.js'))
+        .pipe(gulp.dest('target/gen'));
+
+});
+
 gulp.task('clean-dist', function(done) {
     del('target/dist').then(done());
 });
 
-gulp.task('dist', ['clean-dist', 'build'], function() {
+gulp.task('dist', ['clean-dist', 'build', 'build-cont-win'], function() {
 
     return gulp.src(['target/gen/*.js', 'src/*',
         'node_modules/iframe-resizer/js/iframeResizer.js',
