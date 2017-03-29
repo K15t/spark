@@ -24,27 +24,6 @@ public interface ConfluenceSparkIframeAction {
 
     /**
      * <p>
-     * It is possible to specify a callback function name that will be called once the context information
-     * is injected into the iframe.
-     * </p><p>
-     * A function with the given name must be present in the SPARK object in the iframe's global context. If the
-     * function with given name (or SPARK) object is not present, nothing is called. This can happen also in
-     * normal operation because of initialization race conditions.
-     * </p><p>
-     * Correct way to use the init-callback method is to first check in the iframe's normal init-method to check
-     * whether the SPARK.iframeContext already is present, and if not, then add the SPARK object (if needed) and
-     * the init method with correct name to it.
-     * </p><p>
-     * Defaults to 'contextInitializedCallback'. If no initialization method is needed, null can be returned.
-     * </p>
-     *
-     * @return name of an initialization callback (on SPARK global object in iframe's context), or null if not needed
-     */
-    public String getIframeContextInitializedCallbackName();
-
-
-    /**
-     * <p>
      * The query parameter to add as the current parameter to the url of the SPA app when it is loaded into
      * the iframe context ("iframe_content=true" will always be added and used by the SPARK framework)
      * </p><p>

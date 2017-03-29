@@ -36,8 +36,7 @@ public class ConfluenceIframeSparkActionHelper {
             Map<String, Object> context =
                     DocumentOutputUtil.generateAdminIframeTemplateContext(
                             appBaseUrl, baseIframeId + idSuffix,
-                            instance.getIframeContextInfo(), instance.getIframeContextInitializedCallbackName(),
-                            instance.getSpaQueryString());
+                            instance.getIframeContextInfo(), instance.getSpaQueryString());
 
             return VelocityUtils.getRenderedContent(template, context);
         } catch (IOException e) {

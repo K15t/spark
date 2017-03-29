@@ -36,12 +36,6 @@ public abstract class ConfluenceIframeAdminAppAction extends ConfluenceActionSup
 
 
     @Override
-    public String getIframeContextInitializedCallbackName() {
-        return "contextInitializedCallback";
-    }
-
-
-    @Override
     public String getSpaQueryString() {
         return ServletActionContext.getRequest().getQueryString();
     }
