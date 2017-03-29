@@ -30,7 +30,7 @@ public class ConflunceIframeSpaceAppActionTest extends ConfluenceSpaceAppActionT
     public static class ConfluenceIframeSpaceAppActionBaseTestImpl extends ConfluenceIframeSpaceAppAction {
 
         @Override
-        protected String getSpaBaseUrl() {
+        public String getSpaBaseUrl() {
             return "/spark/space/testapp/baseurl/";
         }
 
@@ -42,7 +42,7 @@ public class ConflunceIframeSpaceAppActionTest extends ConfluenceSpaceAppActionT
 
 
         @Override
-        public String getSelectedSpaceToolsWebItem() {
+        public String getSelectedWebItem() {
             return null;
         }
 
@@ -183,7 +183,7 @@ public class ConflunceIframeSpaceAppActionTest extends ConfluenceSpaceAppActionT
         ConfluenceIframeSpaceAppAction instanceOverridingQuery = new ConfluenceIframeSpaceAppActionBaseTestImpl() {
 
             @Override
-            protected String getSpaQueryString() {
+            public String getSpaQueryString() {
                 return "start_view=admin_v42";
             }
 
@@ -215,7 +215,7 @@ public class ConflunceIframeSpaceAppActionTest extends ConfluenceSpaceAppActionT
         ConfluenceIframeSpaceAppAction instanceOverridingIframeContext = new ConfluenceIframeSpaceAppActionBaseTestImpl() {
 
             @Override
-            protected String getIframeContextInfo() {
+            public String getIframeContextInfo() {
                 return "use_special_test_spa_type";
             }
 
@@ -238,7 +238,7 @@ public class ConflunceIframeSpaceAppActionTest extends ConfluenceSpaceAppActionT
         ConfluenceIframeSpaceAppAction otherIframeContextOverrideTest = new ConfluenceIframeSpaceAppActionBaseTestImpl() {
 
             @Override
-            protected String getIframeContextInfo() {
+            public String getIframeContextInfo() {
                 return "space-key: " + getSpace().getKey() + "; space-name: " + getSpace().getName() +
                         "; start-view: space-admin;";
             }
@@ -300,7 +300,7 @@ public class ConflunceIframeSpaceAppActionTest extends ConfluenceSpaceAppActionT
                 return null;
             }
         };
-        Assert.assertEquals("test-item", actionInstance.getSelectedSpaceToolsWebItem());
+        Assert.assertEquals("test-item", actionInstance.getSelectedWebItem());
     }
 
 
@@ -314,7 +314,7 @@ public class ConflunceIframeSpaceAppActionTest extends ConfluenceSpaceAppActionT
                 return null;
             }
         };
-        Assert.assertEquals("from-request", actionInstance.getSelectedSpaceToolsWebItem());
+        Assert.assertEquals("from-request", actionInstance.getSelectedWebItem());
     }
 
 
@@ -328,7 +328,7 @@ public class ConflunceIframeSpaceAppActionTest extends ConfluenceSpaceAppActionT
                 return null;
             }
         };
-        Assert.assertNull(actionInstance.getSelectedSpaceToolsWebItem());
+        Assert.assertNull(actionInstance.getSelectedWebItem());
     }
 
 }

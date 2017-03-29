@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html>
-<head lang="en">
-    <meta charset="UTF-8">
-    <title>$action.titleAsHtml</title>
-    <meta name="decorator" content="atl.general"/>
-</head>
+    <head lang="en">
+        <meta charset="UTF-8">
+        <title>$action.titleAsHtml</title>
+        <meta name="decorator" content="atl.general"/>
+    </head>
 
-#applyDecorator("root")
+    #applyDecorator("root")
     #decoratorParam("helper"  $action.helper)
     #decoratorParam("viewHelper" $action.viewHelper)
     #decoratorParam("context" "space-administration")
@@ -14,11 +14,11 @@
     #decoratorParam("space" $action.space)
 
     <body>
-    #applyDecorator("root")
+        #applyDecorator("root")
         #decoratorParam ("helper" $action.helper)
         #decoratorParam ("viewHelper" $action.viewHelper)
         #decoratorParam ("context" "spacetoolspanel")
-        #decoratorParam ("selectedSpaceToolsWebItem" $action.selectedSpaceToolsWebItem)
+        #decoratorParam ("selectedSpaceToolsWebItem" $action.selectedWebItem)
 
         $action.bodyAsHtml
 
