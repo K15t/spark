@@ -1,6 +1,7 @@
 package com.k15t.spark.base.util;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -109,8 +110,7 @@ public class DocumentOutputUtil {
      * with {@link #getIframeAdminContentWrapperTemplate()} velocity template
      * </p><p>
      * It is possible to communicate initialization info to the SPA loaded into the iframe by using query parameters.
-     * The 'queryString' will be added to the src of the iframe in addition to an extra 'iframe_content=true'
-     * parameter that is needed by the SPARK framework.
+     * The 'queryString' will be added to the src of the iframe.
      * </p><p>
      * It is also possible to pass an information string to the content window of the iframe by using the
      * argument 'iframeContextInfo' (it will be available using SPARK.getContextData()). The contents will
@@ -120,7 +120,7 @@ public class DocumentOutputUtil {
      * @param appBaseUrl base url for the SPA (must already contain trailing '/')
      * @param iframeIdToUse id to use for the iframe element
      * @param iframeContextInfo string that will be available in the iframe's context using SPARK.getContextData()
-     * @param queryString queryString to add to the url of the iframe content source (in addition to iframe_content parameter)
+     * @param queryString queryString to add to the url of the iframe content source
      * @return velocity context ready to be used with the iframe-admin-wrapper velocity template
      */
     public static Map<String, Object> generateAdminIframeTemplateContext(
@@ -131,14 +131,8 @@ public class DocumentOutputUtil {
                 iframeContextInfo.replace("\"", "\\\"");
 
         String queryStringToUse = "";
-        if (queryString == null || "".equals(queryString)) {
-            queryStringToUse = "?iframe_content=true";
-        } else {
-            if (queryString.startsWith("?")) {
-                queryStringToUse = queryString + "&iframe_content=true";
-            } else {
-                queryStringToUse = "?iframe_content=true&" + queryString;
-            }
+        if (StringUtils.isNotBlank(queryString)) {
+            queryStringToUse = "?" + StringUtils.removeStart(queryString, "?");
         }
 
         String iframeSource = appBaseUrl + queryStringToUse;

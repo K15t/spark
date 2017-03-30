@@ -39,7 +39,7 @@ public class DocumentOutputUtilTest {
 
         Assert.assertEquals("iframe-id", res.get(iframeIdContextKey));
 
-        Assert.assertEquals("/test/base/url/?iframe_content=true", res.get(iframeSrcContextKey));
+        Assert.assertEquals("/test/base/url/", res.get(iframeSrcContextKey));
 
         Assert.assertEquals("/* test mockup of iframeResizer.min.js */", res.get(iframeResizerJsContextKey));
 
@@ -52,7 +52,7 @@ public class DocumentOutputUtilTest {
 
         Assert.assertEquals("id_of_second_iframe", res.get(iframeIdContextKey));
 
-        Assert.assertEquals("/test2/?space=32&iframe_content=true", res.get(iframeSrcContextKey));
+        Assert.assertEquals("/test2/?space=32", res.get(iframeSrcContextKey));
 
         Assert.assertEquals("/* test mockup of iframeResizer.min.js */", res.get(iframeResizerJsContextKey));
 
@@ -66,7 +66,7 @@ public class DocumentOutputUtilTest {
 
         Assert.assertEquals("id3", res.get(iframeIdContextKey));
 
-        Assert.assertEquals("/test/3/?iframe_content=true&test_value=false&admin=true", res.get(iframeSrcContextKey));
+        Assert.assertEquals("/test/3/?test_value=false&admin=true", res.get(iframeSrcContextKey));
 
         Assert.assertEquals("/* test mockup of iframeResizer.min.js */", res.get(iframeResizerJsContextKey));
 

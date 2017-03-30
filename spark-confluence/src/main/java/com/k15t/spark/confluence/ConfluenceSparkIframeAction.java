@@ -27,7 +27,7 @@ public interface ConfluenceSparkIframeAction {
     /**
      * <p>
      * The query parameter to add as the current parameter to the url of the SPA app when it is loaded into
-     * the iframe context ("iframe_content=true" will always be added and used by the SPARK framework)
+     * the iframe context
      * </p><p>
      * Default implementation returns the query string used when running the action
      * </p>

@@ -281,13 +281,13 @@ AJS.toInit(function($) {
             // (in normal operation it is removed on dialog close)
             $('#' + elementIdSparkAppContainer).remove();
 
-            var iframeSrcQuery = '?iframe_content=true';
+            var iframeSrcQuery = '';
             if (dialogSettings.queryString) {
                 var queryStrToAppend = dialogSettings.queryString;
                 if (queryStrToAppend.indexOf('?') === 0 || queryStrToAppend.indexOf('&') === 0) {
                     queryStrToAppend = queryStrToAppend.substr(1);
                 }
-                iframeSrcQuery += '&' + queryStrToAppend;
+                iframeSrcQuery += '?' + queryStrToAppend;
             }
 
             // init a fullscreen dialog wrapper and iframe (and add it to body later)
