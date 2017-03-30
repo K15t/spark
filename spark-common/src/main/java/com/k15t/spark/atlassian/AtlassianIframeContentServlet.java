@@ -5,6 +5,8 @@ import com.k15t.spark.base.util.DocumentOutputUtil;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
+import javax.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 
 
@@ -48,7 +50,7 @@ public abstract class AtlassianIframeContentServlet extends AtlassianAppServlet 
     private void prepareIframeContentIndex(Document document) throws IOException {
         // load contentWindow part of the iFrameResizer (inject as inline script), otherwise left the app untouched
         String iframeResizerContentWindowJs = DocumentOutputUtil.getIframeContentWindowJs();
-        document.head().append("\n<script>\n" + iframeResizerContentWindowJs + "\n</script>\n");
+        document.head().prepend("\n<script>\n" + iframeResizerContentWindowJs + "\n</script>\n");
     }
 
 
@@ -61,8 +63,7 @@ public abstract class AtlassianIframeContentServlet extends AtlassianAppServlet 
 
 
     @Override
-    protected boolean hasPermissions(RequestProperties props) {
-        // TODO this could also be turned into an abstract method
+    protected boolean verifyPermissions(RequestProperties props, HttpServletResponse response) throws IOException {
         return true;
     }
 

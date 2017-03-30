@@ -1,6 +1,5 @@
 package com.k15t.spark.atlassian;
 
-import com.atlassian.templaterenderer.TemplateRenderer;
 import com.k15t.spark.base.RequestProperties;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -12,11 +11,10 @@ import org.mockito.Mockito;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
+import java.io.IOException;
 import java.net.URI;
-
-import static org.mockito.Matchers.anyMap;
-import static org.mockito.Matchers.anyString;
 
 
 public class AtlassianIframeAppServletTest {
@@ -24,21 +22,18 @@ public class AtlassianIframeAppServletTest {
     private static RequestProperties props;
 
     private static HttpServletRequest request;
-
-    private static TemplateRenderer templateRenderer;
+    private static HttpServletResponse response;
 
     private static AtlassianIframeContentServlet testInstance;
 
     private static ServletConfig servletConfig;
-
-    private static String renderResult;
 
 
     @Before
     public void setup() throws Exception {
         props = Mockito.mock(RequestProperties.class);
         request = Mockito.mock(HttpServletRequest.class);
-        templateRenderer = Mockito.mock(TemplateRenderer.class);
+        response = Mockito.mock(HttpServletResponse.class);
 
         Mockito.when(props.getUri()).thenReturn(new URI("test"));
         Mockito.when(props.getRequest()).thenReturn(request);
@@ -55,21 +50,11 @@ public class AtlassianIframeAppServletTest {
         servletConfig = Mockito.mock(ServletConfig.class);
         Mockito.when(testInstance.getServletConfig()).thenReturn(servletConfig);
 
-        templateRenderer = Mockito.mock(TemplateRenderer.class);
-        // stubbing it this way avoids AtlassianAppServlet.getTemplateRenderer being called once
-        // which would fail; this is considered bad style in most cases but needed / works here
-        Mockito.doReturn(templateRenderer).when(testInstance).getTemplateRenderer();
-
-        renderResult = "test render result";
-        Mockito.when(templateRenderer.renderFragment(anyString(), anyMap())).thenReturn(renderResult);
-
     }
 
 
     @Test
     public void servesIframeContent() throws Exception {
-
-        Mockito.when(request.getParameter("iframe_content")).thenReturn("true");
 
         String prepIndexRes = testInstance.prepareIndexHtml(
                 "<html><head><script src='test.js'/></head><body><p id='body-el'>test</p></body></html>",
@@ -99,6 +84,75 @@ public class AtlassianIframeAppServletTest {
         Assert.assertEquals(1, bodyEl.size());
         Assert.assertEquals("body-el", bodyEl.attr("id"));
         Assert.assertEquals("test", bodyEl.html());
+
+    }
+
+
+    @Test
+    public void callsCustomizeIframeContentHook() throws Exception {
+
+        String testHtml = "<html><head><script src='test.js'/></head><body><p id='body-el'>test</p></body></html>";
+
+        AtlassianIframeContentServlet customizingInstance = Mockito.spy(new AtlassianIframeContentServlet() {
+            @Override
+            protected boolean isDevMode() {
+                return true;
+            }
+
+
+            @Override
+            protected void customizeIframeContentDocument(Document document) {
+                document.body().append("<p id='extra-footer'>Custom test footer</p>");
+            }
+        });
+        Mockito.when(customizingInstance.getServletConfig()).thenReturn(servletConfig);
+
+        String resStr = customizingInstance.prepareIndexHtml(testHtml, props);
+
+        Document resDoc = Jsoup.parse(resStr);
+
+        Assert.assertEquals(2, resDoc.head().children().size());
+        Assert.assertEquals("script", resDoc.head().child(0).nodeName());
+        Assert.assertEquals("script", resDoc.head().child(1).nodeName());
+        Assert.assertEquals("test.js", resDoc.head().child(1).attr("src"));
+
+        Assert.assertEquals(2, resDoc.body().children().size());
+        Assert.assertEquals("body-el", resDoc.body().child(0).id());
+
+        Assert.assertEquals("extra-footer", resDoc.body().child(1).id());
+        Assert.assertEquals("Custom test footer", resDoc.body().child(1).html());
+
+    }
+
+
+    @Test
+    public void requestHandlingIsStoppedOnPermissionProblem() throws Exception {
+
+        AtlassianIframeContentServlet permissionVerifyingInstance = new AtlassianIframeContentServlet() {
+            @Override
+            protected boolean isDevMode() {
+                return true;
+            }
+
+
+            @Override
+            protected RequestProperties getRequestProperties(HttpServletRequest request) {
+                return new RequestProperties(this, request);
+            }
+
+
+            @Override
+            protected boolean verifyPermissions(RequestProperties props, HttpServletResponse resp) throws IOException {
+                resp.sendError(HttpServletResponse.SC_FORBIDDEN);
+                return false;
+            }
+        };
+
+        permissionVerifyingInstance.doGet(request, response);
+
+        // the request handling should have stopped after 'forbidden' permissions (no more data should be added to response)
+        Mockito.verify(response).sendError(HttpServletResponse.SC_FORBIDDEN);
+        Mockito.verifyNoMoreInteractions(response);
 
     }
 

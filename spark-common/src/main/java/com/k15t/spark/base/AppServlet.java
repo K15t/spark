@@ -107,6 +107,24 @@ abstract public class AppServlet extends HttpServlet {
     }
 
 
+    /**
+     * <p>
+     * This method verifies that the current user has required permissions to access the resources requested from the
+     * servlet. The method is expected to be overridden by sub-classes to meet the access control requirements.
+     * </p>
+     * <p>
+     * If the user has required permission, true should be returned, and no other action is needed.
+     * </p>
+     * <p>
+     * If there is a problem with the permissions, this method should return falso to instruct the main request handler
+     * to stop processing the request, and in addition to that the method should write an error response to the
+     * {@link HttpServletResponse} provided as an argument.
+     * </p>
+     *
+     * @param props {@link RequestProperties} matching the current request
+     * @param response {@link HttpServletResponse}
+     * @return true if permissions are alright, false if request processing should be ended
+     */
     protected boolean verifyPermissions(RequestProperties props, HttpServletResponse response) throws IOException {
         return true;
     }

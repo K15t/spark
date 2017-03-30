@@ -1,6 +1,5 @@
 package com.k15t.spark.confluence;
 
-import com.atlassian.confluence.spaces.Space;
 import com.atlassian.confluence.util.velocity.VelocityUtils;
 import com.k15t.spark.base.util.DocumentOutputUtil;
 import com.opensymphony.webwork.ServletActionContext;
@@ -24,11 +23,12 @@ import static org.powermock.api.mockito.PowerMockito.mock;
 
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({ServletActionContext.class, ActionContext.class, DocumentOutputUtil.class, VelocityUtils.class})
+@PrepareForTest({ServletActionContext.class, ActionContext.class, DocumentOutputUtil.class, VelocityUtils.class,
+        ConfluenceIframeSparkActionHelper.class})
 public class ConfluenceSpaceAppActionTestCommon {
 
+    protected static ActionContext actionContext;
     protected static ActionConfig actionConfig;
-    protected static Space spaceMock;
     protected static HttpServletRequest servletRequest;
 
     protected static Map<String, Object> velocityContextToReturn = new HashMap<>();
@@ -39,6 +39,8 @@ public class ConfluenceSpaceAppActionTestCommon {
 
 
     public void commonSetup() throws Exception {
+
+        PowerMockito.spy(ConfluenceIframeSparkActionHelper.class);
 
         // Set up mocks so that the call ServletActionConfig.getContext().getActionInvocation().getProxy().getConfig()
         // will return this mock ActionConfig object instead of throwing NullPointerException or similar
@@ -52,7 +54,7 @@ public class ConfluenceSpaceAppActionTestCommon {
         // but ServletActionContext.getRequest is really on ServletActionContext
         PowerMockito.mockStatic(ServletActionContext.class);
 
-        ActionContext actionContext = mock(ActionContext.class);
+        actionContext = mock(ActionContext.class);
         ActionInvocation actionInvocation = mock(ActionInvocation.class);
         ActionProxy actionProxy = mock(ActionProxy.class);
 
@@ -85,8 +87,6 @@ public class ConfluenceSpaceAppActionTestCommon {
         Mockito.when(VelocityUtils.getRenderedContent(anyString(), Mockito.anyMap())).
                 thenReturn(renderedVelocityToReturn);
 
-        // add a mock for current space context
-        spaceMock = mock(Space.class);
 
     }
 
