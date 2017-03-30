@@ -10,6 +10,8 @@ import org.apache.commons.lang.StringUtils;
 import javax.servlet.http.HttpServletRequest;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 
@@ -77,6 +79,37 @@ public class ConfluenceIframeSparkActionHelper {
             selectedWebItemKey = (o instanceof String) ? (String) o : null;
         }
         return selectedWebItemKey;
+    }
+
+
+    /**
+     * <p>
+     * Parses a list of 'complete module key' definitions from the value of the {@link Keys#SPARK_REQUIRED_WEB_RESOURCES_KEYS} in
+     * the action configuration.
+     * </p>
+     * <p>
+     * Multiple 'complete module keys' can be specified in the action configuration parameter value separated by commas.
+     * </p>
+     *
+     * @param actionContext {@link ActionContext} from which to fetch the action configuration
+     * @return a list of strings to use for requireResource keys parsed from the action config
+     */
+    public static List<String> defaultGetRequiredResourceKeys(ActionContext actionContext) {
+        List<String> res = new ArrayList<>();
+
+        ActionConfig actionConfig = actionContext.getActionInvocation().getProxy().getConfig();
+        Object o = actionConfig.getParams().get(Keys.SPARK_REQUIRED_WEB_RESOURCES_KEYS);
+
+        if (o instanceof String) {
+            String webResSpec = (String) o;
+
+            String[] parts = webResSpec.split(",");
+            for (String spec : parts) {
+                res.add(spec);
+            }
+        }
+
+        return res;
     }
 
 }

@@ -11,7 +11,9 @@ import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.startsWith;
@@ -53,8 +55,15 @@ public class ConflunceIframeSparkActionHelperTest extends ConfluenceSpaceAppActi
 
         @Override
         public String getBodyAsHtml() {
-            // this would really be used only in the velocity rendering
-            return "test-body";
+            Assert.fail("unexpected usage (real rendering)");
+            return null;
+        }
+
+
+        @Override
+        public List<String> getRequiredResourceKeys() {
+            Assert.fail("unexpected usage (real rendering)");
+            return null;
         }
     };
 
@@ -127,10 +136,38 @@ public class ConflunceIframeSparkActionHelperTest extends ConfluenceSpaceAppActi
 
 
     @Test
-    public void getSelectedWebItem_AllParamsMissing() {
+    public void defaultGetSelectedWebItem_AllParamsMissing() {
         Mockito.when(actionConfig.getParams()).thenReturn(Collections.emptyMap());
         Mockito.when(servletRequest.getParameter(Keys.SPARK_SELECTED_WEB_ITEM_KEY)).thenReturn(null);
         Assert.assertNull(ConfluenceIframeSparkActionHelper.defaultGetSelectedWebItem(servletRequest, actionContext));
+    }
+
+
+    @Test
+    public void defaultGetRequiredResourceKeys_SimpleItem() {
+        Mockito.when(actionConfig.getParams()).thenReturn(ImmutableMap.of(Keys.SPARK_REQUIRED_WEB_RESOURCES_KEYS, "test-item"));
+        Assert.assertEquals(Arrays.asList("test-item"), ConfluenceIframeSparkActionHelper.defaultGetRequiredResourceKeys(actionContext));
+    }
+
+
+    @Test
+    public void defaultGetRequiredResourceKeys_SingleCompleteModuleKey() {
+        Mockito.when(actionConfig.getParams())
+                .thenReturn(ImmutableMap.of(Keys.SPARK_REQUIRED_WEB_RESOURCES_KEYS, "com.k15t.test.sparkplugin:important-resource"));
+        Assert.assertEquals(Arrays.asList("com.k15t.test.sparkplugin:important-resource"),
+                ConfluenceIframeSparkActionHelper.defaultGetRequiredResourceKeys(actionContext));
+    }
+
+
+    @Test
+    public void defaultGetRequiredResourceKeys_MultipleCompleteModuleKeys() {
+        Mockito.when(actionConfig.getParams()).thenReturn(ImmutableMap.of(Keys.SPARK_REQUIRED_WEB_RESOURCES_KEYS,
+                "com.k15t.test.sparkplugin:important-resource.js,com.k15t.test.sparkplugin:less-important-resource.js,"
+                        + "com.k15t.test.sparkplugin:some-styling.css"));
+        Assert.assertEquals(Arrays.asList("com.k15t.test.sparkplugin:important-resource.js",
+                "com.k15t.test.sparkplugin:less-important-resource.js",
+                "com.k15t.test.sparkplugin:some-styling.css"),
+                ConfluenceIframeSparkActionHelper.defaultGetRequiredResourceKeys(actionContext));
     }
 
 }

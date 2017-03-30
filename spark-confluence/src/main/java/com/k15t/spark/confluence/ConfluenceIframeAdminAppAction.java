@@ -3,6 +3,8 @@ package com.k15t.spark.confluence;
 import com.atlassian.confluence.core.ConfluenceActionSupport;
 import com.opensymphony.webwork.ServletActionContext;
 
+import java.util.List;
+
 
 public abstract class ConfluenceIframeAdminAppAction extends ConfluenceActionSupport implements ConfluenceSparkIframeAction {
 
@@ -51,6 +53,12 @@ public abstract class ConfluenceIframeAdminAppAction extends ConfluenceActionSup
     public String getSelectedWebItem() {
         return ConfluenceIframeSparkActionHelper.defaultGetSelectedWebItem(
                 ServletActionContext.getRequest(), ServletActionContext.getContext());
+    }
+
+
+    @Override
+    public List<String> getRequiredResourceKeys() {
+        return ConfluenceIframeSparkActionHelper.defaultGetRequiredResourceKeys(ServletActionContext.getContext());
     }
 
 

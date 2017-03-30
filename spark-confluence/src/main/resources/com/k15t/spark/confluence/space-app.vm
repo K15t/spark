@@ -4,6 +4,11 @@
         <meta charset="UTF-8">
         <title>$action.titleAsHtml</title>
         <meta name="decorator" content="atl.general"/>
+
+        #foreach($resourceDef in $resourceDefinitions)
+            #requireResource($resourceDef)
+        #end
+
     </head>
 
     #applyDecorator("root")

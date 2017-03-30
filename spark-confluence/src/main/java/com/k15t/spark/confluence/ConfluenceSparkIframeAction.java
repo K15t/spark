@@ -2,6 +2,8 @@ package com.k15t.spark.confluence;
 
 import com.k15t.spark.base.Keys;
 
+import java.util.List;
+
 
 public interface ConfluenceSparkIframeAction {
 
@@ -62,5 +64,18 @@ public interface ConfluenceSparkIframeAction {
      * @return main body html of the iframe wrapper
      */
     public String getBodyAsHtml();
+
+
+    /**
+     * <p>
+     * Returns a list of 'complete module keys' to resources that should be required into the template using #requireResource.
+     * </p><p>
+     * A #requireResource instruction is added for every 'complete module key' string in the list at the end of the head element of
+     * the loaded template.
+     * </p>
+     *
+     * @return a list of keys to require when loading the action template
+     */
+    public List<String> getRequiredResourceKeys();
 
 }

@@ -4,6 +4,8 @@ import com.atlassian.confluence.spaces.actions.AbstractSpaceAction;
 import com.atlassian.confluence.spaces.actions.SpaceAware;
 import com.opensymphony.webwork.ServletActionContext;
 
+import java.util.List;
+
 
 /**
  * Class that can be extended for creating an action that opens a SPA in an iframe in the Space Tools view.
@@ -49,6 +51,12 @@ public abstract class ConfluenceIframeSpaceAppAction extends AbstractSpaceAction
     public String getSelectedWebItem() {
         return ConfluenceIframeSparkActionHelper
                 .defaultGetSelectedWebItem(ServletActionContext.getRequest(), ServletActionContext.getContext());
+    }
+
+
+    @Override
+    public List<String> getRequiredResourceKeys() {
+        return ConfluenceIframeSparkActionHelper.defaultGetRequiredResourceKeys(ServletActionContext.getContext());
     }
 
 
