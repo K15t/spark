@@ -33,6 +33,6 @@ public class Keys {
      * The param key used in the atlassian-plugin.xml for specifying a list of resources that should be required
      * when loading certain SPARK action.
      */
-    public static final String SPARK_REQUIRED_WEB_RESOURCES_KEYS = "spark-required-web-resources-keys";
+    public static final String SPARK_REQUIRED_WEB_RESOURCE_KEYS = "spark-required-web-resource-keys";
 
 }

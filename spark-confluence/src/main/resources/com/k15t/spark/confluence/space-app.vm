@@ -5,8 +5,8 @@
         <title>$action.titleAsHtml</title>
         <meta name="decorator" content="atl.general"/>
 
-        #foreach($resourceDef in $resourceDefinitions)
-            #requireResource($resourceDef)
+        #foreach($requiredResourceKey in $requiredResourceKeys)
+            #requireResource($requiredResourceKey)
         #end
 
     </head>

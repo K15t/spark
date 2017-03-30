@@ -84,7 +84,7 @@ public class ConfluenceIframeSparkActionHelper {
 
     /**
      * <p>
-     * Parses a list of 'complete module key' definitions from the value of the {@link Keys#SPARK_REQUIRED_WEB_RESOURCES_KEYS} in
+     * Parses a list of 'complete module key' definitions from the value of the {@link Keys#SPARK_REQUIRED_WEB_RESOURCE_KEYS} in
      * the action configuration.
      * </p>
      * <p>
@@ -98,7 +98,7 @@ public class ConfluenceIframeSparkActionHelper {
         List<String> res = new ArrayList<>();
 
         ActionConfig actionConfig = actionContext.getActionInvocation().getProxy().getConfig();
-        Object o = actionConfig.getParams().get(Keys.SPARK_REQUIRED_WEB_RESOURCES_KEYS);
+        Object o = actionConfig.getParams().get(Keys.SPARK_REQUIRED_WEB_RESOURCE_KEYS);
 
         if (o instanceof String) {
             String webResSpec = (String) o;
