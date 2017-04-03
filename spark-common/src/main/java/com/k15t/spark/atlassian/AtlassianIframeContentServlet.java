@@ -27,30 +27,15 @@ public abstract class AtlassianIframeContentServlet extends AtlassianAppServlet 
             applyCacheKeysToResourceUrls(document, props);
         }
 
-        prepareIframeContentIndex(document);
+        // inject the scripts needed for correct operation in a SPARK controlled iframe to the document
+        String iframeContentWindowJs = DocumentOutputUtil.getIframeContentWindowJs();
+        document.head().prepend("\n<script>\n" + iframeContentWindowJs + "\n</script>\n");
+
         customizeIframeContentDocument(document);
 
         document.outputSettings().prettyPrint(false);
         indexHtml = document.outerHtml();
         return indexHtml;
-    }
-
-
-    /**
-     * <p>
-     * Serves the index page in iframe content mode
-     * </p>
-     * <p>
-     * The contentWindow part of the iFrameResizer will be added to the document as inline script,
-     * otherwise the document will be left untouched.
-     * </p>
-     *
-     * @param document {@link Document} of the index before processing
-     */
-    private void prepareIframeContentIndex(Document document) throws IOException {
-        // load contentWindow part of the iFrameResizer (inject as inline script), otherwise left the app untouched
-        String iframeResizerContentWindowJs = DocumentOutputUtil.getIframeContentWindowJs();
-        document.head().prepend("\n<script>\n" + iframeResizerContentWindowJs + "\n</script>\n");
     }
 
 

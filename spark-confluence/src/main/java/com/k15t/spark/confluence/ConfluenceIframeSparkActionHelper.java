@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -102,11 +103,8 @@ public class ConfluenceIframeSparkActionHelper {
 
         if (o instanceof String) {
             String webResSpec = (String) o;
-
             String[] parts = webResSpec.split(",");
-            for (String spec : parts) {
-                res.add(spec);
-            }
+            Collections.addAll(res, parts);
         }
 
         return res;
