@@ -1,10 +1,10 @@
 package com.k15t.spark.confluence;
 
 import com.atlassian.confluence.core.ConfluenceSystemProperties;
-import com.k15t.spark.atlassian.AtlassianIframeAppServlet;
+import com.k15t.spark.atlassian.AtlassianIframeContentServlet;
 
 
-public class ConfluenceIframeAppServlet extends AtlassianIframeAppServlet {
+public class ConfluenceIframeContentServlet extends AtlassianIframeContentServlet {
 
     @Override
     protected boolean isDevMode() {

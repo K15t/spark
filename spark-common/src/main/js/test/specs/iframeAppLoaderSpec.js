@@ -59,7 +59,7 @@ describe('iframeAppLoader', function() {
 
             // location is bit cumbersome to mock, but its attributes should be same here as in tested path
             var expSrc = location.protocol + '//' + location.host +
-                '/test/context/test/app/path/?iframe_content=true';
+                '/test/context/test/app/path/';
 
             this.iframeOpener('test-app-name', '/test/app/path/');
 
@@ -78,7 +78,7 @@ describe('iframeAppLoader', function() {
 
             // location is bit cumbersome to mock, but its attributes should be same here as in tested path
             var expSrcBase = location.protocol + '//' + location.host +
-                '/test/context/test/app/path/?iframe_content=true';
+                '/test/context/test/app/path/';
 
             this.iframeOpener('test-app-name', '/test/app/path/', {
                 'queryString': 'testParam=2'
@@ -86,7 +86,7 @@ describe('iframeAppLoader', function() {
 
             expect(this.iframeTemplate).toHaveBeenCalledWith({
                 'id': jasmine.any(String),
-                'src': expSrcBase + '&testParam=2',
+                'src': expSrcBase + '?testParam=2',
                 'createOptions': jasmine.any(Object)
             });
 
@@ -98,7 +98,7 @@ describe('iframeAppLoader', function() {
 
             expect(this.iframeTemplate).toHaveBeenCalledWith({
                 'id': jasmine.any(String),
-                'src': expSrcBase + '&testParam=42',
+                'src': expSrcBase + '?testParam=42',
                 'createOptions': jasmine.any(Object)
             });
 
@@ -110,7 +110,7 @@ describe('iframeAppLoader', function() {
 
             expect(this.iframeTemplate).toHaveBeenCalledWith({
                 'id': jasmine.any(String),
-                'src': expSrcBase + '&testParam=42&otherParam=36',
+                'src': expSrcBase + '?testParam=42&otherParam=36',
                 'createOptions': jasmine.any(Object)
             });
 

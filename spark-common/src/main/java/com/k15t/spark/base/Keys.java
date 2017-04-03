@@ -29,4 +29,14 @@ public class Keys {
      */
     public static final String SPARK_SPA_BASE_URL = "spark-spa-base-url";
 
+    /**
+     * <p>
+     * The param key used in the atlassian-plugin.xml for specifying a list of resources that should be required
+     * when loading certain SPARK action.
+     * </p><p>
+     * The parameter value should be a comma-separated list of complete web-resource module keys
+     * </p>
+     */
+    public static final String SPARK_REQUIRED_WEB_RESOURCE_KEYS = "spark-required-web-resource-keys";
+
 }

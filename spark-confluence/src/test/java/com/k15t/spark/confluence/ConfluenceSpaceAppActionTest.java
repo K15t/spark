@@ -22,8 +22,6 @@ public class ConfluenceSpaceAppActionTest extends ConfluenceSpaceAppActionTestCo
 
         actionInstance = new ConfluenceSpaceAppAction();
 
-        actionInstance.setSpace(spaceMock);
-
         // set the resource path to point to the test app
         actionConfigParams.put("resource-path", "com/k15t/spark/confluence/testspa/");
 

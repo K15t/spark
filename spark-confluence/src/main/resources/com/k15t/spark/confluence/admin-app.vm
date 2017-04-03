@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+    <head lang="en">
+        <meta charset="UTF-8">
+        <title>$action.titleAsHtml</title>
+        <meta name="decorator" content="atl.admin"/>
+
+        #foreach($requiredResourceKey in $requiredResourceKeys)
+            #requireResource($requiredResourceKey)
+        #end
+
+    </head>
+
+    <body>
+        <content tag="selectedWebItem">${action.selectedWebItem}</content>
+
+        $action.bodyAsHtml
+
+    </body>
+
+</html>
