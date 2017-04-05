@@ -5,7 +5,7 @@
         <title>$action.titleAsHtml</title>
         <meta name="decorator" content="atl.admin"/>
 
-        #foreach($requiredResourceKey in $requiredResourceKeys)
+        #foreach($requiredResourceKey in $action.requiredResourceKeys)
             #requireResource($requiredResourceKey)
         #end
 
