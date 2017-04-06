@@ -9,12 +9,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static org.hamcrest.core.AnyOf.anyOf;
 import static org.hamcrest.core.Is.is;
@@ -119,7 +114,7 @@ public class DocumentOutputUtilTest {
 
         String initScripElCont = initScriptEl.html();
 
-        Map<String, Integer> refs = checkVelocityFragmentReferences(initScripElCont,
+        Map<String, Integer> refs = SparkTestUtils.checkVelocityFragmentReferences(initScripElCont,
                 Arrays.asList(iframeInjContextVelocityKey, iframeIdContextKey), true);
 
         Assert.assertTrue(refs.get(iframeInjContextVelocityKey) > 0);
@@ -136,57 +131,6 @@ public class DocumentOutputUtilTest {
      */
     private static void assertTemplateReferencesVelocityVariable(String variableKey, String templateValue) {
         Assert.assertThat(templateValue, anyOf(is("$" + variableKey), is("${" + variableKey + "}")));
-    }
-
-
-    /**
-     * Extracts the variable references from velocity template fragment ($variable or ${variable}) and
-     * counts how many times each of the variable names in the expRefs list is present in the fragment.
-     *
-     * @param velocityFragment fragment from which to extract variables
-     * @param expRefs list of variable names to count (that are expected to be used in the fragment)
-     * @param failOnUnExpectedRef if true, calls Assert.fail() when encountering a variable name not in the 'expRefs' list
-     * @return map from variable name to int, from variable names in 'expRefs' list to time used in the fragment
-     */
-    private static Map<String, Integer> checkVelocityFragmentReferences(
-            String velocityFragment, List<String> expRefs, boolean failOnUnExpectedRef) {
-
-        Map<String, Integer> refCount = new HashMap<>();
-        for (String expRef : expRefs) {
-            refCount.put(expRef, 0);
-        }
-
-        Pattern velocityLongKeyPattern = Pattern.compile("\\$\\{(\\w+)\\}");
-        Matcher velocityLongKeys = velocityLongKeyPattern.matcher(velocityFragment);
-
-        Pattern velocityShortKeyPattern = Pattern.compile("\\$(\\w+)");
-        Matcher velocityShortKeys = velocityShortKeyPattern.matcher(velocityFragment);
-
-        List<String> foundRefs = new LinkedList<>();
-
-        while (velocityLongKeys.find()) {
-            foundRefs.add(velocityLongKeys.group(1));
-        }
-        while (velocityShortKeys.find()) {
-            foundRefs.add(velocityShortKeys.group(1));
-        }
-
-        for (String refKey : foundRefs) {
-
-            Integer currCount = refCount.get(refKey);
-
-            if (currCount == null) { // unexpected refKey
-                if (failOnUnExpectedRef) {
-                    Assert.fail("Found velocity variable referencing key <" + refKey + "> that was not " +
-                            "in the list of expected keys (" + expRefs + ")");
-                }
-            } else {
-                refCount.put(refKey, currCount + 1);
-            }
-
-        }
-
-        return refCount;
     }
 
 }
