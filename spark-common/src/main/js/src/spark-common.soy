@@ -1,12 +1,11 @@
 {namespace SPARK.Common.Templates}
 
 /**
- * @param id Id of the HTML element
- * @param src
+ * @param iframeParams iframeParams as returned by xdmHost.create()
  * @param createOptions
  */
 {template .appBootstrapContaineriFrame}
-    <iframe id="{$id}-iframe" class="spark-app-iframe" src="{$src}" width="{$createOptions.width}"
+    <iframe id="{$iframeParams.id}" name="{$iframeParams.name}" src="{$iframeParams.src}" class="spark-app-iframe" width="{$createOptions.width}"
             height="100%" scrolling="no">
     </iframe>
 {/template}
@@ -15,7 +14,7 @@
  * Template to create an error dialog 2
  * @param id
  * @param title
- * @param src
+ * @param iframeParams
  * @param createOptions
  */
 {template .appBootstrapContainerDialog2WithiFrame}
@@ -27,8 +26,7 @@
         <div class="aui-dialog2-content spark-app-content"
              style="padding: 0; width:{$createOptions.width}; height: {$createOptions.height}; overflow: hidden;">
             {call .appBootstrapContaineriFrame}
-                {param id: $id/}
-                {param src: $src /}
+                {param iframeParams: $iframeParams /}
                 {param createOptions: $createOptions /}
             {/call}
         </div>
@@ -93,7 +91,7 @@
 
 /**
  * @param id Id of the HTML element
- * @param src URL of the content to load to the iframe
+ * @param iframeParams iframeParams as returned by xdmHost.create()
  * @param createOptions extra options to customize the dialog
  */
 {template .appFullscreenContaineriFrame}
@@ -113,7 +111,7 @@
         </div>
         {/if}
         <div class="spark-fullscreen-scroll-wrapper {if $createOptions.addChrome}spark-fullscreen-haschrome{/if}">
-            <iframe id="{$id}-iframe" class="spark-fullscreen-iframe" src="{$src}" scrolling="no">
+            <iframe id="{$iframeParams.id}" name="{$iframeParams.name}" src="{$iframeParams.src}" class="spark-fullscreen-iframe" scrolling="no">
             </iframe>
         </div>
     </div>

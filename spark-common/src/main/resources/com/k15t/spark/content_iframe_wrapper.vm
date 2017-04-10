@@ -1,20 +1,21 @@
 ## appending WithHtml to variable name instructs Velocity not to add html escaping (like & -> &amp;)
 ## which would otherwise broke the js embedded this way pretty badly...
-#set($iframeResizerJsWithHtml = $iframeResizerJs)
+#set($sparkJsWithHtml = $sparkJs)
 <script>
-    ${iframeResizerJsWithHtml}
+    ${sparkJsWithHtml}
 </script>
-<iframe id="${iframeId}" scrolling="no" style="width: 100%; border: none;" src="${iframeSrc}"></iframe>
+<div id="${iframeId}-wrapper"></div>
 <script>
-    if (iFrameResize) {
-        var iframeEl = document.getElementById("${iframeId}");
+    AJS.toInit(function() {
+        var wrapperEl = document.getElementById("${iframeId}-wrapper");
+        SPARK.__versions.get().appLoader2.loadApp(wrapperEl, "${iframeId}", "${iframeSrc}", {
+            openInIframe: true
+        });
+
+        var iframeEl = wrapperEl.firstChild;
         if (!iframeEl.SPARK) {
             iframeEl.SPARK = {};
         }
         iframeEl.SPARK.contextData = "${escapedIframeContext}";
-        iFrameResize({
-            'autoResize': true,
-            'heightCalculationMethod': 'max'
-        }, '#${iframeId}');
-    }
+    });
 </script>

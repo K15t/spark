@@ -1,8 +1,34 @@
+import xdmHost from 'simple-xdm/host';
+
+import './spark-common.css';
+import soyTemplates from './spark-common.soy';
+import './spark-noconflict-header';
+
 AJS.toInit(function($) {
 
     'use strict';
 
-    function AppLoader(soyTemplates) {
+    xdmHost.defineModule('env', {
+        resize: function(width, height, sendResponse) {
+            $(`iframe#${sendResponse._context.extension_id}`).css({width, height});
+        }
+    });
+
+    function initIframeParams(appName, url) {
+
+        let iframeParams = xdmHost.create({
+            addon_key: appName,
+            key: appName,
+            url: url,
+            options: {
+                autoresize: true
+            }
+        });
+
+        return iframeParams;
+    }
+
+    function AppLoader() {
 
         var startedApps = {};
 
@@ -36,16 +62,18 @@ AJS.toInit(function($) {
             createOptions = $.extend(defaultDialogOptions, createOptions);
             var elementIdSparkAppContainer = angularAppName + '-spark-dialog-app-container';
 
+            var iframeParams = initIframeParams(angularAppName, location.protocol + '//' + location.host + appPath);
+
             var dialog = createDialog(elementIdSparkAppContainer, soyTemplates.appBootstrapContainerDialog2WithiFrame({
                 id: elementIdSparkAppContainer,
                 title: title,
-                src: location.protocol + '//' + location.host + appPath,
+                iframeParams: iframeParams,
                 createOptions: createOptions
-            }), createOptions.width, createOptions.height);
+            }), createOptions.width, createOptions.height).content;
 
             var closeDialogButton = AJS.$('#closeDialogButton' + elementIdSparkAppContainer, dialog.$el);
             var submitDialogButton = AJS.$('#submitDialogButton' + elementIdSparkAppContainer, dialog.$el);
-            var iFrameContent = AJS.$('#' + elementIdSparkAppContainer + '-iframe');
+            var iFrameContent = AJS.$('#' + iframeParams.id);
 
             closeDialogButton.click(function(e) {
                 dialog.close();
@@ -65,11 +93,6 @@ AJS.toInit(function($) {
             };
 
             startedAppDialog = dialog;
-
-            iFrameContent.iFrameResize([{
-                log: true,
-                autoResize: true
-            }]);
 
             dialog.show();
 
@@ -104,18 +127,20 @@ AJS.toInit(function($) {
 
             if (createOptions !== undefined && createOptions.openInIframe) {
 
+                var iframeParams = initIframeParams(angularAppName, location.protocol + '//' + location.host + fullAppPath);
+
                 $(element).append(soyTemplates.appBootstrapContaineriFrame({
                     id: elementIdSparkAppContainer,
-                    src: location.protocol + '//' + location.host + fullAppPath,
+                    iframeParams: iframeParams,
                     createOptions: $.extend(defaultDialogOptions, createOptions)
-                }));
+                }).content);
 
                 return;
             }
 
             $(element).append(soyTemplates.appBootstrapContainer({
                 id: elementIdSparkAppContainer
-            }));
+            }).content);
 
             // We have to use an additional element (div#spark-dialog-app-wrapper),
             // because body doesn't work, because it is using the browsers .innerHtml
@@ -186,11 +211,11 @@ AJS.toInit(function($) {
                 dialog = createDialog(id, soyTemplates.errorDialog2({
                     id: id,
                     title: 'An error happened ...'
-                }));
+                }).content);
             } else {
                 dialog = createDialog(id, soyTemplates.errorDialog({
                     title: 'An error happened ...'
-                }), 800, 500);
+                }).content, 800, 500);
             }
 
             $('.aui-blanket').addClass('spark-loading');
@@ -237,7 +262,7 @@ AJS.toInit(function($) {
         };
     }
 
-    var initIframeAppLoader = function(templates) {
+    var initIframeAppLoader = function() {
 
         /**
          * Creates a fullscreen iframe that will load the js app in given path.
@@ -290,12 +315,14 @@ AJS.toInit(function($) {
                 iframeSrcQuery += '?' + queryStrToAppend;
             }
 
+            var iframeParams = initIframeParams(appName, location.protocol + '//' + location.host + fullAppPath + iframeSrcQuery);
+
             // init a fullscreen dialog wrapper and iframe (and add it to body later)
-            var iframeWrapperElement = $(templates.appFullscreenContaineriFrame({
+            var iframeWrapperElement = $(soyTemplates.appFullscreenContaineriFrame({
                 'id': elementIdSparkAppContainer,
-                'src': location.protocol + '//' + location.host + fullAppPath + iframeSrcQuery,
+                iframeParams: iframeParams,
                 'createOptions': dialogSettings
-            }));
+            }).content);
 
             // add an easy way for the contained iframe to access the dialog chrome (if added)
             var dialogChrome = null;
@@ -340,13 +367,6 @@ AJS.toInit(function($) {
 
             sparkIframeContext.contextData = dialogSettings.contextData;
 
-            if (iframeElement.iFrameResize) {
-                iframeElement.iFrameResize([{
-                    'autoResize': true,
-                    'heightCalculationMethod': 'max'
-                }]);
-            }
-
             iframeWrapperElement.appendTo(bodyEl);
 
             return elementIdSparkAppContainer;
@@ -369,17 +389,16 @@ AJS.toInit(function($) {
         // this happens only in the case of loading the individual version of spark-bootstrap.js, not
         // the version that bundles also the noconflict-header
         if (!SPARK.appLoader2) {
-            SPARK.appLoader2 = new AppLoader(SPARK.Common.Templates);
+            SPARK.appLoader2 = new AppLoader();
         }
     } else {
 
         var newVersion = SPARK;
-        var templates = newVersion.Common.Templates;
 
         newVersion.__version = '{{spark_gulp_build_version}}';
 
-        newVersion.iframeAppLoader = initIframeAppLoader(templates);
-        newVersion.appLoader2 = new AppLoader(templates);
+        newVersion.iframeAppLoader = initIframeAppLoader();
+        newVersion.appLoader2 = new AppLoader();
 
         SPARK.__versions.add(newVersion);
 

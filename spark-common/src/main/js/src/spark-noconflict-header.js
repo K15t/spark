@@ -1,4 +1,4 @@
-var SPARK = SPARK || {};
+window.SPARK = window.SPARK || {};
 
 /*
  * This script is meant to be loaded before soy-templates file and the main spark-bootstrap file.
@@ -12,71 +12,67 @@ var SPARK = SPARK || {};
  * a property '__version' that equals the <version_string> will be returned.
  */
 
-(function() {
+// store old version and clear SPARK namespace for the new version
+var oldSpark = window.SPARK;
+window.SPARK = {};
 
-    // store old version and clear SPARK namespace for the new version
-    var oldSpark = SPARK;
-    SPARK = {};
+var initVersions = function() {
 
-    var initVersions = function() {
+    var versionStore = [];
 
-        var versionStore = [];
+    var oldSparkRef = {};
 
-        var oldSparkRef = {};
+    // the __versions helper can be shared between multiple executions of noconflict-header and the oldSpark
+    // stored in the outer function scope is not necessarily the latest SPARK global object
+    // (though if that would happen something would very likely be wrong, as every script should only add
+    // to the global object or restore it to original state after running)...
+    var storeOld = function(oldSpark) {
+        oldSparkRef = oldSpark;
+    };
 
-        // the __versions helper can be shared between multiple executions of noconflict-header and the oldSpark
-        // stored in the outer function scope is not necessarily the latest SPARK global object
-        // (though if that would happen something would very likely be wrong, as every script should only add
-        // to the global object or restore it to original state after running)...
-        var storeOld = function(oldSpark) {
-            oldSparkRef = oldSpark;
-        };
+    var add = function(newVersion) {
+        // prepend the new version
+        versionStore.unshift(newVersion);
+        window.SPARK = oldSparkRef;
+    };
 
-        var add = function(newVersion) {
-            // prepend the new version
-            versionStore.unshift(newVersion);
-            SPARK = oldSparkRef;
-        };
-
-        var get = function(versionToGet) {
-            if (versionToGet) {
-                for (var i = 0; i < versionStore.length; i++) {
-                    if (versionStore[i].__version === versionToGet) {
-                        return versionStore[i];
-                    }
+    var get = function(versionToGet) {
+        if (versionToGet) {
+            for (var i = 0; i < versionStore.length; i++) {
+                if (versionStore[i].__version === versionToGet) {
+                    return versionStore[i];
                 }
-                return undefined;
-            } else {
-                // if no version specified, return latest added version
-                return versionStore[0];
             }
-        };
-
-        return {
-            'add': add,
-            'get': get,
-            'storeOld': storeOld
+            return undefined;
+        } else {
+            // if no version specified, return latest added version
+            return versionStore[0];
         }
     };
 
-    // initialize the __versions-helper if needed
-    // make sure that it stays in the global SPARK-object and is shared between SPARK-versions
-    var versions;
-    if (oldSpark) {
-        if (oldSpark.__versions) {
-            versions = oldSpark.__versions;
-        } else {
-            versions = initVersions();
-            // this must stay available in the SPARK global object also after replacing the
-            // new SPARK global object with the old one
-            oldSpark.__versions = versions;
-        }
+    return {
+        'add': add,
+        'get': get,
+        'storeOld': storeOld
+    }
+};
+
+// initialize the __versions-helper if needed
+// make sure that it stays in the global SPARK-object and is shared between SPARK-versions
+var versions;
+if (oldSpark) {
+    if (oldSpark.__versions) {
+        versions = oldSpark.__versions;
     } else {
         versions = initVersions();
+        // this must stay available in the SPARK global object also after replacing the
+        // new SPARK global object with the old one
+        oldSpark.__versions = versions;
     }
+} else {
+    versions = initVersions();
+}
 
-    versions.storeOld(oldSpark);
+versions.storeOld(oldSpark);
 
-    SPARK.__versions = versions;
-
-})();
+window.SPARK.__versions = versions;

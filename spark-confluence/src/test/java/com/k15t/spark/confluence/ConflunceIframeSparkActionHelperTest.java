@@ -86,7 +86,7 @@ public class ConflunceIframeSparkActionHelperTest extends ConfluenceSpaceAppActi
         // except to be called once and with expected arguments
         PowerMockito.verifyStatic(times(1));
         DocumentOutputUtil.generateAdminIframeTemplateContext(
-                eq(requestContextPath + "/test/app/"), startsWith("test_base_id_"),
+                eq("/test/app/"), startsWith("test_base_id_"),
                 eq("test-context"), eq("test-query-string=test"));
 
         PowerMockito.verifyStatic(times(1));
