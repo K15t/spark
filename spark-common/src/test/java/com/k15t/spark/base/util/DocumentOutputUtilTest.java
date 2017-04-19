@@ -100,20 +100,16 @@ public class DocumentOutputUtilTest {
 
         Elements scriptElements = document.select("script");
 
-        Assert.assertEquals(2, scriptElements.size());
+        Assert.assertEquals(1, scriptElements.size());
 
-        // first script element should only add the resizer-js as unescaped text to the (inline) script element
-        Element resizeScriptEl = scriptElements.get(0);
-        assertTemplateReferencesVelocityVariable(sparkJsContextKey + "WithHtml", resizeScriptEl.html().trim());
-
-        // second element should contain references for contextParam and initCallback
+        // script element should add the resizer-js as unescaped text to the (inline) script element
+        // and contain references for contextParam and initCallback
         // don't try to check the js here, just that the velocity variables exist
-        Element initScriptEl = scriptElements.get(1);
+        Element scriptEl = scriptElements.get(0);
 
-        String initScripElCont = initScriptEl.html();
-
-        Map<String, Integer> refs = SparkTestUtils.checkVelocityFragmentReferences(initScripElCont,
-                Arrays.asList(iframeInjContextVelocityKey, iframeIdContextKey, iframeSrcContextKey), true);
+        Map<String, Integer> refs = SparkTestUtils.checkVelocityFragmentReferences(scriptEl.html().trim(),
+                Arrays.asList(sparkJsContextKey + "WithHtml", iframeInjContextVelocityKey, iframeIdContextKey, iframeSrcContextKey),
+                true);
 
         Assert.assertTrue(refs.get(iframeInjContextVelocityKey) > 0);
 
