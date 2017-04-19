@@ -6,14 +6,14 @@
 </script>
 <div id="${iframeId}-wrapper"></div>
 <script>
-    AJS.toInit(function() {
+    (function(spark) {
         var wrapperEl = document.getElementById("${iframeId}-wrapper");
-        getSpark(true).appLoader.loadApp(wrapperEl, "${iframeId}", "${iframeSrc}");
+        spark.appLoader.loadApp(wrapperEl, "${iframeId}", "${iframeSrc}");
 
         var iframeEl = wrapperEl.firstChild;
         if (!iframeEl.SPARK) {
             iframeEl.SPARK = {};
         }
         iframeEl.SPARK.contextData = "${escapedIframeContext}";
-    });
+    })(getSpark());
 </script>
