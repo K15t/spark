@@ -36,6 +36,14 @@ let baseConfig = {
                     search: '{{spark_gulp_build_version}}',
                     replace: version
                 }}]
+            },
+            {
+                // Do not override global jQuery iFrameResizer fn, as some other plugins rely on it
+                include: /\/node_modules\/iframe-resizer\/js\/iframeResizer\.js/,
+                loader: [{loader: 'string-replace-loader', options: {
+                    search: 'window.jQuery',
+                    replace: 'false'
+                }}]
             }
         ]
     }

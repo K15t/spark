@@ -1,4 +1,4 @@
-import 'iframe-resizer/js/iframeResizer';
+import iframeResizer from 'iframe-resizer/js/iframeResizer';
 
 import './spark-common.css';
 import soyTemplates from './spark-common.soy';
@@ -69,10 +69,10 @@ function AppLoader() {
 
         startedAppDialog = dialog;
 
-        iFrameContent.iFrameResize([{
+        iframeResizer([{
             log: true,
             autoResize: true
-        }]);
+        }], iFrameContent[0]);
 
         dialog.show();
 
@@ -113,10 +113,10 @@ function AppLoader() {
                 createOptions: $.extend(defaultDialogOptions, createOptions)
             }).content);
 
-            $(element).find('iframe').iFrameResize([{
+            iframeResizer([{
                 'autoResize': true,
                 'heightCalculationMethod': 'max'
-            }]);
+            }], $(element).find('iframe')[0]);
 
             return;
         }
@@ -348,12 +348,10 @@ var initIframeAppLoader = function() {
 
         sparkIframeContext.contextData = dialogSettings.contextData;
 
-        if (iframeElement.iFrameResize) {
-            iframeElement.iFrameResize([{
-                'autoResize': true,
-                'heightCalculationMethod': 'max'
-            }]);
-        }
+        iframeResizer([{
+            'autoResize': true,
+            'heightCalculationMethod': 'max'
+        }], iframeDomEl);
 
         iframeWrapperElement.appendTo(bodyEl);
 
