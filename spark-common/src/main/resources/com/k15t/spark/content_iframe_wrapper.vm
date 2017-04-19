@@ -8,9 +8,7 @@
 <script>
     AJS.toInit(function() {
         var wrapperEl = document.getElementById("${iframeId}-wrapper");
-        getSpark(true).appLoader.loadApp(wrapperEl, "${iframeId}", "${iframeSrc}", {
-            openInIframe: true
-        });
+        getSpark(true).appLoader.loadApp(wrapperEl, "${iframeId}", "${iframeSrc}");
 
         var iframeEl = wrapperEl.firstChild;
         if (!iframeEl.SPARK) {

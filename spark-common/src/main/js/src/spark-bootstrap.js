@@ -87,13 +87,11 @@ function AppLoader() {
      * @param element Dom element under which the angular application should be attached and bootstrapped
      * @param angularAppName Name of the angular application to bootstrap
      * @param appPath application path which will be used to load the necessary angular resources
-     * @param callbackStarted Callback which will be called after the angular application was successfully started
      * @param createOptions Advanced configuration for setting up the the dialog. Currently supported are:
-     *        openInIframe true in case to open the app in a iframe
      *        width width of the dialog or iframe
      *        height height of the dialog or iframe
      */
-    this.loadApp = function(element, angularAppName, appPath, createOptions, callbackStarted) {
+    this.loadApp = function(element, angularAppName, appPath, createOptions) {
 
         // append trailing slash if not there.
         var fullAppPath = contextPath + (/\/$/.test(appPath) || /\.html$/.test(appPath) ? appPath : appPath + '/');
@@ -105,70 +103,16 @@ function AppLoader() {
             $('#' + elementIdSparkAppContainer).remove();
         }
 
-        if (createOptions !== undefined && createOptions.openInIframe) {
-
-            $(element).append(soyTemplates.appBootstrapContaineriFrame({
-                id: elementIdSparkAppContainer,
-                src: location.protocol + '//' + location.host + fullAppPath,
-                createOptions: $.extend(defaultDialogOptions, createOptions)
-            }).content);
-
-            iframeResizer([{
-                'autoResize': true,
-                'heightCalculationMethod': 'max'
-            }], $(element).find('iframe')[0]);
-
-            return;
-        }
-
-        $(element).append(soyTemplates.appBootstrapContainer({
-            id: elementIdSparkAppContainer
+        $(element).append(soyTemplates.appBootstrapContaineriFrame({
+            id: elementIdSparkAppContainer,
+            src: location.protocol + '//' + location.host + fullAppPath,
+            createOptions: $.extend(defaultDialogOptions, createOptions)
         }).content);
 
-        // We have to use an additional element (div#spark-dialog-app-wrapper),
-        // because body doesn't work, because it is using the browsers .innerHtml
-        // property, which doesn't work consistently across browsers and for
-        // example in Chrome includes elements from head, too. The additional
-        // element is inserted automatically by the AppServlet.
-        // More info: https://api.jquery.com/load/#loading-page-fragments
-        $('#' + elementIdSparkAppContainer, element).load(
-            fullAppPath + ' div#spark-dialog-app-wrapper > *', function complete(response, status, xhr) {
-
-                if (status == "error") {
-                    var dialog = createErrorDialog(angularAppName);
-                    var absoluteAppPath = location.protocol + '//' + location.host + fullAppPath;
-                    dialog.$titleEl.html('Error');
-                    dialog.$contentEl.html(
-                        '<h2>Could not load dialog app from \'' + fullAppPath + '\'</h2>' +
-                        '<p>Have you created a servlet module for the DialogAppServlet in <code>atlassian-plugin.xml</code>?</p>' +
-                        '<p>It should be available at <a href="' + fullAppPath + '">' + absoluteAppPath + '</a></p>'
-                    );
-                    dialog.show();
-
-                    AJS.$('#closeErrorDialogButton', dialog.$el).click(function(e) {
-                        e.preventDefault();
-                        dialog.hide();
-                    });
-
-                } else {
-
-                    var angular = (window.angular = {});
-
-                    if (startedApps[angularAppName]) {
-                        delete startedApps[angularAppName];
-                    }
-
-                    // https://github.com/rgrove/lazyload
-                    LazyLoad.js(getExtractScriptsFromElement(element), function() {
-                        angular = window.angular;
-                        startedApps[angularAppName] = angular.bootstrap($('#' + angularAppName, element), [angularAppName]);
-                        if (callbackStarted) {
-                            callbackStarted(angular);
-                        }
-                    });
-
-                }
-            });
+        iframeResizer([{
+            'autoResize': true,
+            'heightCalculationMethod': 'max'
+        }], $(element).find('iframe')[0]);
     };
 
     /**
@@ -229,19 +173,6 @@ function AppLoader() {
         }
 
         return dialog;
-    };
-
-
-    var getExtractScriptsFromElement = function($contentEl) {
-
-        var scripts = [];
-
-        $('meta[name=script]', $contentEl).each(function() {
-            scripts.push($(this).attr('content'));
-            $(this).remove();
-        });
-
-        return scripts;
     };
 }
 
