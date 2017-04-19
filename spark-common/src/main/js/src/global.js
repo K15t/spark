@@ -7,13 +7,9 @@ function getSparkFail() {
 /**
  * Get the last included version of Spark. Has to be called immediately after including spark-dist.js (to avoid another version of SPARK
  * to be included in the meantime).
- * @param allowMultipleCalls {Boolean} Allow getSpark() to be called once more (useful to set if you have multiple JS files that are
- *                                     included directly after each other and all want to access SPARK.
  */
-function getSpark(allowMultipleCalls) {
-    if (!allowMultipleCalls) {
-        window.getSpark = getSparkFail;
-    }
+function getSpark() {
+    window.getSpark = getSparkFail;
 
     return spark;
 }
