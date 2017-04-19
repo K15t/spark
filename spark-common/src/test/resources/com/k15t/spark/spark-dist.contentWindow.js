@@ -1,1 +1,1 @@
-/* test placeholder of iframeResizer.contentWindow.min.js */
+/* test placeholder of spark-dist.contentWindow.js */

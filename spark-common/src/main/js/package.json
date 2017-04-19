@@ -1,14 +1,18 @@
 {
     "private": true,
+    "main": "./src/index.js",
+    "dependencies": {
+        "iframe-resizer": "3.5.10"
+    },
     "devDependencies": {
+        "babel-core": "^6.24.0",
+        "babel-loader": "^6.4.1",
+        "babel-preset-es2015": "^6.24.0",
+        "babel-preset-stage-2": "^6.22.0",
+        "css-loader": "^0.28.0",
         "del": "2.2.2",
         "gulp": "3.9.1",
-        "gulp-concat": "2.6.1",
-        "gulp-css2js": "1.0.2",
-        "gulp-replace": "0.5.4",
-        "gulp-soynode": "1.5.3",
         "gulp-util": "3.0.8",
-        "iframe-resizer": "3.5.10",
         "jasmine-core": "2.5.2",
         "jquery": "3.1.1",
         "karma": "1.5.0",
@@ -16,8 +20,11 @@
         "karma-jasmine": "1.1.0",
         "karma-phantomjs-launcher": "1.0.2",
         "karma-spec-reporter": "0.0.26",
-        "soyutils": "2.0.0"
+        "soy-template-loader": "^0.0.4",
+        "string-replace-loader": "^1.2.0",
+        "style-loader": "^0.16.1",
+        "webpack": "^2.3.3"
     },
-    "//": "jquery and soyutils are for testing, for live will be provided by AJS",
+    "//": "jquery is for testing, for live will be provided by AJS",
     "//": "iframeResizer will be concatenated to the resulting js dist-file"
 }

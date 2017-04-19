@@ -1,4 +1,6 @@
-var SPARK = SPARK || {};
+import 'iframe-resizer/js/iframeResizer.contentWindow';
+
+window.SPARK = window.SPARK || {};
 
 (function(sparkInstance, windowEl) {
 
@@ -17,4 +19,4 @@ var SPARK = SPARK || {};
     sparkInstance.getContextData = getContextData;
     sparkInstance.getDialogControls = getDialogControls;
 
-})(SPARK, window);
+})(window.SPARK, window);
