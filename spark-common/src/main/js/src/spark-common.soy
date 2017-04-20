@@ -4,9 +4,10 @@
  * @param id Id of the HTML element
  * @param src
  * @param createOptions
+ * @param className
  */
 {template .appBootstrapContaineriFrame}
-    <iframe id="{$id}-iframe" class="spark-app-iframe" src="{$src}" width="{$createOptions.width}"
+    <iframe id="{$id}-iframe" class="{$className} spark-app-iframe" src="{$src}" width="{$createOptions.width}"
             height="100%" scrolling="no">
     </iframe>
 {/template}
@@ -17,9 +18,10 @@
  * @param title
  * @param src
  * @param createOptions
+ * @param className
  */
 {template .appBootstrapContainerDialog2WithiFrame}
-    <section role="dialog" id="{$id}" class="aui-layer aui-dialog2" style="width:{$createOptions.width};"
+    <section role="dialog" id="{$id}" class="{$className} aui-layer aui-dialog2" style="width:{$createOptions.width};"
              aria-hidden="true">
         <header class="aui-dialog2-header">
             <h2 class="aui-dialog2-header-main">{$title}</h2>
@@ -30,6 +32,7 @@
                 {param id: $id/}
                 {param src: $src /}
                 {param createOptions: $createOptions /}
+                {param className: $className /}
             {/call}
         </div>
         <footer class="aui-dialog2-footer">
@@ -46,9 +49,10 @@
 /**
  * Template to create a general container for starting a SPARK application
  * @param containerId Id of the HTML element
+ * @param className
  */
 {template .appBootstrapContainer}
-    <div id="{$containerId}" ng-cloak></div>
+    <div id="{$containerId}" class="{$className}" ng-cloak></div>
 {/template}
 
 
@@ -57,9 +61,10 @@
  *
  * @param id
  * @param title
+ * @param className
  */
 {template .errorDialog2}
-    <section role="dialog" id="{$id}" class="aui-layer aui-dialog2 aui-dialog2-medium" aria-hidden="true">
+    <section role="dialog" id="{$id}" class="{$className} aui-layer aui-dialog2 aui-dialog2-medium" aria-hidden="true">
         <header class="aui-dialog2-header">
             <h2 class="aui-dialog2-header-main">{$title}</h2>
         </header>
@@ -77,9 +82,10 @@
  * Template to create an error dialog 1
  *
  * @param title
+ * @param className
  */
 {template .errorDialog}
-    <div class="dialog-components">
+    <div class="dialog-components {$className}">
         <h2 class="dialog-title">{$title}</h2>
         <div class="dialog-page-body">
             <div class="dialog-panel-body spark-app-content">
@@ -95,9 +101,10 @@
  * @param id Id of the HTML element
  * @param src URL of the content to load to the iframe
  * @param createOptions extra options to customize the dialog
+ * @param className
  */
 {template .appFullscreenContaineriFrame}
-    <div id="{$id}" class="spark-fullscreen-wrapper">
+    <div id="{$id}" class="spark-fullscreen-wrapper {$className}">
         {if $createOptions.addChrome}
         <div class="spark-fullscreen-chrome">
             <div class="spark-fullscreen-chrome-btnwrap">

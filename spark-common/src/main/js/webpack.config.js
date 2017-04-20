@@ -20,6 +20,10 @@ let baseConfig = {
                 loader: 'style-loader!css-loader'
             },
             {
+                include: /\.scss$/,
+                loader: 'style-loader!css-loader!sass-loader'
+            },
+            {
                 include: /\.(js|soy|css)$/,
                 use: [{loader: 'string-replace-loader', options: {
                     search: '{{spark_gulp_build_version}}',

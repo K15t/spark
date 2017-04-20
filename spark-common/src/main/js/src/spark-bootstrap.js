@@ -1,6 +1,6 @@
 import iframeResizer from 'iframe-resizer/js/iframeResizer';
 
-import './spark-common.css';
+import css from './spark-common.scss';
 import soyTemplates from './spark-common.soy';
 
 'use strict';
@@ -43,7 +43,8 @@ function AppLoader() {
             id: elementIdSparkAppContainer,
             title: title,
             src: location.protocol + '//' + location.host + appPath,
-            createOptions: createOptions
+            createOptions: createOptions,
+            className: css.className
         }), createOptions.width, createOptions.height).content;
 
         var closeDialogButton = AJS.$('#closeDialogButton' + elementIdSparkAppContainer, dialog.$el);
@@ -106,7 +107,8 @@ function AppLoader() {
         $(element).append(soyTemplates.appBootstrapContaineriFrame({
             id: elementIdSparkAppContainer,
             src: location.protocol + '//' + location.host + fullAppPath,
-            createOptions: $.extend(defaultDialogOptions, createOptions)
+            createOptions: $.extend(defaultDialogOptions, createOptions),
+            className: css.className
         }).content);
 
         iframeResizer([{
@@ -137,11 +139,13 @@ function AppLoader() {
         if (AJS.dialog2) {
             dialog = createDialog(id, soyTemplates.errorDialog2({
                 id: id,
-                title: 'An error happened ...'
+                title: 'An error happened ...',
+                className: css.className
             }).content);
         } else {
             dialog = createDialog(id, soyTemplates.errorDialog({
-                title: 'An error happened ...'
+                title: 'An error happened ...',
+                className: css.className
             }).content, 800, 500);
         }
 
@@ -233,7 +237,8 @@ var initIframeAppLoader = function() {
         var iframeWrapperElement = $(soyTemplates.appFullscreenContaineriFrame({
             'id': elementIdSparkAppContainer,
             'src': location.protocol + '//' + location.host + fullAppPath + iframeSrcQuery,
-            'createOptions': dialogSettings
+            'createOptions': dialogSettings,
+            className: css.className
         }).content);
 
         // add an easy way for the contained iframe to access the dialog chrome (if added)
