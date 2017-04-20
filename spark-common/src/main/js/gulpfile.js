@@ -35,11 +35,16 @@ gulp.task('tdd', ['compile-soy'], function(done) {
 gulp.task('build', function(callback) {
 
     webpack(require('./webpack.config'), function(err, stats) {
-       if (err) {
-           throw new gutil.PluginError("webpack", err);
-       }
+        if (err) {
+            throw new gutil.PluginError("webpack", err);
+        }
 
-        gutil.log("[webpack]", stats.toString());
+        let compErrors = [].concat(...stats.stats.map((stat) => (stat.compilation.errors || [])));
+        if(compErrors.length > 0) {
+            throw new gutil.PluginError('webpack', 'There were compilation errors:\n' + compErrors.map((err) => (err.message)).join('\n'));
+        }
+
+        gutil.log('[webpack]', stats.toString());
         callback();
     });
 
