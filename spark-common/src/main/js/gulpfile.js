@@ -6,7 +6,7 @@ var webpack = require('webpack');
 
 var distDir = process.env.DIST_DIR || 'target/gen';
 
-gulp.task('test', ['compile-soy'], function(done) {
+gulp.task('test', function(done) {
 
     new karma.Server({
         configFile: __dirname + '/karma_conf.js'
@@ -22,7 +22,7 @@ gulp.task('test', ['compile-soy'], function(done) {
 
 });
 
-gulp.task('tdd', ['compile-soy'], function(done) {
+gulp.task('tdd', function(done) {
 
     new karma.Server({
         configFile: __dirname + '/karma_conf.js',
@@ -32,7 +32,7 @@ gulp.task('tdd', ['compile-soy'], function(done) {
 
 });
 
-gulp.task('build', function(callback) {
+gulp.task('build', ['test'], function(callback) {
 
     webpack(require('./webpack.config'), function(err, stats) {
         if (err) {

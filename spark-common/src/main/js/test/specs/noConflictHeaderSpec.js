@@ -1,27 +1,21 @@
+import globalSpark from '../../src/global';
+
 describe('No conflict version handling', function() {
 
-   it('adds the __versions controller', function() {
+   it('adds getSpark global function', function() {
 
-        expect(SPARK.__versions).toEqual(jasmine.any(Object));
-
-        expect(SPARK.__versions.get).toEqual(jasmine.any(Function));
-
-        expect(SPARK.__versions.add).toEqual(jasmine.any(Function));
+        expect(window.getSpark).toEqual(jasmine.any(Function));
 
    });
 
-   it('get returns (latest) SPARK', function() {
-
-      var getRes = SPARK.__versions.get();
-
-      expect(getRes).toEqual(jasmine.any(Object));
-
-      expect(getRes.appLoader2).toBeDefined();
-      expect(getRes.iframeAppLoader).toBeDefined();
-
+   it('calling getSpark too late fails', function(done) {
+       window.setTimeout(function() {
+           expect(window.getSpark).toThrow();
+           done();
+       }, 10);
    });
 
-   it('restores old SPARK global object after loading new', function() {
+   it('does not override old SPARK global object', function() {
 
        expect(SPARK).toEqual(AJS.testControl.oldSparkMockupVersion);
 
@@ -32,27 +26,10 @@ describe('No conflict version handling', function() {
 
    });
 
-   it('returns correct version by version string', function() {
+   it('does not add iFrameResize to global jQuery', function() {
 
-       var latestRealSpark = SPARK.__versions.get();
+       expect(window.jQuery.fn.iFrameResize).not.toBeDefined();
 
-       var fakeSpark = {'__version': '0.0.1'};
-
-       SPARK.__versions.add(fakeSpark);
-
-       var latestFakeSpark = SPARK.__versions.get();
-
-       var sparkByVersion = SPARK.__versions.get('{{spark_gulp_build_version}}');
-
-       var fakeByVersion = SPARK.__versions.get('0.0.1');
-
-       expect(fakeByVersion).not.toEqual(latestRealSpark);
-       expect(fakeByVersion).toEqual(latestFakeSpark);
-       expect(sparkByVersion).toEqual(latestRealSpark);
-
-       // has to restore the real version on top of the stack by re-adding
-       // because some other tests expect to get the latest version by __versions.get()
-       SPARK.__versions.add(latestRealSpark);
    });
 
 });

@@ -180,7 +180,7 @@ function AppLoader() {
     };
 }
 
-var initIframeAppLoader = function() {
+var initIframeAppLoader = function(iframeResizer) {
 
     /**
      * Creates a fullscreen iframe that will load the js app in given path.
@@ -304,5 +304,7 @@ var initIframeAppLoader = function() {
 
 export default {
     appLoader: new AppLoader(),
-    iframeAppLoader: initIframeAppLoader()
+    iframeAppLoader: initIframeAppLoader(iframeResizer),
+    // the init is exposed here too so that tests can initialize with mocked iFrameResizer
+    initIframeAppLoader: initIframeAppLoader
 };

@@ -1,10 +1,11 @@
+import soyTemplates from '../../src/spark-common.soy';
+
 describe('SPARK soy templates', function() {
 
     describe('appFullscreenContaineriFrame', function() {
 
         beforeEach(function() {
-            var currSpark = SPARK.__versions.get();
-            this.iframeTemplate = currSpark.Common.Templates.appFullscreenContaineriFrame;
+            this.iframeTemplate = soyTemplates.appFullscreenContaineriFrame;
         });
 
         it('valid arguments return a result', function() {
@@ -30,7 +31,7 @@ describe('SPARK soy templates', function() {
             expect(function() {
                 this.iframeTemplate('test-id', 'test-src', {});
             }).toThrow();
-            
+
             expect(function() {
                 this.iframeTemplate({
                     'id': 'test-id',
@@ -75,7 +76,7 @@ describe('SPARK soy templates', function() {
                 'id': 'testing-id',
                 'src': '/src/of/iframe',
                 'createOptions': {}
-            }));
+            }).content);
 
             expect(resEl.attr('id')).toEqual('testing-id');
 
@@ -104,7 +105,7 @@ describe('SPARK soy templates', function() {
                 'createOptions': {
                     'addChrome': true
                 }
-            }));
+            }).content);
 
             // test that the important parts about the main structure work also when chrome is added
 
