@@ -121,6 +121,52 @@ describe('iframeAppLoader', function() {
 
         });
 
+        it('adds trailing slash to path if needed', function() {
+
+            this.testControl.contextPath = '/test/context';
+            spyOn(AJS, 'contextPath').and.callThrough();
+
+            // location is bit cumbersome to mock, but its attributes should be same here as in tested path
+            var expSrcContext = location.protocol + '//' + location.host +
+                '/test/context';
+
+            this.iframeTemplate.calls.reset();
+
+            this.iframeOpener('test-app-name', '/test/app/path');
+
+            expect(this.iframeTemplate).toHaveBeenCalledWith({
+                'id': jasmine.any(String),
+                'src': expSrcContext + '/test/app/path/',
+                'createOptions': jasmine.any(Object),
+                'className': jasmine.any(String)
+            });
+
+            this.iframeTemplate.calls.reset();
+
+            this.iframeOpener('test-app-name', '/test/app/path', {
+                'queryString': 'testParam=2'
+            });
+
+            expect(this.iframeTemplate).toHaveBeenCalledWith({
+                'id': jasmine.any(String),
+                'src': expSrcContext + '/test/app/path/?testParam=2',
+                'createOptions': jasmine.any(Object),
+                'className': jasmine.any(String)
+            });
+
+            this.iframeOpener('test-app-name', '/test/app/path/index.html', {
+                'queryString': 'testParam=2'
+            });
+
+            expect(this.iframeTemplate).toHaveBeenCalledWith({
+                'id': jasmine.any(String),
+                'src': expSrcContext + '/test/app/path/index.html?testParam=2',
+                'createOptions': jasmine.any(Object),
+                'className': jasmine.any(String)
+            });
+
+        });
+
         it('removes scrollers from content below dialog', function() {
 
             var bodyEl = $('body');

@@ -94,8 +94,14 @@ function AppLoader() {
      */
     this.loadApp = function(element, angularAppName, appPath, createOptions) {
 
-        // append trailing slash if not there.
-        var fullAppPath = contextPath + (/\/$/.test(appPath) || /\.html$/.test(appPath) ? appPath : appPath + '/');
+        // append trailing slash if not there (before the query string if present)
+        var appPathParts = appPath.split('?');
+
+        var appBasePath = appPathParts[0];
+
+        appBasePath = (/\/$/.test(appBasePath) || /\.html$/.test(appBasePath) ? appBasePath : appBasePath + '/');
+
+        var fullAppPath = AJS.contextPath() + appBasePath + (appPathParts.length > 1 ? '?' + appPathParts[1] : '');
 
         var elementIdSparkAppContainer = angularAppName + '-spark-app-container';
         var appContainerAlreadyCreated = $('#' + elementIdSparkAppContainer).length > 0;
@@ -214,7 +220,10 @@ var initIframeAppLoader = function(iframeResizer) {
         // to remove scrollers from content below the iframe dialog
         bodyEl.addClass('spark-no-scroll');
 
-        var fullAppPath = AJS.contextPath() + appPath;
+        // add trailing slash to the app path if not there
+        var appBasePath = (/\/$/.test(appPath) || /\.html$/.test(appPath) ? appPath : appPath + '/');
+
+        var fullAppPath = AJS.contextPath() + appBasePath;
 
         var elementIdSparkAppContainer = appName + '-spark-app-container';
 
