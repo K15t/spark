@@ -1,5 +1,5 @@
 import spark from '../../src/spark-bootstrap';
-import sparkTemplates from '../../src/spark-common.soy';
+import sparkTemplates from '../../src/spark-common-templates';
 
 describe('iframeAppLoader', function() {
 
@@ -31,7 +31,7 @@ describe('iframeAppLoader', function() {
         beforeEach(function() {
 
             this.iframeTemplate = spyOn(sparkTemplates, 'appFullscreenContaineriFrame')
-                .and.returnValue({content: '<div class="spark-mock-template"><iframe></iframe></div>'});
+                .and.returnValue('<div class="spark-mock-template"><iframe></iframe></div>');
 
             this.iframeOpener = this.iframeAppLoader.openFullscreenIframeDialog;
 
@@ -198,7 +198,7 @@ describe('iframeAppLoader', function() {
                 // element, so that the callback can be triggered and it can find
                 // an iframe element
                 this.iframeTemplate.and.returnValue(
-                    {content: '<div id="iframe_test_el"><iframe></iframe></div>'}
+                    '<div id="iframe_test_el"><iframe></iframe></div>'
                 );
 
                 this.getIframeContentWindow = function() {
@@ -394,15 +394,14 @@ describe('iframeAppLoader', function() {
                     this.appNameToUse = 'test-app';
 
                     // a template including the dialog chrome is needed for these test cases
-                    this.iframeTemplate.and.returnValue({
-                        content:
-                            '<div id="iframe_test_el">' +
-                            '   <div class="dialog-chrome">' +
-                            '   <button id="test-app-spark-app-container-chrome-submit">Submit</button>' +
-                            '   <button id="test-app-spark-app-container-chrome-cancel">Cancel</button>' +
-                            '</div>' +
-                            '<iframe></iframe></div>'
-                    });
+                    this.iframeTemplate.and.returnValue(
+                        '<div id="iframe_test_el">' +
+                        '   <div class="dialog-chrome">' +
+                        '   <button id="test-app-spark-app-container-chrome-submit">Submit</button>' +
+                        '   <button id="test-app-spark-app-container-chrome-cancel">Cancel</button>' +
+                        '</div>' +
+                        '<iframe></iframe></div>'
+                    );
 
                 });
 

@@ -12,10 +12,6 @@ let baseConfig = {
                 // simple-xdm needs stage-2 (Object spread operator)
             },
             {
-                include: /\.soy$/,
-                use: [{loader: 'soy-template-loader'}]
-            },
-            {
                 include: /\.css$/,
                 loader: 'style-loader!css-loader'
             },
@@ -24,7 +20,7 @@ let baseConfig = {
                 loader: 'style-loader!css-loader!sass-loader'
             },
             {
-                include: /\.(js|soy|css)$/,
+                include: /\.(js|css)$/,
                 use: [{loader: 'string-replace-loader', options: {
                     search: '{{spark_gulp_build_version}}',
                     replace: version

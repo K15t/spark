@@ -1,5 +1,5 @@
 import spark from '../../src/spark-bootstrap';
-import sparkTemplates from '../../src/spark-common.soy';
+import sparkTemplates from '../../src/spark-common-templates';
 
 describe('AppLoader', function() {
 

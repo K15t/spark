@@ -7,9 +7,6 @@
 var AJS = AJS || {}; // add a AJS mock as global and needed functions
 var $ = $ || {};
 
-var goog = goog || {};
-goog.debug = false;
-
 AJS.$ = $;
 
 var SPARK = { 'mockupOldVersion': true };

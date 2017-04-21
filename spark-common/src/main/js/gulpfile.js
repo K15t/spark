@@ -14,9 +14,9 @@ gulp.task('test', function(done) {
         if (err === 0) {
             done();
         } else {
-            done(new gutil.PluginError('karma', {
+            throw new gutil.PluginError('karma', {
                 message: 'Karma tests failed'
-            }))
+            });
         }
     }).start();
 

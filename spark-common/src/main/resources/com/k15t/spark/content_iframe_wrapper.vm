@@ -9,7 +9,7 @@
         var wrapperEl = document.getElementById("${iframeId}-wrapper");
         spark.appLoader.loadApp(wrapperEl, "${iframeId}", "${iframeSrc}");
 
-        var iframeEl = wrapperEl.firstChild;
+        var iframeEl = wrapperEl.firstElementChild;
         if (!iframeEl.SPARK) {
             iframeEl.SPARK = {};
         }

@@ -14,14 +14,13 @@ module.exports = function(config) {
         reporters: ['spec'],
         files: [
             'node_modules/jquery/dist/jquery.js',
-            'node_modules/soyutils/soyutils_nogoog.js',
             'test/mocks/**/*.js',
             { pattern: 'test/specs/*.js', watched: false } // webpack does the watching here
         ],
         preprocessors: {
             'test/specs/*.js': ['webpack', 'sourcemap']
         },
-        browsers: ['PhantomJS'],
+        browsers: [/*'Chrome'*/ 'PhantomJS'],
         singleRun: true,
         webpack: webpackConfig,
         webpackMiddleware: {

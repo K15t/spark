@@ -1,7 +1,7 @@
 import iframeResizer from 'iframe-resizer/js/iframeResizer';
 
 import css from './spark-common.scss';
-import soyTemplates from './spark-common.soy';
+import sparkTemplates from './spark-common-templates';
 
 'use strict';
 
@@ -39,13 +39,13 @@ function AppLoader() {
         createOptions = $.extend(defaultDialogOptions, createOptions);
         var elementIdSparkAppContainer = angularAppName + '-spark-dialog-app-container';
 
-        var dialog = createDialog(elementIdSparkAppContainer, soyTemplates.appBootstrapContainerDialog2WithiFrame({
+        var dialog = createDialog(elementIdSparkAppContainer, sparkTemplates.appBootstrapContainerDialog2WithiFrame({
             id: elementIdSparkAppContainer,
             title: title,
             src: location.protocol + '//' + location.host + appPath,
             createOptions: createOptions,
             className: css.className
-        }), createOptions.width, createOptions.height).content;
+        }), createOptions.width, createOptions.height);
 
         var closeDialogButton = AJS.$('#closeDialogButton' + elementIdSparkAppContainer, dialog.$el);
         var submitDialogButton = AJS.$('#submitDialogButton' + elementIdSparkAppContainer, dialog.$el);
@@ -110,12 +110,12 @@ function AppLoader() {
             $('#' + elementIdSparkAppContainer).remove();
         }
 
-        $(element).append(soyTemplates.appBootstrapContaineriFrame({
+        $(element).append(sparkTemplates.appBootstrapContaineriFrame({
             id: elementIdSparkAppContainer,
             src: location.protocol + '//' + location.host + fullAppPath,
             createOptions: $.extend(defaultDialogOptions, createOptions),
             className: css.className
-        }).content);
+        }));
 
         iframeResizer([{
             'autoResize': true,
@@ -143,16 +143,16 @@ function AppLoader() {
         var dialog;
 
         if (AJS.dialog2) {
-            dialog = createDialog(id, soyTemplates.errorDialog2({
+            dialog = createDialog(id, sparkTemplates.errorDialog2({
                 id: id,
                 title: 'An error happened ...',
                 className: css.className
-            }).content);
+            }));
         } else {
-            dialog = createDialog(id, soyTemplates.errorDialog({
+            dialog = createDialog(id, sparkTemplates.errorDialog({
                 title: 'An error happened ...',
                 className: css.className
-            }).content, 800, 500);
+            }), 800, 500);
         }
 
         $('.aui-blanket').addClass('spark-loading');
@@ -243,12 +243,12 @@ var initIframeAppLoader = function(iframeResizer) {
         }
 
         // init a fullscreen dialog wrapper and iframe (and add it to body later)
-        var iframeWrapperElement = $(soyTemplates.appFullscreenContaineriFrame({
+        var iframeWrapperElement = $(sparkTemplates.appFullscreenContaineriFrame({
             'id': elementIdSparkAppContainer,
             'src': location.protocol + '//' + location.host + fullAppPath + iframeSrcQuery,
             'createOptions': dialogSettings,
             className: css.className
-        }).content);
+        }));
 
         // add an easy way for the contained iframe to access the dialog chrome (if added)
         var dialogChrome = null;
