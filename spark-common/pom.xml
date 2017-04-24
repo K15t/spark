@@ -6,7 +6,7 @@
     <parent>
         <artifactId>spark</artifactId>
         <groupId>com.k15t.spark</groupId>
-        <version>2.0.0-SNAPSHOT</version>
+        <version>2.1.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>spark-common</artifactId>
@@ -105,6 +105,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
+                <version>1.5.0</version>
                 <executions>
                     <execution>
                         <phase>site</phase>
@@ -144,6 +145,48 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <!-- run node and gulp to do the JS build (and copy result to target-folder) -->
+            <plugin>
+                <groupId>com.github.eirslett</groupId>
+                <artifactId>frontend-maven-plugin</artifactId>
+                <version>1.3</version>
+                <configuration>
+                    <workingDirectory>src/main/js</workingDirectory>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>install-node-and-yarn</id>
+                        <goals>
+                            <goal>install-node-and-yarn</goal>
+                        </goals>
+                        <configuration>
+                            <nodeVersion>v6.9.5</nodeVersion>
+                            <yarnVersion>v0.21.3</yarnVersion>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>yarn-install</id>
+                        <goals>
+                            <goal>yarn</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>yarn-build</id>
+                        <goals>
+                            <goal>yarn</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>gulp dist</arguments>
+                            <environmentVariables>
+                                <DIST_DIR>${project.build.directory}/classes/com/k15t/spark</DIST_DIR>
+                                <PROJ_VERSION>${project.version}</PROJ_VERSION>
+                            </environmentVariables>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
         </plugins>
     </build>
 </project>

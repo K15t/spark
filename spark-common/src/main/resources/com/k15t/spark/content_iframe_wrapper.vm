@@ -1,0 +1,18 @@
+## appending WithHtml to variable name instructs Velocity not to add html escaping (like & -> &amp;)
+## which would otherwise broke the js embedded this way pretty badly...
+#set($sparkJsWithHtml = $sparkJs)
+<div id="${iframeId}-wrapper"></div>
+<script>
+    ${sparkJsWithHtml}
+
+    (function(spark) {
+        var wrapperEl = document.getElementById("${iframeId}-wrapper");
+        spark.appLoader.loadApp(wrapperEl, "${iframeId}", "${iframeSrc}", {width: "100%"});
+
+        var iframeEl = wrapperEl.firstElementChild;
+        if (!iframeEl.SPARK) {
+            iframeEl.SPARK = {};
+        }
+        iframeEl.SPARK.contextData = "${escapedIframeContext}";
+    })(getSpark());
+</script>

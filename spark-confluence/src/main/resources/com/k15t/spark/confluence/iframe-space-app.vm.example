@@ -4,6 +4,11 @@
         <meta charset="UTF-8">
         <title>$action.titleAsHtml</title>
         <meta name="decorator" content="atl.general"/>
+
+        #foreach($requiredResourceKey in $action.requiredResourceKeys)
+            #requireResource($requiredResourceKey)
+        #end
+
     </head>
 
     #applyDecorator("root")
@@ -18,7 +23,7 @@
         #decoratorParam ("helper" $action.helper)
         #decoratorParam ("viewHelper" $action.viewHelper)
         #decoratorParam ("context" "spacetoolspanel")
-        #decoratorParam ("selectedSpaceToolsWebItem" $action.selectedSpaceToolsWebItem)
+        #decoratorParam ("selectedSpaceToolsWebItem" $action.selectedWebItem)
 
         $action.bodyAsHtml
 
@@ -27,5 +32,3 @@
 
 #end
 </html>
-
-#* @vtlvariable name="action" type="com.k15t.spark.confluence.ConfluenceSpaceAppAction" *#
