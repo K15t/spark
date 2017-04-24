@@ -30,15 +30,13 @@ public class ConfluenceIframeSparkActionHelper {
     public static String renderSparkIframeBody(ConfluenceSparkIframeAction instance,
             HttpServletRequest request, String baseIframeId) {
         try {
-            String appBaseUrl = request.getContextPath() + "/" +
-                    StringUtils.removeStart(instance.getSpaBaseUrl(), "/");
             long idSuffix = System.currentTimeMillis();
 
             String template = DocumentOutputUtil.getIframeAdminContentWrapperTemplate();
 
             Map<String, Object> context =
                     DocumentOutputUtil.generateAdminIframeTemplateContext(
-                            appBaseUrl, baseIframeId + idSuffix,
+                            instance.getSpaBaseUrl(), baseIframeId + idSuffix,
                             instance.getIframeContextInfo(), instance.getSpaQueryString());
 
             return VelocityUtils.getRenderedContent(template, context);

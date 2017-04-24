@@ -1,11 +1,15 @@
+import spark from '../../src/spark-bootstrap';
+import sparkTemplates from '../../src/spark-common-templates';
+
 describe('iframeAppLoader', function() {
 
     beforeEach(function() {
 
-        AJS.testControl.initOnce();
-
         this.testControl = AJS.testControl;
-        this.iframeAppLoader = SPARK.__versions.get().iframeAppLoader;
+
+        this.iframeResizer = jasmine.createSpy('iFrameResize');
+
+        this.iframeAppLoader = spark.initIframeAppLoader(this.iframeResizer);
 
     });
 
@@ -26,13 +30,10 @@ describe('iframeAppLoader', function() {
 
         beforeEach(function() {
 
-            var currSpark = SPARK.__versions.get();
-            this.iframeTemplate = spyOn(currSpark.Common.Templates, 'appFullscreenContaineriFrame')
+            this.iframeTemplate = spyOn(sparkTemplates, 'appFullscreenContaineriFrame')
                 .and.returnValue('<div class="spark-mock-template"><iframe></iframe></div>');
 
             this.iframeOpener = this.iframeAppLoader.openFullscreenIframeDialog;
-
-            this.$ready = spyOn($.fn, 'ready');
 
         });
 
@@ -66,7 +67,8 @@ describe('iframeAppLoader', function() {
             expect(this.iframeTemplate).toHaveBeenCalledWith({
                 'id': 'test-app-name-spark-app-container',
                 'src': expSrc,
-                'createOptions': { 'addChrome': false }
+                'createOptions': { 'addChrome': false },
+                'className': jasmine.any(String)
             });
 
         });
@@ -87,7 +89,8 @@ describe('iframeAppLoader', function() {
             expect(this.iframeTemplate).toHaveBeenCalledWith({
                 'id': jasmine.any(String),
                 'src': expSrcBase + '?testParam=2',
-                'createOptions': jasmine.any(Object)
+                'createOptions': jasmine.any(Object),
+                'className': jasmine.any(String)
             });
 
             this.iframeTemplate.calls.reset();
@@ -99,7 +102,8 @@ describe('iframeAppLoader', function() {
             expect(this.iframeTemplate).toHaveBeenCalledWith({
                 'id': jasmine.any(String),
                 'src': expSrcBase + '?testParam=42',
-                'createOptions': jasmine.any(Object)
+                'createOptions': jasmine.any(Object),
+                'className': jasmine.any(String)
             });
 
             this.iframeTemplate.calls.reset();
@@ -111,7 +115,54 @@ describe('iframeAppLoader', function() {
             expect(this.iframeTemplate).toHaveBeenCalledWith({
                 'id': jasmine.any(String),
                 'src': expSrcBase + '?testParam=42&otherParam=36',
-                'createOptions': jasmine.any(Object)
+                'createOptions': jasmine.any(Object),
+                'className': jasmine.any(String)
+            });
+
+        });
+
+        it('adds trailing slash to path if needed', function() {
+
+            this.testControl.contextPath = '/test/context';
+            spyOn(AJS, 'contextPath').and.callThrough();
+
+            // location is bit cumbersome to mock, but its attributes should be same here as in tested path
+            var expSrcContext = location.protocol + '//' + location.host +
+                '/test/context';
+
+            this.iframeTemplate.calls.reset();
+
+            this.iframeOpener('test-app-name', '/test/app/path');
+
+            expect(this.iframeTemplate).toHaveBeenCalledWith({
+                'id': jasmine.any(String),
+                'src': expSrcContext + '/test/app/path/',
+                'createOptions': jasmine.any(Object),
+                'className': jasmine.any(String)
+            });
+
+            this.iframeTemplate.calls.reset();
+
+            this.iframeOpener('test-app-name', '/test/app/path', {
+                'queryString': 'testParam=2'
+            });
+
+            expect(this.iframeTemplate).toHaveBeenCalledWith({
+                'id': jasmine.any(String),
+                'src': expSrcContext + '/test/app/path/?testParam=2',
+                'createOptions': jasmine.any(Object),
+                'className': jasmine.any(String)
+            });
+
+            this.iframeOpener('test-app-name', '/test/app/path/index.html', {
+                'queryString': 'testParam=2'
+            });
+
+            expect(this.iframeTemplate).toHaveBeenCalledWith({
+                'id': jasmine.any(String),
+                'src': expSrcContext + '/test/app/path/index.html?testParam=2',
+                'createOptions': jasmine.any(Object),
+                'className': jasmine.any(String)
             });
 
         });
@@ -177,14 +228,6 @@ describe('iframeAppLoader', function() {
 
                     return iframeDomEl.SPARK;
 
-                };
-
-                this.addIframeResizerMock = function() {
-                    var iframeResizer = jasmine.createSpy('iFrameResize');
-
-                    $.fn.iFrameResize = iframeResizer;
-
-                    return iframeResizer;
                 };
 
             });
@@ -309,16 +352,16 @@ describe('iframeAppLoader', function() {
 
             it('calls the iFrameResizer host window part', function() {
 
-                var iframeResizer = this.addIframeResizerMock();
+                this.iframeResizer.calls.reset();
 
                 this.iframeOpener('test-app-name', '/test/app/path');
 
-                expect(iframeResizer).toHaveBeenCalled();
+                expect(this.iframeResizer).toHaveBeenCalled();
 
-                expect(iframeResizer).toHaveBeenCalledWith([{
+                expect(this.iframeResizer).toHaveBeenCalledWith([{
                     'autoResize': true,
                     'heightCalculationMethod': 'max'
-                }]);
+                }], jasmine.anything());
 
             });
 
@@ -375,7 +418,8 @@ describe('iframeAppLoader', function() {
                         'src': jasmine.any(String),
                         'createOptions': {
                             'addChrome': true
-                        }
+                        },
+                        'className': jasmine.any(String)
                     });
 
                     var iframeSpark = this.getSparkIframeContext();
@@ -428,7 +472,7 @@ describe('iframeAppLoader', function() {
                     // that are already tested without having the dialog chrome
 
                     // test also later that iFrameResizer is called as expected
-                    var iframeResizer = this.addIframeResizerMock();
+                    this.iframeResizer.calls.reset();
 
                     expect($('body').hasClass('spark-no-scroll')).toBeFalsy();
                     expect($('body').find('iframe').length).toEqual(0);
@@ -464,16 +508,16 @@ describe('iframeAppLoader', function() {
                         'with': { 'chrome': true }
                     });
 
-                    expect(iframeResizer).toHaveBeenCalled();
-                    expect(iframeResizer).toHaveBeenCalledWith([{
-                        'autoResize': true,
-                        'heightCalculationMethod': 'max'
-                    }]);
-
-                    var iframeDomElResizerObj = jasmine.createSpyObj('iFrameResizer', ['close']);
-
                     var iframeDomEl = $('body').find('iframe').get()[0];
                     expect(iframeDomEl).toBeDefined();
+
+                    expect(this.iframeResizer).toHaveBeenCalled();
+                    expect(this.iframeResizer).toHaveBeenCalledWith([{
+                        'autoResize': true,
+                        'heightCalculationMethod': 'max'
+                    }], iframeDomEl);
+
+                    var iframeDomElResizerObj = jasmine.createSpyObj('iFrameResizer', ['close']);
 
                     iframeDomEl.iFrameResizer = iframeDomElResizerObj;
 

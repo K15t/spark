@@ -1,3 +1,12 @@
+const webpackConf = require('./webpack.config.js');
+
+// take a webpack config matching the real build config
+// and adapt it to be suitable for test runs
+webpackConfig = Object.assign({}, webpackConf[0]);
+delete webpackConfig['output'];
+delete webpackConfig['entry'];
+webpackConfig.devtool = 'inline-source-map';
+
 module.exports = function(config) {
     config.set({
         basePath: '',
@@ -5,14 +14,17 @@ module.exports = function(config) {
         reporters: ['spec'],
         files: [
             'node_modules/jquery/dist/jquery.js',
-            'node_modules/soyutils/soyutils_nogoog.js',
             'test/mocks/**/*.js',
-            'src/spark-noconflict-header.js',
-            'target/build/**/*.soy.js',
-            'src/spark-bootstrap.js',
-            'test/specs/**/*.js'
+            { pattern: 'test/specs/*.js', watched: false } // webpack does the watching here
         ],
+        preprocessors: {
+            'test/specs/*.js': ['webpack', 'sourcemap']
+        },
+        browsers: [/*'Chrome'*/ 'PhantomJS'],
         singleRun: true,
-        browsers: [/*'Chrome'*/ 'PhantomJS']
+        webpack: webpackConfig,
+        webpackMiddleware: {
+            stats: 'errors-only'
+        }
     });
 };

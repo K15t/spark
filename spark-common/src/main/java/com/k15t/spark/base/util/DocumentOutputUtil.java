@@ -15,7 +15,7 @@ import java.util.Map;
 
 public class DocumentOutputUtil {
 
-    private static final String IFRAME_RESIZE_JS_PATH = "com/k15t/spark/iframeResizer.min.js";
+    private static final String IFRAME_SPARK_JS_PATH = "com/k15t/spark/spark-dist.js";
 
     private static final String IFRAME_CONTENT_WINDOW_JS_PATH = "com/k15t/spark/spark-dist.contentWindow.js";
 
@@ -65,16 +65,16 @@ public class DocumentOutputUtil {
 
 
     /**
-     * Returns the contents of the iframe host window side part of the iframeResizer JS library.
+     * Returns the contents of the iframe host window side part of the spark JS library.
      *
-     * @return iframeResizer JS file as a string
+     * @return spark JS file as a string
      * @throws NullPointerException if the resource cannot be found
      */
-    private static String getIframeResizeJs() throws IOException {
-        try (InputStream iframeResizeContentWindowFile =
+    private static String getSparkJs() throws IOException {
+        try (InputStream sparkJsFile =
                      DocumentOutputUtil.class.getClassLoader().
-                             getResourceAsStream(IFRAME_RESIZE_JS_PATH)) {
-            return IOUtils.toString(iframeResizeContentWindowFile, "UTF-8");
+                             getResourceAsStream(IFRAME_SPARK_JS_PATH)) {
+            return IOUtils.toString(sparkJsFile, "UTF-8");
         }
     }
 
@@ -117,7 +117,7 @@ public class DocumentOutputUtil {
      * be added as a JS string, but that string can contain eg. JSON info that the iframe JS code can parse.
      * </p>
      *
-     * @param appBaseUrl base url for the SPA (must already contain trailing '/')
+     * @param appBaseUrl base url for the SPA (must already contain trailing '/') (without contextPath prefix)
      * @param iframeIdToUse id to use for the iframe element
      * @param iframeContextInfo string that will be available in the iframe's context using SPARK.getContextData()
      * @param queryString queryString to add to the url of the iframe content source
@@ -137,11 +137,11 @@ public class DocumentOutputUtil {
 
         String iframeSource = appBaseUrl + queryStringToUse;
 
-        String iframeResizerJs = getIframeResizeJs();
+        String sparkJs = getSparkJs();
 
         HashMap<String, Object> context = new HashMap<String, Object>();
 
-        context.put("iframeResizerJs", iframeResizerJs);
+        context.put("sparkJs", sparkJs);
         context.put("iframeId", iframeIdToUse);
         context.put("iframeSrc", iframeSource);
         context.put("escapedIframeContext", escapedIframeContext);

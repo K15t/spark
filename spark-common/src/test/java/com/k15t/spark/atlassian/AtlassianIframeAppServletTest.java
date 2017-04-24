@@ -76,7 +76,7 @@ public class AtlassianIframeAppServletTest {
         Assert.assertEquals("test.js", scriptEl.select("[src]").attr("src"));
 
         // iframeResizer.contentWindow should be added inline (no src attribute)
-        Assert.assertEquals("/* test placeholder of iframeResizer.contentWindow.min.js */",
+        Assert.assertEquals("/* test placeholder of spark-dist.contentWindow.js */",
                 scriptEl.select(":not([src])").html());
 
         // p element in the body still there
