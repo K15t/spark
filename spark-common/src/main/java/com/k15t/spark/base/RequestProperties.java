@@ -3,9 +3,11 @@ package com.k15t.spark.base;
 import org.apache.commons.lang.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.UriBuilder;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
@@ -143,11 +145,20 @@ public class RequestProperties {
             if (baseUrl == null) {
                 builder = request.getRequestURL();
             } else {
-                builder = new StringBuffer(UriBuilder.fromPath(baseUrl)
-                        .path(getRequest().getServletPath())
-                        .path(getRequest().getPathInfo() != null ? getRequest().getPathInfo() : "")
-                        .build()
-                        .toString());
+                List<String> segments = new ArrayList<>();
+                segments.addAll(Arrays.asList(StringUtils.split(StringUtils.defaultString(baseUrl), '/')));
+                segments.addAll(Arrays.asList(StringUtils.split(StringUtils.defaultString(getRequest().getServletPath()), '/')));
+                segments.addAll(Arrays.asList(StringUtils.split(StringUtils.defaultString(getRequest().getPathInfo()), '/')));
+
+                builder = new StringBuffer();
+                for (String segment : segments) {
+                    builder.append("/").append(segment);
+                }
+
+                // Add trailing slash if required.
+                if (StringUtils.endsWith(getRequest().getPathInfo(), "/")) {
+                    builder.append("/");
+                }
             }
             if (request.getQueryString() != null) {
                 builder.append("?");

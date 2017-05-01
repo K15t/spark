@@ -11,6 +11,7 @@ import com.atlassian.templaterenderer.TemplateRenderer;
 import com.k15t.spark.base.AppServlet;
 import com.k15t.spark.base.RequestProperties;
 import com.k15t.spark.base.util.DocumentOutputUtil;
+import com.k15t.spark.base.util.UrlUtil;
 import org.apache.commons.lang.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -24,7 +25,6 @@ import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.core.UriBuilder;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -177,7 +177,9 @@ abstract public class AtlassianAppServlet extends AppServlet implements BundleCo
         Elements scriptElements = appWrapper.select("script[src$=.js]");
 
         for (Element scriptEl : scriptElements) {
-            String url = UriBuilder.fromUri(scriptEl.baseUri()).path(scriptEl.attr("src")).build().toString();
+            String baseUrl = scriptEl.baseUri();
+            String resourceUrl = scriptEl.attr("src");
+            String url = UrlUtil.rebaseUrl(baseUrl, resourceUrl);
             appWrapper.append("<meta name=\"script\" content=\"" + url + "\"/>");
         }
 
@@ -192,7 +194,9 @@ abstract public class AtlassianAppServlet extends AppServlet implements BundleCo
         Elements linkElements = appWrapper.select("link[href$=.css]");
 
         for (Element linkEl : linkElements) {
-            String url = UriBuilder.fromUri(linkEl.baseUri()).path(linkEl.attr("href")).build().toString();
+            String baseUrl = linkEl.baseUri();
+            String resourceUrl = linkEl.attr("href");
+            String url = UrlUtil.rebaseUrl(baseUrl, resourceUrl);
             linkEl.attr("href", url);
         }
     }
