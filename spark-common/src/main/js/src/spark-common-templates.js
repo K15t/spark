@@ -100,7 +100,9 @@ const errorDialog = function({title, className}) {
  */
 const appFullscreenContaineriFrame = function({id, src, createOptions, className}) {
     return `
-        <div id="${id}" class="spark-fullscreen-wrapper ${className}">
+        <div id="${id}" 
+            class="spark-fullscreen-wrapper ${className} ${createOptions.addChrome ? "spark-fullscreen-dialog-background" : "" }"
+        >
             ${createOptions.addChrome ?
                 `<div class="spark-fullscreen-chrome">
                     <div class="spark-fullscreen-chrome-btnwrap">
