@@ -1,3 +1,8 @@
+/* Applied to body so that the parent document does not scroll while the full screen IFrame dialog is open. */
+.spark-no-scroll {
+    overflow: hidden;
+}
+
 :local(.className) {
     &.spark-app-iframe {
         border: none;
@@ -6,10 +11,6 @@
     /*
      * Styles for iframe (full screen) dialog emulating Atlassian Connect
      */
-
-    .spark-no-scroll {
-        overflow: hidden;
-    }
 
     &.spark-fullscreen-wrapper {
         position: fixed;
@@ -31,6 +32,8 @@
         overflow: auto;
         margin: 0;
         padding: 0;
+        line-height: 0;
+        font-size: 0;
     }
 
     .spark-fullscreen-iframe {
