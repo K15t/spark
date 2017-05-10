@@ -23,8 +23,18 @@
         margin: 0;
         padding: 0;
         overflow: hidden;
-    }
 
+        /*
+         * Change background on fullscreen dialogs to grey.
+         * There are two types of fullscreen dialogs in Atlassian Connect:
+         * Dialogs with width/height set to 100% have a half-transparent black background,
+         * dialogs with size set to "fullscreen" have a grey background.
+         */
+        &.spark-fullscreen-dialog {
+            background-color: #f5f5f5;
+        }
+    }
+    
     .spark-fullscreen-scroll-wrapper {
         position: static;
         width: 100%;
