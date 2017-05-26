@@ -293,10 +293,26 @@ var initIframeAppLoader = function(iframeResizer) {
 
         sparkIframeContext.contextData = dialogSettings.contextData;
 
-        iframeResizer([{
+        function getMaxHeight() {
+            var maxHeight = window.innerHeight;
+            if (dialogSettings.addChrome) {
+                maxHeight -= 51; // 51px is the height of the black bar at the top
+            }
+            return maxHeight;
+        }
+
+
+        iframeResizer({
             'autoResize': true,
-            'heightCalculationMethod': 'max'
-        }], iframeDomEl);
+            'heightCalculationMethod': 'max',
+            'maxHeight': getMaxHeight(),
+            'scrolling': 'auto',
+            resizedCallback: function(data) {
+                // need to re-set maxHeight when window is resized
+                // resizedCallback is called when the iframe is resized which should be enough
+                data.iframe.style.maxHeight = getMaxHeight() + 'px';
+            }
+        }, iframeDomEl);
 
         iframeWrapperElement.appendTo(bodyEl);
 
