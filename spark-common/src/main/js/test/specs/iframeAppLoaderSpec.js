@@ -358,10 +358,13 @@ describe('iframeAppLoader', function() {
 
                 expect(this.iframeResizer).toHaveBeenCalled();
 
-                expect(this.iframeResizer).toHaveBeenCalledWith([{
+                expect(this.iframeResizer).toHaveBeenCalledWith({
                     'autoResize': true,
-                    'heightCalculationMethod': 'max'
-                }], jasmine.anything());
+                    'heightCalculationMethod': 'max',
+                    maxHeight: 300,
+                    scrolling: 'auto',
+                    resizedCallback: jasmine.any(Function)
+                }, jasmine.anything());
 
             });
 
@@ -512,10 +515,13 @@ describe('iframeAppLoader', function() {
                     expect(iframeDomEl).toBeDefined();
 
                     expect(this.iframeResizer).toHaveBeenCalled();
-                    expect(this.iframeResizer).toHaveBeenCalledWith([{
+                    expect(this.iframeResizer).toHaveBeenCalledWith({
                         'autoResize': true,
-                        'heightCalculationMethod': 'max'
-                    }], iframeDomEl);
+                        'heightCalculationMethod': 'max',
+                        maxHeight: 249,
+                        scrolling: 'auto',
+                        resizedCallback: jasmine.any(Function)
+                    }, iframeDomEl);
 
                     var iframeDomElResizerObj = jasmine.createSpyObj('iFrameResizer', ['close']);
 
