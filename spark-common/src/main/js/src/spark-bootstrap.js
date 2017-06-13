@@ -301,6 +301,7 @@ var initIframeAppLoader = function(iframeResizer) {
             return maxHeight;
         }
 
+        iframeWrapperElement.appendTo(bodyEl);
 
         iframeResizer({
             'autoResize': true,
@@ -313,8 +314,6 @@ var initIframeAppLoader = function(iframeResizer) {
                 data.iframe.style.maxHeight = getMaxHeight() + 'px';
             }
         }, iframeDomEl);
-
-        iframeWrapperElement.appendTo(bodyEl);
 
         return elementIdSparkAppContainer;
 
