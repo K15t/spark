@@ -1,12 +1,13 @@
 package com.k15t.spark.confluence;
 
 import com.atlassian.confluence.core.ConfluenceActionSupport;
+import com.k15t.spark.atlassian.AtlassianSparkIframeAction;
 import com.opensymphony.webwork.ServletActionContext;
 
 import java.util.List;
 
 
-public abstract class ConfluenceIframeAdminAppAction extends ConfluenceActionSupport implements ConfluenceSparkIframeAction {
+public abstract class ConfluenceIframeAdminAppAction extends ConfluenceActionSupport implements AtlassianSparkIframeAction {
 
     private String body;
 

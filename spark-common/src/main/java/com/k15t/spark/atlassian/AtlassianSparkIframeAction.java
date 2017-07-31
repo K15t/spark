@@ -1,11 +1,11 @@
-package com.k15t.spark.confluence;
+package com.k15t.spark.atlassian;
 
 import com.k15t.spark.base.Keys;
 
 import java.util.List;
 
 
-public interface ConfluenceSparkIframeAction {
+public interface AtlassianSparkIframeAction {
 
     /**
      * <p>
@@ -38,7 +38,7 @@ public interface ConfluenceSparkIframeAction {
 
 
     /**
-     * Returns the base url of the single page application relative to the Confluence context path. Can be overwritten by subclasses.
+     * Returns the base url of the single page application relative to the Confluence/JIRA context path. Can be overwritten by subclasses.
      * This default implementation evaluates the action parameter with name {@link Keys#SPARK_SELECTED_WEB_ITEM_KEY}.
      *
      * @return the base url of the spa app

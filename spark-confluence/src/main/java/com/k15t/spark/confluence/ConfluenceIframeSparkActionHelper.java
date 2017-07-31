@@ -1,6 +1,7 @@
 package com.k15t.spark.confluence;
 
 import com.atlassian.confluence.util.velocity.VelocityUtils;
+import com.k15t.spark.atlassian.AtlassianSparkIframeAction;
 import com.k15t.spark.base.Keys;
 import com.k15t.spark.base.util.DocumentOutputUtil;
 import com.opensymphony.xwork.ActionContext;
@@ -27,7 +28,7 @@ public class ConfluenceIframeSparkActionHelper {
      * @param baseIframeId string to use as the id of the iframe (will get an extra suffix)
      * @return html code containing a SPARK iframe
      */
-    public static String renderSparkIframeBody(ConfluenceSparkIframeAction instance,
+    public static String renderSparkIframeBody(AtlassianSparkIframeAction instance,
             HttpServletRequest request, String baseIframeId) {
         try {
             long idSuffix = System.currentTimeMillis();
