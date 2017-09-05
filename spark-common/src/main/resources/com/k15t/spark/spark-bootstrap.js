@@ -65,15 +65,17 @@ AJS.toInit(function($) {
                             delete startedApps[angularAppName];
                         }
 
-                        // https://github.com/rgrove/lazyload
-                        LazyLoad.js(getExtractScriptsFromElement(element), function() {
-                            angular = window.angular;
-                            startedApps[angularAppName] = angular.bootstrap($('#' + angularAppName, element), [angularAppName]);
-                            if (callbackStarted) {
-                                callbackStarted(angular);
-                            }
-                        });
-
+                        var scriptsToLoad = getExtractScriptsFromElement(element);
+                        if (scriptsToLoad && scriptsToLoad.length > 0) {
+                            // https://github.com/rgrove/lazyload
+                            LazyLoad.js(scriptsToLoad, function() {
+                                angular = window.angular;
+                                startedApps[angularAppName] = angular.bootstrap($('#' + angularAppName, element), [angularAppName]);
+                                if (callbackStarted) {
+                                    callbackStarted(angular);
+                                }
+                            });
+                        }
                     }
                 });
         };
