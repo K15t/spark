@@ -2,7 +2,6 @@ package com.k15t.spark.confluence;
 
 import com.atlassian.confluence.spaces.actions.AbstractSpaceAction;
 import com.atlassian.confluence.spaces.actions.SpaceAware;
-import com.k15t.spark.atlassian.AtlassianSparkIframeAction;
 import com.opensymphony.webwork.ServletActionContext;
 
 import java.util.List;
@@ -11,7 +10,7 @@ import java.util.List;
 /**
  * Class that can be extended for creating an action that opens a SPA in an iframe in the Space Tools view.
  */
-public abstract class ConfluenceIframeSpaceAppAction extends AbstractSpaceAction implements SpaceAware, AtlassianSparkIframeAction {
+public abstract class ConfluenceIframeSpaceAppAction extends AbstractSpaceAction implements SpaceAware, ConfluenceSparkIframeAction {
 
     private String body;
 

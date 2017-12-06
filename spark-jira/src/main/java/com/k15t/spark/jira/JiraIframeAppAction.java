@@ -10,6 +10,7 @@ import webwork.action.ServletActionContext;
 import javax.servlet.http.HttpServletRequest;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -57,7 +58,7 @@ public abstract class JiraIframeAppAction extends JiraWebActionSupport implement
 
     @Override
     public List<String> getRequiredResourceKeys() {
-        return null;
+        return Collections.emptyList();
     }
 
 

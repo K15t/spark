@@ -2,7 +2,6 @@ package com.k15t.spark.confluence;
 
 import com.atlassian.confluence.util.velocity.VelocityUtils;
 import com.google.common.collect.ImmutableMap;
-import com.k15t.spark.atlassian.AtlassianSparkIframeAction;
 import com.k15t.spark.base.Keys;
 import com.k15t.spark.base.util.DocumentOutputUtil;
 import org.junit.Assert;
@@ -23,7 +22,7 @@ import static org.mockito.Mockito.times;
 
 public class ConflunceIframeSparkActionHelperTest extends ConfluenceSpaceAppActionTestCommon {
 
-    private static AtlassianSparkIframeAction testInstance = new AtlassianSparkIframeAction() {
+    private static ConfluenceSparkIframeAction testInstance = new ConfluenceSparkIframeAction() {
         @Override
         public String getIframeContextInfo() {
             return "test-context";
