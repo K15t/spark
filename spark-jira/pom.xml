@@ -27,7 +27,7 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <!-- Provided by confluence -->
+        <!-- Provided by jira -->
         <dependency>
             <groupId>org.springframework.osgi</groupId>
             <artifactId>spring-osgi-core</artifactId>
@@ -40,9 +40,15 @@
             <version>${jira.version}</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>com.atlassian.templaterenderer</groupId>
+            <artifactId>atlassian-template-renderer-api</artifactId>
+            <version>1.4.4-m1</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <properties>
-        <jira.version>6.1</jira.version>
+        <jira.version>6.3.15</jira.version>
     </properties>
 </project>
