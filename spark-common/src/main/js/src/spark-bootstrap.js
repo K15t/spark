@@ -36,7 +36,7 @@ function AppLoader() {
             startedAppDialog = undefined;
         }
 
-        createOptions = $.extend(defaultDialogOptions, createOptions);
+        createOptions = AJS.$.extend(defaultDialogOptions, createOptions);
         var elementIdSparkAppContainer = angularAppName + '-spark-dialog-app-container';
 
         var dialog = createDialog(elementIdSparkAppContainer, sparkTemplates.appBootstrapContainerDialog2WithiFrame({
@@ -104,23 +104,23 @@ function AppLoader() {
         var fullAppPath = AJS.contextPath() + appBasePath + (appPathParts.length > 1 ? '?' + appPathParts[1] : '');
 
         var elementIdSparkAppContainer = angularAppName + '-spark-app-container';
-        var appContainerAlreadyCreated = $('#' + elementIdSparkAppContainer).length > 0;
+        var appContainerAlreadyCreated = AJS.$('#' + elementIdSparkAppContainer).length > 0;
 
         if (appContainerAlreadyCreated) {
-            $('#' + elementIdSparkAppContainer).remove();
+            AJS.$('#' + elementIdSparkAppContainer).remove();
         }
 
-        $(element).append(sparkTemplates.appBootstrapContaineriFrame({
+        AJS.$(element).append(sparkTemplates.appBootstrapContaineriFrame({
             id: elementIdSparkAppContainer,
             src: location.protocol + '//' + location.host + fullAppPath,
-            createOptions: $.extend(defaultDialogOptions, createOptions),
+            createOptions: AJS.$.extend(defaultDialogOptions, createOptions),
             className: css.className
         }));
 
         iframeResizer([{
             'autoResize': true,
             'heightCalculationMethod': 'max'
-        }], $(element).find('iframe')[0]);
+        }], AJS.$(element).find('iframe')[0]);
     };
 
     /**
@@ -155,7 +155,7 @@ function AppLoader() {
             }), 800, 500);
         }
 
-        $('.aui-blanket').addClass('spark-loading');
+        AJS.$('.aui-blanket').addClass('spark-loading');
 
         return dialog;
     };
@@ -166,10 +166,10 @@ function AppLoader() {
         var dialog;
 
         if (AJS.dialog2) {
-            $('body').append(dialogMarkup);
+            AJS.$('body').append(dialogMarkup);
             dialog = AJS.dialog2('#' + id);
             dialog.$appEl = dialog.$el;
-            dialog.$contentEl = $('.spark-app-content', dialog.$appEl);
+            dialog.$contentEl = AJS.$('.spark-app-content', dialog.$appEl);
         } else {
             dialog = new AJS.Dialog({
                 width: width,
@@ -178,7 +178,7 @@ function AppLoader() {
             });
             dialog.$appEl = dialog.popup.element;
             dialog.$appEl.html(dialogMarkup);
-            dialog.$contentEl = $('.spark-app-content', dialog.$appEl);
+            dialog.$contentEl = AJS.$('.spark-app-content', dialog.$appEl);
             dialog.$contentEl.height(dialog.$appEl.height() - 105);
         }
 
@@ -215,7 +215,7 @@ var initIframeAppLoader = function(iframeResizer) {
      */
     var openFullscreenIframeDialog = function(appName, appPath, dialogOptions) {
 
-        var bodyEl = $('body');
+        var bodyEl = AJS.$('body');
 
         // to remove scrollers from content below the iframe dialog
         bodyEl.addClass('spark-no-scroll');
@@ -227,11 +227,11 @@ var initIframeAppLoader = function(iframeResizer) {
 
         var elementIdSparkAppContainer = appName + '-spark-app-container';
 
-        var dialogSettings = $.extend({ 'addChrome': false }, dialogOptions);
+        var dialogSettings = AJS.$.extend({ 'addChrome': false }, dialogOptions);
 
         // make sure that element with the id is not already there
         // (in normal operation it is removed on dialog close)
-        $('#' + elementIdSparkAppContainer).remove();
+        AJS.$('#' + elementIdSparkAppContainer).remove();
 
         var iframeSrcQuery = '';
         if (dialogSettings.queryString) {
@@ -243,7 +243,7 @@ var initIframeAppLoader = function(iframeResizer) {
         }
 
         // init a fullscreen dialog wrapper and iframe (and add it to body later)
-        var iframeWrapperElement = $(sparkTemplates.appFullscreenContaineriFrame({
+        var iframeWrapperElement = AJS.$(sparkTemplates.appFullscreenContaineriFrame({
             'id': elementIdSparkAppContainer,
             'src': location.protocol + '//' + location.host + fullAppPath + iframeSrcQuery,
             'createOptions': dialogSettings,
