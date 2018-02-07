@@ -26,14 +26,232 @@ describe('iframeAppLoader', function() {
 
     });
 
-    describe('openFullScreenIframeDialog', function() {
+    it('has openInlineIframeDialog function', function() {
+
+        expect(this.iframeAppLoader.openInlineIframeDialog)
+            .toEqual(jasmine.any(Function));
+
+    });
+
+    it('has createIframe function', function() {
+
+        expect(this.iframeAppLoader.createIframe)
+            .toEqual(jasmine.any(Function));
+
+    });
+
+    describe('create Iframe', function() {
+        beforeEach(function() {
+            this.bootstrappedIFrame = spyOn(sparkTemplates, 'bootstrappedIFrame')
+                .and.returnValue('<iframe></iframe>');
+
+            this.iframeCreator = this.iframeAppLoader.createIframe;
+        });
+
+
+        it('throws proper exception when no/invalid parameters are provided', function() {
+
+            expect(() => {
+                this.iframeCreator()
+            }).toThrowError('Parameter missing - \'appId\'');
+            expect(() => {
+                this.iframeCreator('test-app-id')
+            }).toThrowError('Parameter missing - \'appPath\'');
+            expect(() => {
+                this.iframeCreator('test-app-id', 'test/app/path/')
+            }).toThrowError('Parameter missing - \'options\'');
+        });
+
+        it('returns iFrame element and iFrame Spark context when valid parameters are provided', function() {
+            expect(this.iframeCreator('test-app-id', '/test/app/path/', {})).toEqual(
+                { iFrameElement: AJS.$('<iframe></iframe>'), iFrameSparkContext: jasmine.any(Object) });
+        });
+
+        it('passes query string parameters to iFrame correctly ', function() {
+
+            this.testControl.contextPath = '/test/context';
+            spyOn(AJS, 'contextPath').and.callThrough();
+
+            // location is bit cumbersome to mock, but its attributes should be same here as in tested path
+            var expSrcBase = location.protocol + '//' + location.host +
+                '/test/context/test/app/path/';
+
+            this.iframeCreator('test-app-id', '/test/app/path/', {
+                'queryString': 'testParam=2'
+            });
+
+            expect(this.bootstrappedIFrame).toHaveBeenCalledWith({
+                'id': jasmine.any(String),
+                'src': expSrcBase + '?testParam=2',
+                'className': jasmine.any(String)
+            });
+
+            this.bootstrappedIFrame.calls.reset();
+
+            this.iframeCreator('test-app-id', '/test/app/path/', {
+                'queryString': '?testParam=42'
+            });
+
+            expect(this.bootstrappedIFrame).toHaveBeenCalledWith({
+                'id': jasmine.any(String),
+                'src': expSrcBase + '?testParam=42',
+                'className': jasmine.any(String)
+            });
+
+            this.bootstrappedIFrame.calls.reset();
+
+            this.iframeCreator('test-app-id', '/test/app/path/', {
+                'queryString': '&testParam=42&otherParam=36'
+            });
+
+            expect(this.bootstrappedIFrame).toHaveBeenCalledWith({
+                'id': jasmine.any(String),
+                'src': expSrcBase + '?testParam=42&otherParam=36',
+                'className': jasmine.any(String)
+            });
+
+        });
+
+        it('adds trailing slash to app path if needed', function() {
+
+            this.testControl.contextPath = '/test/context';
+            spyOn(AJS, 'contextPath').and.callThrough();
+
+            // location is bit cumbersome to mock, but its attributes should be same here as in tested path
+            var expSrcContext = location.protocol + '//' + location.host +
+                '/test/context';
+
+            this.bootstrappedIFrame.calls.reset();
+
+            this.iframeCreator('test-app-id', '/test/app/path', {});
+
+            expect(this.bootstrappedIFrame).toHaveBeenCalledWith({
+                'id': jasmine.any(String),
+                'src': expSrcContext + '/test/app/path/',
+                'className': jasmine.any(String)
+            });
+
+            this.bootstrappedIFrame.calls.reset();
+
+            this.iframeCreator('test-app-id', '/test/app/path', {
+                'queryString': 'testParam=2'
+            });
+
+            expect(this.bootstrappedIFrame).toHaveBeenCalledWith({
+                'id': jasmine.any(String),
+                'src': expSrcContext + '/test/app/path/?testParam=2',
+                'className': jasmine.any(String)
+            });
+
+            this.iframeCreator('test-app-id', '/test/app/path/index.html', {
+                'queryString': 'testParam=2'
+            });
+
+            expect(this.bootstrappedIFrame).toHaveBeenCalledWith({
+                'id': jasmine.any(String),
+                'src': expSrcContext + '/test/app/path/index.html?testParam=2',
+                'className': jasmine.any(String)
+            });
+
+        });
+
+        it('calls bootstrappedIFrame with correct parameters', function() {
+            this.testControl.contextPath = '/test/context';
+            spyOn(AJS, 'contextPath').and.callThrough();
+
+            // location is bit cumbersome to mock, but its attributes should be same here as in tested path
+            var expSrcContext = location.protocol + '//' + location.host +
+                '/test/context';
+
+            this.iframeCreator('test-app-id', '/test/app/path/', { test: 'options' });
+            expect(this.bootstrappedIFrame).toHaveBeenCalledWith(
+                {
+                    'id': 'test-app-id-iframe',
+                    'src': expSrcContext + '/test/app/path/',
+                    'className': jasmine.any(String)
+                }
+            );
+        });
+
+        describe('iFrame context handling', function() {
+
+            it('adds SPARK context data, resizeIFrameWidth function and  custom context data (when available) to the iFrame', function() {
+
+                expect(this.iframeCreator('test-app-id', '/test/app/path/', {
+                    contextData: 'test-context-data'
+                }).iFrameElement.get()[0].SPARK).toBeDefined();
+
+                expect(this.iframeCreator('test-app-id', '/test/app/path/', {
+                    contextData: 'test-context-data'
+                }).iFrameSparkContext).toEqual({
+                    contextData: 'test-context-data',
+                    setIFrameContainerWidth: jasmine.any(Function)
+                });
+
+                expect(this.iframeCreator('test-app-id', '/test/app/path/', {
+                    contextData: 'test-context-data',
+                    customContext: 'test-custom-context-data'
+                }).iFrameSparkContext).toEqual({
+                    contextData: 'test-context-data',
+                    customContext: 'test-custom-context-data',
+                    setIFrameContainerWidth: jasmine.any(Function)
+                });
+            });
+        });
+
+        describe('iFrame resizer handling', function() {
+            it('calls the iFrameResizer with default parameters', function() {
+
+                this.iframeResizer.calls.reset();
+
+                this.iframeCreator('test-app-id', '/test/app/path/', {});
+
+                expect(this.iframeResizer).toHaveBeenCalled();
+
+                expect(this.iframeResizer).toHaveBeenCalledWith({
+                    'autoResize': true,
+                    'heightCalculationMethod': 'max',
+                    'maxHeight': window.innerHeight
+                }, jasmine.anything());
+
+            });
+
+            it('calls the iFrameResizer with additional parameters when available', function() {
+
+                this.iframeResizer.calls.reset();
+
+                this.iframeCreator('test-app-id', '/test/app/path/', { iFrameResizerSettings: { foo: 'bar' } });
+
+                expect(this.iframeResizer).toHaveBeenCalled();
+
+                expect(this.iframeResizer).toHaveBeenCalledWith({
+                    'autoResize': true,
+                    'heightCalculationMethod': 'max',
+                    'maxHeight': window.innerHeight,
+                    'foo': 'bar'
+                }, jasmine.anything());
+
+            });
+        });
+
+
+    });
+
+    describe('openFullScreenIFrameDialog', function() {
 
         beforeEach(function() {
 
             this.iframeTemplate = spyOn(sparkTemplates, 'appFullscreenContaineriFrame')
-                .and.returnValue('<div class="spark-mock-template"><iframe></iframe></div>');
+                .and.returnValue(
+                    `<div id="test-app-name-spark-app-container" class="spark-mock-template">
+                        <div id="test-app-name-spark-app-container-iframe-container"></div>
+                    </div>`
+                );
 
-            this.iframeOpener = this.iframeAppLoader.openFullscreenIframeDialog;
+            this.bootstrappedIFrame = spyOn(sparkTemplates, 'bootstrappedIFrame')
+                .and.returnValue('<iframe></iframe>');
+
+            this.fullScreenDialogOpener = this.iframeAppLoader.openFullscreenIframeDialog;
 
         });
 
@@ -45,126 +263,17 @@ describe('iframeAppLoader', function() {
         });
 
 
-        it('uses the appFullscreenContaineriFrame template', function() {
-
-            this.iframeOpener();
-
-            expect(this.iframeTemplate).toHaveBeenCalled();
-
+        it('throws proper exception when no/invalid parameters are provided', function() {
+            expect(() => {
+                this.fullScreenDialogOpener()
+            }).toThrowError('Parameter missing - \'appName\'');
+            expect(() => {
+                this.fullScreenDialogOpener('test-app-name')
+            }).toThrowError('Parameter missing - \'appPath\'');
         });
 
-        it('passes correct arguments to iframe template', function() {
-
-            this.testControl.contextPath = '/test/context';
-            spyOn(AJS, 'contextPath').and.callThrough();
-
-            // location is bit cumbersome to mock, but its attributes should be same here as in tested path
-            var expSrc = location.protocol + '//' + location.host +
-                '/test/context/test/app/path/';
-
-            this.iframeOpener('test-app-name', '/test/app/path/');
-
-            expect(this.iframeTemplate).toHaveBeenCalledWith({
-                'id': 'test-app-name-spark-app-container',
-                'src': expSrc,
-                'createOptions': { 'addChrome': false },
-                'className': jasmine.any(String)
-            });
-
-        });
-
-        it('passes query string correctly to iframe', function() {
-
-            this.testControl.contextPath = '/test/context';
-            spyOn(AJS, 'contextPath').and.callThrough();
-
-            // location is bit cumbersome to mock, but its attributes should be same here as in tested path
-            var expSrcBase = location.protocol + '//' + location.host +
-                '/test/context/test/app/path/';
-
-            this.iframeOpener('test-app-name', '/test/app/path/', {
-                'queryString': 'testParam=2'
-            });
-
-            expect(this.iframeTemplate).toHaveBeenCalledWith({
-                'id': jasmine.any(String),
-                'src': expSrcBase + '?testParam=2',
-                'createOptions': jasmine.any(Object),
-                'className': jasmine.any(String)
-            });
-
-            this.iframeTemplate.calls.reset();
-
-            this.iframeOpener('test-app-name', '/test/app/path/', {
-                'queryString': '?testParam=42'
-            });
-
-            expect(this.iframeTemplate).toHaveBeenCalledWith({
-                'id': jasmine.any(String),
-                'src': expSrcBase + '?testParam=42',
-                'createOptions': jasmine.any(Object),
-                'className': jasmine.any(String)
-            });
-
-            this.iframeTemplate.calls.reset();
-
-            this.iframeOpener('test-app-name', '/test/app/path/', {
-                'queryString': '&testParam=42&otherParam=36'
-            });
-
-            expect(this.iframeTemplate).toHaveBeenCalledWith({
-                'id': jasmine.any(String),
-                'src': expSrcBase + '?testParam=42&otherParam=36',
-                'createOptions': jasmine.any(Object),
-                'className': jasmine.any(String)
-            });
-
-        });
-
-        it('adds trailing slash to path if needed', function() {
-
-            this.testControl.contextPath = '/test/context';
-            spyOn(AJS, 'contextPath').and.callThrough();
-
-            // location is bit cumbersome to mock, but its attributes should be same here as in tested path
-            var expSrcContext = location.protocol + '//' + location.host +
-                '/test/context';
-
-            this.iframeTemplate.calls.reset();
-
-            this.iframeOpener('test-app-name', '/test/app/path');
-
-            expect(this.iframeTemplate).toHaveBeenCalledWith({
-                'id': jasmine.any(String),
-                'src': expSrcContext + '/test/app/path/',
-                'createOptions': jasmine.any(Object),
-                'className': jasmine.any(String)
-            });
-
-            this.iframeTemplate.calls.reset();
-
-            this.iframeOpener('test-app-name', '/test/app/path', {
-                'queryString': 'testParam=2'
-            });
-
-            expect(this.iframeTemplate).toHaveBeenCalledWith({
-                'id': jasmine.any(String),
-                'src': expSrcContext + '/test/app/path/?testParam=2',
-                'createOptions': jasmine.any(Object),
-                'className': jasmine.any(String)
-            });
-
-            this.iframeOpener('test-app-name', '/test/app/path/index.html', {
-                'queryString': 'testParam=2'
-            });
-
-            expect(this.iframeTemplate).toHaveBeenCalledWith({
-                'id': jasmine.any(String),
-                'src': expSrcContext + '/test/app/path/index.html?testParam=2',
-                'createOptions': jasmine.any(Object),
-                'className': jasmine.any(String)
-            });
-
+        it('returns the spark app container id when valid parameters are provided', function() {
+            expect(this.fullScreenDialogOpener('test-app-name', '/test/app/path/', {})).toEqual('test-app-name-spark-app-container');
         });
 
         it('removes scrollers from content below dialog', function() {
@@ -173,15 +282,46 @@ describe('iframeAppLoader', function() {
 
             expect(bodyEl.hasClass('spark-no-scroll')).toBeFalsy();
 
-            this.iframeOpener('test-app', '/test/path');
+            this.fullScreenDialogOpener('test-app', '/test/path');
 
             expect(bodyEl.hasClass('spark-no-scroll')).toBeTruthy();
 
         });
 
-        it('adds the iframe wrapper element to dom', function() {
+        it('uses the appFullscreenContaineriFrame template', function() {
 
-            this.iframeOpener('test-app-name', '/test/app/path');
+            this.fullScreenDialogOpener('test-app-name', '/test/app/path/', {});
+
+            expect(this.iframeTemplate).toHaveBeenCalled();
+
+        });
+
+        it('calls appFullscreenContaineriFrame with correct parameters', function() {
+
+            this.testControl.contextPath = '/test/context';
+            spyOn(AJS, 'contextPath').and.callThrough();
+
+            // location is bit cumbersome to mock, but its attributes should be same here as in tested path
+            var expSrc = location.protocol + '//' + location.host +
+                '/test/context/test/app/path/';
+
+            this.fullScreenDialogOpener('test-app-name', '/test/app/path/');
+
+            var iFrameResizerSettings = {
+                'scrolling': 'auto',
+                resizedCallback: jasmine.any(Function)
+            };
+
+            expect(this.iframeTemplate).toHaveBeenCalledWith({
+                'id': 'test-app-name-spark-app-container',
+                'createOptions': { 'addChrome': false },
+                'className': jasmine.any(String)
+            });
+        });
+
+        it('adds the iFrame wrapper element to dom', function() {
+
+            this.fullScreenDialogOpener('test-app-name', '/test/app/path', {});
 
             var element = $('#test-app-name-spark-app-container');
 
@@ -193,13 +333,6 @@ describe('iframeAppLoader', function() {
         describe('Iframe context handling', function() {
 
             beforeEach(function() {
-
-                // for this test case the template result has to actually include an iframe
-                // element, so that the callback can be triggered and it can find
-                // an iframe element
-                this.iframeTemplate.and.returnValue(
-                    '<div id="iframe_test_el"><iframe></iframe></div>'
-                );
 
                 this.getIframeContentWindow = function() {
                     var iframeDomEl = this.getIframeDomEl();
@@ -232,9 +365,11 @@ describe('iframeAppLoader', function() {
 
             });
 
-            it('the callback adds the SPARK controls to the iframe element', function() {
+            it('the callback adds the SPARK controls to the iFrame element', function() {
 
-                this.iframeOpener('test-app-name', '/test/app/path');
+                this.fullScreenDialogOpener('test-app-name', '/test/app/path', {
+                    'width': '100px'
+                });
 
                 var iframeDomEl = this.getIframeDomEl();
 
@@ -243,13 +378,13 @@ describe('iframeAppLoader', function() {
 
             });
 
-            it('adds the dialog close method to the iframe context', function() {
+            it('adds the dialog close method to the iFrame context', function() {
 
-                this.iframeOpener('test-app-name', '/test/app/path');
+                this.fullScreenDialogOpener('test-app-name', '/test/app/path');
 
                 var iframeDomEl = this.getIframeDomEl();
 
-                // should have no added the SPARK context
+                // should have added the SPARK context
                 expect(iframeDomEl.SPARK).toBeDefined();
 
                 expect(iframeDomEl.SPARK.dialogControls).toEqual(jasmine.any(Object));
@@ -266,11 +401,13 @@ describe('iframeAppLoader', function() {
 
                 expect(iframeDomEl.SPARK.contextData).not.toBeDefined();
 
+                expect(iframeDomEl.SPARK.customContext).not.toBeDefined();
+
             });
 
             it('close-method restores main content scrollers', function() {
 
-                this.iframeOpener('test-app-name', '/test/app/path');
+                this.fullScreenDialogOpener('test-app-name', '/test/app/path', {});
 
                 var iframeSparkCont = this.getSparkIframeContext();
 
@@ -283,13 +420,13 @@ describe('iframeAppLoader', function() {
             });
 
             it('close-method removes the dialog wrapper element', function() {
-                this.iframeOpener('test-app-name', '/test/app/path');
+                this.fullScreenDialogOpener('test-app-name', '/test/app/path', {});
 
                 var iframeSpark = this.getSparkIframeContext();
 
                 // should have the expected 'iframe wrapper element'
 
-                var iframeWrapperEl = $('body').find('#iframe_test_el');
+                var iframeWrapperEl = $('body').find('#test-app-name-spark-app-container');
                 expect(iframeWrapperEl.length).toEqual(1);
                 expect(iframeWrapperEl.find('iframe').length).toEqual(1);
 
@@ -297,14 +434,14 @@ describe('iframeAppLoader', function() {
                 // should not be there anymore
                 iframeSpark.dialogControls.closeDialog();
 
-                expect($('body').find('#iframe_test_el').length).toEqual(0);
+                expect($('body').find('#test-app-name-spark-app-container').length).toEqual(0);
                 expect($('body').find('iframe').length).toEqual(0);
 
             });
 
             it('close-method invokes the onClose handler with result data', function() {
                 var closeCallback = jasmine.createSpy('dialogCloseCallback');
-                this.iframeOpener('test-app-name', '/test/app/path', { onClose: closeCallback });
+                this.fullScreenDialogOpener('test-app-name', '/test/app/path', { onClose: closeCallback });
 
                 var iframeSpark = this.getSparkIframeContext();
 
@@ -326,53 +463,13 @@ describe('iframeAppLoader', function() {
                 expect(closeCallback).toHaveBeenCalledWith(resultData);
             });
 
-            it('passes extra context data to iframe context', function() {
-
-                var contextData = {
-                    'some': 'random',
-                    'extra': ['data', 'for', 'iframe']
-                };
-
-                this.iframeOpener('test-app-name', '/test/app/path', {
-                    'contextData': contextData
-                });
-
-                var iframeSpark = this.getSparkIframeContext();
-
-                expect(iframeSpark.dialogControls).toEqual(jasmine.any(Object));
-
-                expect(iframeSpark.contextData).toEqual(jasmine.any(Object));
-
-                expect(iframeSpark.contextData).toEqual({
-                    'some': 'random',
-                    'extra': ['data', 'for', 'iframe']
-                });
-
-            });
-
-            it('calls the iFrameResizer host window part', function() {
-
-                this.iframeResizer.calls.reset();
-
-                this.iframeOpener('test-app-name', '/test/app/path');
-
-                expect(this.iframeResizer).toHaveBeenCalled();
-
-                expect(this.iframeResizer).toHaveBeenCalledWith({
-                    'autoResize': true,
-                    'heightCalculationMethod': 'max',
-                    maxHeight: 300,
-                    scrolling: 'auto',
-                    resizedCallback: jasmine.any(Function)
-                }, jasmine.anything());
-
-            });
-
             it('calls iFrameResizer.close on closing dialog', function() {
 
                 var iframeResizer = jasmine.createSpyObj('iFrameResizer', ['close']);
 
-                this.iframeOpener('test-app-name', '/test/app/path');
+                this.fullScreenDialogOpener('test-app-name', '/test/app/path', {
+                    'width': '100px',
+                });
 
                 var iframeDomEl = $('body').find('iframe').get()[0];
 
@@ -394,31 +491,32 @@ describe('iframeAppLoader', function() {
                 beforeEach(function() {
 
                     // this has to match the id prefix used for the dialog buttons
-                    this.appNameToUse = 'test-app';
+                    this.appNameToUse = 'test';
 
                     // a template including the dialog chrome is needed for these test cases
                     this.iframeTemplate.and.returnValue(
-                        '<div id="iframe_test_el">' +
+                        '<div id="test-spark-app-container">' +
                         '   <div class="dialog-chrome">' +
-                        '   <button id="test-app-spark-app-container-chrome-submit">Submit</button>' +
-                        '   <button id="test-app-spark-app-container-chrome-cancel">Cancel</button>' +
-                        '</div>' +
-                        '<iframe></iframe></div>'
+                        '       <button id="test-spark-app-container-chrome-submit">Submit</button>' +
+                        '       <button id="test-spark-app-container-chrome-cancel">Cancel</button>' +
+                        '   </div>' +
+                        '   <div id="test-spark-app-container-iframe-container"></div>' +
+                        '</div>'
                     );
+
 
                 });
 
                 it('adds chrome (and control object) when asked', function() {
 
-                    this.iframeOpener(this.appNameToUse, '/path/to/app', {
+                    this.fullScreenDialogOpener(this.appNameToUse, '/path/to/app', {
                         'addChrome': true
                     });
 
                     // check that the 'addChrome': true is forwarded to the template
 
                     expect(this.iframeTemplate).toHaveBeenCalledWith({
-                        'id': 'test-app-spark-app-container',
-                        'src': jasmine.any(String),
+                        'id': 'test-spark-app-container',
                         'createOptions': {
                             'addChrome': true
                         },
@@ -436,9 +534,9 @@ describe('iframeAppLoader', function() {
                     });
 
                     var parentCancelEl = $('body')
-                        .find('#test-app-spark-app-container-chrome-cancel').get()[0];
+                        .find('#test-spark-app-container-chrome-cancel').get()[0];
                     var parentSubmitEl = $('body')
-                        .find('#test-app-spark-app-container-chrome-submit').get()[0];
+                        .find('#test-spark-app-container-chrome-submit').get()[0];
 
                     expect(parentCancelEl).toBeDefined();
                     expect(parentSubmitEl).toBeDefined();
@@ -450,22 +548,22 @@ describe('iframeAppLoader', function() {
 
                 it('removes the dialog chrome on close', function() {
 
-                    this.iframeOpener(this.appNameToUse, '/path/to/app', {
+                    this.fullScreenDialogOpener(this.appNameToUse, '/path/to/app', {
                         'addChrome': true
                     });
 
                     expect($('body')
-                        .find('#test-app-spark-app-container-chrome-cancel').length).toEqual(1);
+                        .find('#test-spark-app-container-chrome-cancel').length).toEqual(1);
                     expect($('body')
-                        .find('#test-app-spark-app-container-chrome-submit').length).toEqual(1);
+                        .find('#test-spark-app-container-chrome-submit').length).toEqual(1);
 
                     var iframeSparkCont = this.getSparkIframeContext();
                     iframeSparkCont.dialogControls.closeDialog();
 
                     expect($('body')
-                        .find('#test-app-spark-app-container-chrome-cancel').length).toEqual(0);
+                        .find('#test-spark-app-container-chrome-cancel').length).toEqual(0);
                     expect($('body')
-                        .find('#test-app-spark-app-container-chrome-submit').length).toEqual(0);
+                        .find('#test-spark-app-container-chrome-submit').length).toEqual(0);
 
                 });
 
@@ -480,16 +578,16 @@ describe('iframeAppLoader', function() {
                     expect($('body').hasClass('spark-no-scroll')).toBeFalsy();
                     expect($('body').find('iframe').length).toEqual(0);
 
-                    this.iframeOpener(this.appNameToUse, '/path/to/app/', {
+                    this.fullScreenDialogOpener(this.appNameToUse, '/path/to/app/', {
                         'addChrome': true,
                         'contextData': { 'test': 'some extra', 'with': { 'chrome': true } }
                     });
 
                     // chrome added
                     expect($('body')
-                        .find('#test-app-spark-app-container-chrome-cancel').length).toEqual(1);
+                        .find('#test-spark-app-container-chrome-cancel').length).toEqual(1);
                     expect($('body')
-                        .find('#test-app-spark-app-container-chrome-submit').length).toEqual(1);
+                        .find('#test-spark-app-container-chrome-submit').length).toEqual(1);
 
                     // scrollers blocked, iframe added
                     expect($('body').hasClass('spark-no-scroll')).toBeTruthy();
@@ -518,7 +616,7 @@ describe('iframeAppLoader', function() {
                     expect(this.iframeResizer).toHaveBeenCalledWith({
                         'autoResize': true,
                         'heightCalculationMethod': 'max',
-                        maxHeight: 249,
+                        maxHeight: window.innerHeight,
                         scrolling: 'auto',
                         resizedCallback: jasmine.any(Function)
                     }, iframeDomEl);
@@ -531,9 +629,9 @@ describe('iframeAppLoader', function() {
                     iframeSparkCont.dialogControls.closeDialog();
 
                     expect($('body')
-                        .find('#test-app-spark-app-container-chrome-cancel').length).toEqual(0);
+                        .find('#test-spark-app-container-chrome-cancel').length).toEqual(0);
                     expect($('body')
-                        .find('#test-app-spark-app-container-chrome-submit').length).toEqual(0);
+                        .find('#test-spark-app-container-chrome-submit').length).toEqual(0);
 
                     expect($('body').hasClass('spark-no-scroll')).toBeFalsy();
                     expect($('body').find('iframe').length).toEqual(0);
@@ -544,9 +642,228 @@ describe('iframeAppLoader', function() {
 
             });
 
+            it('passes extra context data to iframe context', function() {
+
+                var contextData = {
+                    'some': 'random',
+                    'extra': ['data', 'for', 'iframe']
+                };
+
+                this.fullScreenDialogOpener('test-app-name', '/test/app/path', {
+                    'contextData': contextData
+                });
+
+                var iframeSpark = this.getSparkIframeContext();
+
+                expect(iframeSpark.dialogControls).toEqual(jasmine.any(Object));
+
+                expect(iframeSpark.contextData).toEqual(jasmine.any(Object));
+
+                expect(iframeSpark.contextData).toEqual({
+                    'some': 'random',
+                    'extra': ['data', 'for', 'iframe']
+                });
+
+            });
+
+            it('passes custom context data to iframe context', function() {
+
+                var customContext = {
+                    'foo': 'bar'
+                };
+
+                this.fullScreenDialogOpener('test-app-name', '/test/app/path', {
+                    'customContext': customContext
+                });
+
+                var iframeSpark = this.getSparkIframeContext();
+
+                expect(iframeSpark.customContext).toEqual({
+                    'foo': 'bar'
+                });
+
+            });
+
         });
 
 
+    });
+
+    describe('openInlineIframeDialog', function() {
+        beforeEach(function() {
+            this.iframeTemplate = spyOn(sparkTemplates, 'inlineDialogAppContainer')
+                .and.returnValue(
+                    `<aui-inline-dialog id="test-app-name-spark-app-container" class="spark-mock-template">
+                        <div id="test-app-name-spark-app-container-iframe-container"></div>
+                 </aui-inline-dialog>`
+                );
+
+
+            this.bootstrappedIFrame = spyOn(sparkTemplates, 'bootstrappedIFrame')
+                .and.returnValue('<iframe></iframe>');
+
+            this.inlineDialogOpener = this.iframeAppLoader.openInlineIframeDialog;
+        });
+
+        it('throws proper exceptions when no/invalid parameters are provided', function() {
+
+            expect(() => {
+                this.inlineDialogOpener()
+            }).toThrowError('Parameter missing - \'appName\'');
+            expect(() => {
+                this.inlineDialogOpener('test-app-name')
+            }).toThrowError('Parameter missing - \'appPath\'');
+        });
+
+        it('returns the Spark app container Id when valid parameters are provided', function() {
+            this.triggerElement = spyOn(sparkTemplates, 'inlineDialogTrigger')
+                .and.returnValue(
+                    `<a></a>`
+                );
+            expect(this.inlineDialogOpener('test-app-name', '/test/app/path/', {})).toEqual(
+                { triggerEl: `<a></a>`, iFrameDomEl: jasmine.any(HTMLElement) });
+        });
+
+        it('calls inlineDialogTrigger with default parameters', function() {
+            this.triggerElement = spyOn(sparkTemplates, 'inlineDialogTrigger');
+            this.inlineDialogOpener('test-app-name', '/test/app/path/', {});
+            expect(this.triggerElement).toHaveBeenCalledWith({
+                targetId: 'test-app-name-spark-app-container',
+                text: 'Inline trigger'
+            });
+        });
+
+        it('calls inlineDialogTrigger with correct parameters if when provided', function() {
+            this.triggerElement = spyOn(sparkTemplates, 'inlineDialogTrigger');
+            this.inlineDialogOpener('test-app-name', '/test/app/path/', { triggerText: 'testTriggerText' });
+            expect(this.triggerElement).toHaveBeenCalledWith({
+                'targetId': 'test-app-name-spark-app-container',
+                'text': 'testTriggerText'
+            });
+        });
+
+        it('calls inlineDialogAppContainer with correct parameters', function() {
+
+            this.inlineDialogOpener('test-app-name', '/test/app/path/', { foo: 'bar' });
+            expect(this.iframeTemplate).toHaveBeenCalledWith({
+                'id': 'test-app-name-spark-app-container',
+                'createOptions': {
+                    'width': '540px',
+                    'triggerText': 'Inline trigger',
+                    'alignment': 'bottom left',
+                    'foo': 'bar'
+                },
+                'className': jasmine.any(String)
+            });
+        });
+
+        it('adds the iFrame wrapper element to dom', function() {
+
+            this.inlineDialogOpener('test-app-name', '/test/app/path', {});
+
+            var element = $('#test-app-name-spark-app-container');
+
+            expect(element).toBeDefined();
+
+
+        });
+
+
+        describe('Iframe context handling', function() {
+
+            beforeEach(function() {
+
+                this.getIframeContentWindow = function() {
+                    var iframeDomEl = this.getIframeDomEl();
+
+                    var iw = iframeDomEl.contentWindow;
+                    expect(iw).toBeDefined();
+
+                    return iw;
+                };
+
+                this.getIframeDomEl = function() {
+
+                    var iframeEl = $('body').find('iframe');
+
+                    expect(iframeEl).toBeDefined();
+
+                    var iframeDomEl = iframeEl.get()[0];
+                    expect(iframeDomEl).toBeDefined();
+
+                    return iframeDomEl;
+                };
+
+                this.getSparkIframeContext = function() {
+
+                    var iframeDomEl = this.getIframeDomEl();
+
+                    return iframeDomEl.SPARK;
+
+                };
+
+            });
+
+            it('the callback adds the SPARK controls to the iFrame element', function() {
+
+                this.inlineDialogOpener('test-app-name', '/test/app/path', {
+                    'width': '100px'
+                });
+
+                var iframeDomEl = this.getIframeDomEl();
+
+                // should have no added the SPARK context
+                expect(iframeDomEl.SPARK).toBeDefined();
+
+            });
+
+            it('passes extra context data to iframe context', function() {
+
+                var contextData = {
+                    'some': 'random',
+                    'extra': ['data', 'for', 'iframe']
+                };
+
+                this.inlineDialogOpener('test-app-name', '/test/app/path', {
+                    'contextData': contextData
+                });
+
+                var iframeSpark = this.getSparkIframeContext();
+
+                expect(iframeSpark.contextData).toEqual(jasmine.any(Object));
+
+                expect(iframeSpark.contextData).toEqual({
+                    'some': 'random',
+                    'extra': ['data', 'for', 'iframe']
+                });
+
+            });
+
+            it('passes custom context data to iframe context', function() {
+
+                var customContext = {
+                    'foo': 'bar'
+                };
+
+                this.inlineDialogOpener('test-app-name', '/test/app/path', {
+                    'customContext': customContext
+                });
+
+                var iframeSpark = this.getSparkIframeContext();
+
+                expect(iframeSpark.customContext).toEqual({
+                    'foo': 'bar'
+                });
+
+            });
+
+            it('checks the target of  the triggerElement is equal to the id of the dialogElement', function() {
+                var { triggerEl } = this.inlineDialogOpener('test-app-name', '/test/app/path', {});
+
+                expect(AJS.$(triggerEl).attr('aria-controls')).toEqual('test-app-name-spark-app-container');
+
+            });
+        });
     });
 
 });

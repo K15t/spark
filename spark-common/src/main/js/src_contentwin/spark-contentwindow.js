@@ -16,7 +16,12 @@ window.SPARK = window.SPARK || {};
         return parentSpark.dialogControls;
     };
 
+    var getCustomContext = function() {
+        return parentSpark.customContext;
+    };
+
     sparkInstance.getContextData = getContextData;
     sparkInstance.getDialogControls = getDialogControls;
+    sparkInstance.getCustomContext = getCustomContext;
 
 })(window.SPARK, window);
