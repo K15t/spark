@@ -23,5 +23,6 @@ window.SPARK = window.SPARK || {};
     sparkInstance.getContextData = getContextData;
     sparkInstance.getDialogControls = getDialogControls;
     sparkInstance.getCustomContext = getCustomContext;
+    sparkInstance.setContainerWidth = parentSpark.setContainerWidth;
 
 })(window.SPARK, window);

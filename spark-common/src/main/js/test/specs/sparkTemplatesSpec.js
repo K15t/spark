@@ -5,7 +5,7 @@ describe('SPARK templates', function() {
     describe('appFullscreenContaineriFrame', function() {
 
         beforeEach(function() {
-            this.iframeTemplate = sparkTemplates.appFullscreenContaineriFrame;
+            this.iframeTemplate = sparkTemplates.appFullscreenContainerIframe;
         });
 
         it('valid arguments return a result', function() {
@@ -83,8 +83,6 @@ describe('SPARK templates', function() {
             expect(resEl.find('button').length).toEqual(0);
 
             expect(resEl.hasClass('spark-fullscreen-wrapper')).toBeTruthy();
-
-            var iframeEl = resEl.find('iframe');
 
         });
 
@@ -287,7 +285,7 @@ describe('SPARK templates', function() {
                 'id': 'test-bs-id',
                 'src': 'test-bs-src',
                 'createOptions': {
-                    'width': '42px'
+                   'width': '42px'
                 },
                 'className': 'test-bs-class-name'
             }));
