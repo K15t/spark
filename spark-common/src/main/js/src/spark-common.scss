@@ -8,6 +8,15 @@
         border: none;
     }
 
+    &.spark-iframe {
+        width: 100%;
+        min-height: 100%;
+        border: none;
+        padding: 0;
+        margin: 0;
+        overflow: hidden;
+    }
+
     /*
      * Styles for iframe (full screen) dialog emulating Atlassian Connect
      */

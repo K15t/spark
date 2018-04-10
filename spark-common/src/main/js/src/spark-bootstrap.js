@@ -5,6 +5,36 @@ import sparkTemplates from './spark-common-templates';
 
 'use strict';
 
+var getFullAppPath = function(appPath) {
+    // append trailing slash if not there (before the query string if present)
+    var appPathParts = appPath.split('?');
+
+    var appBasePath = appPathParts[0];
+
+    appBasePath = (/\/$/.test(appBasePath) || /\.html$/.test(appBasePath) ? appBasePath : appBasePath + '/');
+
+    return AJS.contextPath() + appBasePath + (appPathParts.length > 1 ? '?' + appPathParts[1] : '');
+};
+
+var getIFrameSourceQuery = function(queryString) {
+    if (!queryString) {
+        return '';
+    }
+
+    var queryStrToAppend = queryString;
+    if (queryStrToAppend.indexOf('?') === 0 || queryStrToAppend.indexOf('&') === 0) {
+        queryStrToAppend = queryStrToAppend.substr(1);
+    }
+    return '?' + queryStrToAppend;
+};
+
+var getIframeSource = function(appPath, queryString) {
+    var fullAppPath = getFullAppPath(appPath);
+    var iframeQueryString = getIFrameSourceQuery(queryString);
+
+    return location.protocol + '//' + location.host + fullAppPath + iframeQueryString;
+};
+
 function AppLoader() {
 
     var startedApps = {};
@@ -94,14 +124,7 @@ function AppLoader() {
      */
     this.loadApp = function(element, angularAppName, appPath, createOptions) {
 
-        // append trailing slash if not there (before the query string if present)
-        var appPathParts = appPath.split('?');
-
-        var appBasePath = appPathParts[0];
-
-        appBasePath = (/\/$/.test(appBasePath) || /\.html$/.test(appBasePath) ? appBasePath : appBasePath + '/');
-
-        var fullAppPath = AJS.contextPath() + appBasePath + (appPathParts.length > 1 ? '?' + appPathParts[1] : '');
+        var fullAppPath = getFullAppPath(appPath);
 
         var elementIdSparkAppContainer = angularAppName + '-spark-app-container';
         var appContainerAlreadyCreated = AJS.$('#' + elementIdSparkAppContainer).length > 0;
@@ -188,6 +211,124 @@ function AppLoader() {
 
 var initIframeAppLoader = function(iframeResizer) {
 
+    // helper function for generic actions to take when closing a spark app view
+    var closeSparkApp = function(appContainerElement, callback, data) {
+        var iframe = appContainerElement.find('iframe').get()[0];
+
+        // this will cleanly remove iFrameResizer and call connected close listeners
+        if (iframe.iFrameResizer) {
+            iframe.iFrameResizer.close();
+        }
+
+        appContainerElement.remove();
+        if (callback) {
+            callback(data);
+        }
+    };
+
+    // helper function that setups the required SPARK context and iFrameResizer for the iframe
+    var loadSparkToIframe = function(iframeElement, options) {
+
+        var iframeDomEl = iframeElement.get()[0];
+
+        // add contextdata to a path from which the SPARK counterpart injected into
+        // the iframe's content can find it
+        // the data is added as an extra field of the iframe DOM element, and it can
+        // be accessed from the content document by window.frameElement (works
+        // as long as the iframe and the host have same domain)
+        // client code in the iframe should always use SPARK.getContextData() etc to access
+        // this data (and not rely on the current internal implementation)
+
+        var iframeSparkContext = {};
+        iframeDomEl.SPARK = iframeSparkContext;
+
+        iframeSparkContext.contextData = options.contextData;
+
+        iframeSparkContext.setContainerWidth = function(width) {
+            // By default the width of the iframe is set to '100%' and its height grows as needed
+            // Setting the size of the container element will thus also cause needed iframe size with new width to be set
+            iframeElement.parent().width(width);
+        };
+
+        if (options.customContext) {
+            iframeSparkContext.customContext = options.customContext;
+        }
+
+        // Setup iFrame Resizer
+        var resizerSettings = {
+            autoResize: true,
+            heightCalculationMethod: 'max'
+        };
+
+        if (options.iframeResizerSettings) {
+            resizerSettings = AJS.$.extend(resizerSettings, options.iframeResizerSettings);
+        }
+
+        iframeResizer(resizerSettings, iframeDomEl);
+
+        return {iframeDomEl, iframeSparkContext};
+
+    };
+
+    /**
+     * Creates an iframe (without any other wrapping) with the SPARK context setup
+     *
+     * Options:
+     * {
+     *      contextData: data that can be accessed inside the iframe with SPARK.getContextData(),
+     *      customContext: context (eg functions for accessing add-on specific functionality), can be accessed in the iframe with
+     *              SPAR.getCustomContext,
+     *      iframeResizerSettings: settings that can for IFrameResizer - by default autoResize:
+     *              true and heightCalculationoMethod: 'max' is set,
+     *      queryString: the query part to be concatenated to the appPath
+     *      containerEl: if specified, the created iframe will be appended to this element -
+     *              if not specified the iframe won't be attached to the DOM
+     * }
+     *
+     * @param appId name of the app (used as prefix for eg. element ids)
+     * @param appPath relative path from which the iframe content is to be loaded
+     * @param options optional extra parameters for setting up SPARK app
+     * @returns an object with {
+     *      triggerEl: element used for opening the inline dialog,
+     *      iFrameDomEl: dom element of the iframe,
+     *      iframeSparkContext: the JS object added to the iframe element that provides SPARK context to the app inside the iframe,
+     *      appContainerId: id of the main inline dialog element
+     *  }
+     */
+    var createAppIframe = function(appId, appPath, options) {
+
+        if (!appId) {
+            throw new Error('Parameter missing - \'appId\'');
+        } else if (!appPath) {
+            throw new Error('Parameter missing - \'appPath\'');
+        } else if (!options) {
+            throw new Error('Parameter missing - \'options\'');
+        }
+
+        var iframeId = appId + '-spark-iframe';
+
+        var iframeSrc = getIframeSource(appPath, options.queryString);
+
+        var iframeElement = AJS.$(sparkTemplates.bootstrappedIframe({
+            id: iframeId,
+            src: iframeSrc,
+            className: css.className
+        }));
+
+        if (options.containerEl) {
+            options.containerEl.append(iframeElement);
+        }
+
+        var {iframeDomEl, iframeSparkContext} = loadSparkToIframe(iframeElement, options);
+
+        return {
+            iframeSparkContext,
+            iframeDomEl,
+            appContainerId: iframeId
+        };
+
+    };
+
     /**
      * Creates a fullscreen iframe that will load the js app in given path.
      *
@@ -195,7 +336,7 @@ var initIframeAppLoader = function(iframeResizer) {
      * in Atlassian Connect would work.
      *
      * A chrome bar with close/submit buttons can be added to the dialog by specifying
-     * 'addChrome': true in the 'dialogOptions' object.
+     * 'addChrome': true in the 'options' object.
      *
      * A JS-object containing controls for interacting with the parent window (eg. closing
      * the iframe dialog) will be available in the iframe context using SPARK.getDialogControls()
@@ -205,50 +346,57 @@ var initIframeAppLoader = function(iframeResizer) {
      * no toolbar 'dialogChrome' is null, otherwise it will contain references to the buttons
      * in the dialog chrome ('cancelBtn' and 'confirmBtn').
      *
-     * It is possible to pass custom context data to the context of the loaded iframe
-     * by setting an object to 'dialogOptions.contextData'. A reference to this object
-     * will be available in the iframe's context using SPARK.getContextData()
+     * If 'addChromeCloseHandlers': true is specified in the 'options' object, click handlers will be added to the close and
+     * submit buttons of the dialog chrome, that will call closeDialog()
+     *
+     * Otherwise the 'options' object supports the same values as in createAppIframe
      *
      * @param appName name of the app (used as prefix for eg. element ids)
      * @param appPath relative path from which the iframe content is to be loaded
-     * @param dialogOptions optional extra parameters for dialog creation
+     * @param options optional extra parameters for setting up SPARK app and dialog creation
+     * @returns an object with {
+     *      iFrameDomEl: dom element of the iframe,
+     *      iframeSparkContext: the JS object added to the iframe element that provides SPARK context to the app inside the iframe,
+     *      appContainerId: id of the main inline dialog element
+     * }
      */
-    var openFullscreenIframeDialog = function(appName, appPath, dialogOptions) {
+    var openFullscreenIframeDialog = function(appName, appPath, options) {
+
+        options = options || {};
+
+        if (!appName) {
+            throw new Error('Parameter missing - \'appName\'');
+        } else if (!appPath) {
+            throw new Error('Parameter missing - \'appPath\'');
+        }
 
         var bodyEl = AJS.$('body');
 
         // to remove scrollers from content below the iframe dialog
         bodyEl.addClass('spark-no-scroll');
 
-        // add trailing slash to the app path if not there
-        var appBasePath = (/\/$/.test(appPath) || /\.html$/.test(appPath) ? appPath : appPath + '/');
-
-        var fullAppPath = AJS.contextPath() + appBasePath;
+        var iframeSrc = getIframeSource(appPath, options.queryString);
 
         var elementIdSparkAppContainer = appName + '-spark-app-container';
 
-        var dialogSettings = AJS.$.extend({ 'addChrome': false }, dialogOptions);
+        var dialogSettings = AJS.$.extend({ 'addChrome': false }, options);
 
         // make sure that element with the id is not already there
         // (in normal operation it is removed on dialog close)
         AJS.$('#' + elementIdSparkAppContainer).remove();
 
-        var iframeSrcQuery = '';
-        if (dialogSettings.queryString) {
-            var queryStrToAppend = dialogSettings.queryString;
-            if (queryStrToAppend.indexOf('?') === 0 || queryStrToAppend.indexOf('&') === 0) {
-                queryStrToAppend = queryStrToAppend.substr(1);
-            }
-            iframeSrcQuery += '?' + queryStrToAppend;
-        }
-
-        // init a fullscreen dialog wrapper and iframe (and add it to body later)
-        var iframeWrapperElement = AJS.$(sparkTemplates.appFullscreenContaineriFrame({
-            'id': elementIdSparkAppContainer,
-            'src': location.protocol + '//' + location.host + fullAppPath + iframeSrcQuery,
-            'createOptions': dialogSettings,
+        var iframeWrapperElement = AJS.$(sparkTemplates.appFullscreenContainerIframe({
+            id: elementIdSparkAppContainer,
+            src: iframeSrc,
+            createOptions: dialogSettings,
             className: css.className
         }));
+
+        var closeFullScreenDialog = function(resultData) {
+            // This is specific to full screen dialog
+            bodyEl.removeClass('spark-no-scroll');
+            closeSparkApp(iframeWrapperElement, dialogSettings.onClose, resultData);
+        };
 
         // add an easy way for the contained iframe to access the dialog chrome (if added)
         var dialogChrome = null;
@@ -259,39 +407,20 @@ var initIframeAppLoader = function(iframeResizer) {
                 'cancelBtn': cancelBtnDomEl,
                 'confirmBtn': confirmBtnDomEl
             };
+
+            // Close the dialog on submit / close click if set to use default close
+            if (dialogSettings.addChromeCloseHandlers) {
+                dialogChrome.cancelBtn.addEventListener('click', closeFullScreenDialog);
+                dialogChrome.confirmBtn.addEventListener('click', closeFullScreenDialog);
+            }
         }
 
+        // Add the spark full screen dialog app to the body
+        iframeWrapperElement.appendTo(bodyEl);
+
+        // Setup the iFrame
+
         var iframeElement = iframeWrapperElement.find('iframe');
-        var iframeDomEl = iframeElement.get()[0];
-
-        var iframeCloser = function(resultData) {
-            bodyEl.removeClass('spark-no-scroll');
-            if (iframeDomEl.iFrameResizer) {
-                iframeDomEl.iFrameResizer.close();
-            }
-            iframeWrapperElement.remove();
-            if (dialogSettings.onClose) {
-                dialogSettings.onClose(resultData);
-            }
-        };
-
-        // add contextdata to a path from which the SPARK counterpart injected into
-        // the iframe's content can find it
-        // the data is added as an extra field of the iframe DOM element, and it can
-        // be accessed from the content document by window.frameElement (works
-        // as long as the iframe and the host have same domain)
-        // client code in the iframe should always use SPARK.getContextData() etc to access
-        // this data (and not rely on the current internal implementation)
-
-        var sparkIframeContext = {};
-        iframeDomEl.SPARK = sparkIframeContext;
-
-        sparkIframeContext.dialogControls = {
-            'closeDialog': iframeCloser,
-            'dialogChrome': dialogChrome
-        };
-
-        sparkIframeContext.contextData = dialogSettings.contextData;
 
         function getMaxHeight() {
             var maxHeight = window.innerHeight;
@@ -301,9 +430,7 @@ var initIframeAppLoader = function(iframeResizer) {
             return maxHeight;
         }
 
-        iframeWrapperElement.appendTo(bodyEl);
-
-        iframeResizer({
+        var iframeResizerSettings = {
             'autoResize': true,
             'heightCalculationMethod': 'max',
             'maxHeight': getMaxHeight(),
@@ -313,18 +440,113 @@ var initIframeAppLoader = function(iframeResizer) {
                 // resizedCallback is called when the iframe is resized which should be enough
                 data.iframe.style.maxHeight = getMaxHeight() + 'px';
             }
-        }, iframeDomEl);
+        };
 
-        return elementIdSparkAppContainer;
+        // deeply merge the iframeResizer default settings to the iframe options
+        var sparkIframeSettings = AJS.$.extend(true, { 'iframeResizerSettings': iframeResizerSettings }, options);
 
+        var { iframeDomEl, iframeSparkContext } = loadSparkToIframe(iframeElement, sparkIframeSettings);
+
+        // Add dialog specific context data
+        iframeSparkContext.dialogControls = {
+            'closeDialog': closeFullScreenDialog,
+            'dialogChrome': dialogChrome
+        };
+
+        return {
+            iframeDomEl,
+            iframeSparkContext,
+            appContainerId: elementIdSparkAppContainer
+        };
+
+    };
+
+    /**
+     * Creates an inline dialog that is filled with an iframe loading the specified app
+     *
+     * The trigger element (triggerEl in returned object) needs to be added to a visible location in the DOM. Clicking on the trigger
+     * element will show the inline dialog.
+     *
+     * Extra options available for inline dialog compared to other SPARK containers:
+     * {
+     *      alignment: alignment of the inline dialog regards to trigger element (eg. bottom left),
+     *      width: (initial) width of the inline dialog,
+     *      triggerText: the text to use for the trigger component,
+     *      ... all the options that createAppIframe accepts
+     * }
+     *
+     * @param appName name of the app (used as prefix for eg. element ids)
+     * @param appPath relative path from which the iframe content is to be loaded
+     * @param options optional extra parameters for setting up SPARK app and dialog creation
+     * @returns an object with {
+     *      triggerEl: element used for opening the inline dialog,
+     *      iFrameDomEl: dom element of the iframe,
+     *      iframeSparkContext: the JS object added to the iframe element that provides SPARK context to the app inside the iframe,
+     *      appContainerId: id of the main inline dialog element
+     * }
+     */
+    var openInlineIframeDialog = function(appName, appPath, options) {
+
+        // Parameter validations
+        if (!appName) {
+            throw new Error('Parameter missing - \'appName\'');
+        } else if (!appPath) {
+            throw new Error('Parameter missing - \'appPath\'');
+        }
+
+        var bodyEl = AJS.$('body');
+
+        var iframeSrc = getIframeSource(appPath, options.queryString);
+
+        //Setup the Dialog
+        var appContainerId = appName + '-spark-app-container';
+
+        var dialogSettings = AJS.$.extend({
+            width: '540px',
+            triggerText: 'Inline trigger',
+            alignment: 'bottom left'
+        }, options);
+
+        // Remove the app container if it still exists on the page
+        // Ideally, closing the dialog should remove the container
+        AJS.$('#' + appContainerId).remove();
+
+        // Init the byline dialog trigger element and bind it to the body later
+        var triggerEl = sparkTemplates.inlineDialogTrigger({
+            targetId: appContainerId,
+            text: dialogSettings.triggerText
+        });
+
+        // Init the spark inline dialog app container, and bind it to the body later
+        var dialogEl = AJS.$(sparkTemplates.inlineDialogAppContainer({
+            id: appContainerId,
+            createOptions: dialogSettings,
+            src: iframeSrc,
+            className: css.className
+        }));
+
+        AJS.$(bodyEl).append(dialogEl);
+
+        var iframeElement = dialogEl.find('iframe');
+
+        // Setup the iFrame
+        var {iframeDomEl, iframeSparkContext} = loadSparkToIframe(iframeElement, dialogSettings);
+
+        return {
+            triggerEl,
+            iframeDomEl,
+            iframeSparkContext,
+            appContainerId
+        };
     };
 
     return {
-        'openFullscreenIframeDialog': openFullscreenIframeDialog
+        'openFullscreenIframeDialog': openFullscreenIframeDialog,
+        'openInlineIframeDialog': openInlineIframeDialog,
+        'createAppIframe': createAppIframe
     };
 
 };
-
 
 export default {
     appLoader: new AppLoader(),
