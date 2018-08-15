@@ -27,7 +27,7 @@
         "string-replace-loader": "^1.2.0",
         "style-loader": "^0.16.1",
         "webpack": "^2.3.3",
-        "uglifyjs-webpack-plugin": "1.0.0"
+        "uglifyjs-webpack-plugin": "1.2.7"
     },
     "//": "jquery is for testing, for live will be provided by AJS",
     "//": "iframeResizer will be concatenated to the resulting js dist-file"
