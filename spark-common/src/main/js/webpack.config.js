@@ -1,4 +1,5 @@
 const path = require('path');
+const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 
 let distDir = path.resolve(process.env.DIST_DIR || 'target/gen');
 let version = process.env.PROJ_VERSION || 'dev-version';
@@ -44,13 +45,19 @@ module.exports = [
         output: {
             filename: 'spark-dist.js',
             path: distDir
-        }
+        },
+        plugins: [
+            new UglifyJSPlugin()
+        ]
     }),
     Object.assign({}, baseConfig, {
         entry: './src_contentwin/spark-contentwindow.js',
         output: {
             filename: 'spark-dist.contentWindow.js',
             path: distDir
-        }
+        },
+        plugins: [
+            new UglifyJSPlugin()
+        ]
     })
 ];
