@@ -9,7 +9,7 @@ let baseConfig = {
         rules: [
             {
                 include: /\.js$/,
-                use: [{loader: 'babel-loader', options: {presets: ['es2015', 'stage-2']}}]
+                use: [{ loader: 'babel-loader', options: { presets: ['es2015', 'stage-2'] } }]
                 // simple-xdm needs stage-2 (Object spread operator)
             },
             {
@@ -22,21 +22,28 @@ let baseConfig = {
             },
             {
                 include: /\.(js|css)$/,
-                use: [{loader: 'string-replace-loader', options: {
-                    search: '{{spark_gulp_build_version}}',
-                    replace: version
-                }}]
+                use: [{
+                    loader: 'string-replace-loader', options: {
+                        search: '{{spark_gulp_build_version}}',
+                        replace: version
+                    }
+                }]
             },
             {
                 // Do not override global jQuery iFrameResizer fn, as some other plugins rely on it
                 include: /\/node_modules\/iframe-resizer\/js\/iframeResizer\.js/,
-                loader: [{loader: 'string-replace-loader', options: {
-                    search: 'window.jQuery',
-                    replace: 'false'
-                }}]
+                loader: [{
+                    loader: 'string-replace-loader', options: {
+                        search: 'window.jQuery',
+                        replace: 'false'
+                    }
+                }]
             }
         ]
-    }
+    },
+    plugins: [
+        new UglifyJSPlugin()
+    ]
 };
 
 module.exports = [
@@ -46,18 +53,16 @@ module.exports = [
             filename: 'spark-dist.js',
             path: distDir
         },
-        plugins: [
-            new UglifyJSPlugin()
-        ]
+        externals: {
+            jquery: 'AJS.$',
+            ajs: 'AJS'
+        }
     }),
     Object.assign({}, baseConfig, {
         entry: './src_contentwin/spark-contentwindow.js',
         output: {
             filename: 'spark-dist.contentWindow.js',
             path: distDir
-        },
-        plugins: [
-            new UglifyJSPlugin()
-        ]
+        }
     })
 ];

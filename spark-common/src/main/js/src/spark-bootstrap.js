@@ -1,5 +1,8 @@
 import iframeResizer from 'iframe-resizer/js/iframeResizer';
 
+import $ from 'jquery';
+import AJS from 'ajs';
+
 import css from './spark-common.scss';
 import sparkTemplates from './spark-common-templates';
 
@@ -66,7 +69,7 @@ function AppLoader() {
             startedAppDialog = undefined;
         }
 
-        createOptions = AJS.$.extend(defaultDialogOptions, createOptions);
+        createOptions = $.extend(defaultDialogOptions, createOptions);
         var elementIdSparkAppContainer = angularAppName + '-spark-dialog-app-container';
 
         var dialog = createDialog(elementIdSparkAppContainer, sparkTemplates.appBootstrapContainerDialog2WithiFrame({
@@ -77,9 +80,9 @@ function AppLoader() {
             className: css.className
         }), createOptions.width, createOptions.height);
 
-        var closeDialogButton = AJS.$('#closeDialogButton' + elementIdSparkAppContainer, dialog.$el);
-        var submitDialogButton = AJS.$('#submitDialogButton' + elementIdSparkAppContainer, dialog.$el);
-        var iFrameContent = AJS.$('#' + elementIdSparkAppContainer + '-iframe');
+        var closeDialogButton = $('#closeDialogButton' + elementIdSparkAppContainer, dialog.$el);
+        var submitDialogButton = $('#submitDialogButton' + elementIdSparkAppContainer, dialog.$el);
+        var iFrameContent = $('#' + elementIdSparkAppContainer + '-iframe');
 
         closeDialogButton.click(function(e) {
             dialog.close();
@@ -127,23 +130,23 @@ function AppLoader() {
         var fullAppPath = getFullAppPath(appPath);
 
         var elementIdSparkAppContainer = angularAppName + '-spark-app-container';
-        var appContainerAlreadyCreated = AJS.$('#' + elementIdSparkAppContainer).length > 0;
+        var appContainerAlreadyCreated = $('#' + elementIdSparkAppContainer).length > 0;
 
         if (appContainerAlreadyCreated) {
-            AJS.$('#' + elementIdSparkAppContainer).remove();
+            $('#' + elementIdSparkAppContainer).remove();
         }
 
-        AJS.$(element).append(sparkTemplates.appBootstrapContaineriFrame({
+        $(element).append(sparkTemplates.appBootstrapContaineriFrame({
             id: elementIdSparkAppContainer,
             src: location.protocol + '//' + location.host + fullAppPath,
-            createOptions: AJS.$.extend(defaultDialogOptions, createOptions),
+            createOptions: $.extend(defaultDialogOptions, createOptions),
             className: css.className
         }));
 
         iframeResizer([{
             'autoResize': true,
             'heightCalculationMethod': 'max'
-        }], AJS.$(element).find('iframe')[0]);
+        }], $(element).find('iframe')[0]);
     };
 
     /**
@@ -178,7 +181,7 @@ function AppLoader() {
             }), 800, 500);
         }
 
-        AJS.$('.aui-blanket').addClass('spark-loading');
+        $('.aui-blanket').addClass('spark-loading');
 
         return dialog;
     };
@@ -189,10 +192,10 @@ function AppLoader() {
         var dialog;
 
         if (AJS.dialog2) {
-            AJS.$('body').append(dialogMarkup);
+            $('body').append(dialogMarkup);
             dialog = AJS.dialog2('#' + id);
             dialog.$appEl = dialog.$el;
-            dialog.$contentEl = AJS.$('.spark-app-content', dialog.$appEl);
+            dialog.$contentEl = $('.spark-app-content', dialog.$appEl);
         } else {
             dialog = new AJS.Dialog({
                 width: width,
@@ -201,7 +204,7 @@ function AppLoader() {
             });
             dialog.$appEl = dialog.popup.element;
             dialog.$appEl.html(dialogMarkup);
-            dialog.$contentEl = AJS.$('.spark-app-content', dialog.$appEl);
+            dialog.$contentEl = $('.spark-app-content', dialog.$appEl);
             dialog.$contentEl.height(dialog.$appEl.height() - 105);
         }
 
@@ -261,12 +264,12 @@ var initIframeAppLoader = function(iframeResizer) {
         };
 
         if (options.iframeResizerSettings) {
-            resizerSettings = AJS.$.extend(resizerSettings, options.iframeResizerSettings);
+            resizerSettings = $.extend(resizerSettings, options.iframeResizerSettings);
         }
 
         iframeResizer(resizerSettings, iframeDomEl);
 
-        return {iframeDomEl, iframeSparkContext};
+        return { iframeDomEl, iframeSparkContext };
 
     };
 
@@ -309,7 +312,7 @@ var initIframeAppLoader = function(iframeResizer) {
 
         var iframeSrc = getIframeSource(appPath, options.queryString);
 
-        var iframeElement = AJS.$(sparkTemplates.bootstrappedIframe({
+        var iframeElement = $(sparkTemplates.bootstrappedIframe({
             id: iframeId,
             src: iframeSrc,
             className: css.className
@@ -319,7 +322,7 @@ var initIframeAppLoader = function(iframeResizer) {
             options.containerEl.append(iframeElement);
         }
 
-        var {iframeDomEl, iframeSparkContext} = loadSparkToIframe(iframeElement, options);
+        var { iframeDomEl, iframeSparkContext } = loadSparkToIframe(iframeElement, options);
 
         return {
             iframeSparkContext,
@@ -370,7 +373,7 @@ var initIframeAppLoader = function(iframeResizer) {
             throw new Error('Parameter missing - \'appPath\'');
         }
 
-        var bodyEl = AJS.$('body');
+        var bodyEl = $('body');
 
         // to remove scrollers from content below the iframe dialog
         bodyEl.addClass('spark-no-scroll');
@@ -379,13 +382,13 @@ var initIframeAppLoader = function(iframeResizer) {
 
         var elementIdSparkAppContainer = appName + '-spark-app-container';
 
-        var dialogSettings = AJS.$.extend({ 'addChrome': false }, options);
+        var dialogSettings = $.extend({ 'addChrome': false }, options);
 
         // make sure that element with the id is not already there
         // (in normal operation it is removed on dialog close)
-        AJS.$('#' + elementIdSparkAppContainer).remove();
+        $('#' + elementIdSparkAppContainer).remove();
 
-        var iframeWrapperElement = AJS.$(sparkTemplates.appFullscreenContainerIframe({
+        var iframeWrapperElement = $(sparkTemplates.appFullscreenContainerIframe({
             id: elementIdSparkAppContainer,
             src: iframeSrc,
             createOptions: dialogSettings,
@@ -443,7 +446,7 @@ var initIframeAppLoader = function(iframeResizer) {
         };
 
         // deeply merge the iframeResizer default settings to the iframe options
-        var sparkIframeSettings = AJS.$.extend(true, { 'iframeResizerSettings': iframeResizerSettings }, options);
+        var sparkIframeSettings = $.extend(true, { 'iframeResizerSettings': iframeResizerSettings }, options);
 
         var { iframeDomEl, iframeSparkContext } = loadSparkToIframe(iframeElement, sparkIframeSettings);
 
@@ -494,14 +497,14 @@ var initIframeAppLoader = function(iframeResizer) {
             throw new Error('Parameter missing - \'appPath\'');
         }
 
-        var bodyEl = AJS.$('body');
+        var bodyEl = $('body');
 
         var iframeSrc = getIframeSource(appPath, options.queryString);
 
         //Setup the Dialog
         var appContainerId = appName + '-spark-app-container';
 
-        var dialogSettings = AJS.$.extend({
+        var dialogSettings = $.extend({
             width: '540px',
             triggerText: 'Inline trigger',
             alignment: 'bottom left'
@@ -509,7 +512,7 @@ var initIframeAppLoader = function(iframeResizer) {
 
         // Remove the app container if it still exists on the page
         // Ideally, closing the dialog should remove the container
-        AJS.$('#' + appContainerId).remove();
+        $('#' + appContainerId).remove();
 
         // Init the byline dialog trigger element and bind it to the body later
         var triggerEl = sparkTemplates.inlineDialogTrigger({
@@ -518,19 +521,19 @@ var initIframeAppLoader = function(iframeResizer) {
         });
 
         // Init the spark inline dialog app container, and bind it to the body later
-        var dialogEl = AJS.$(sparkTemplates.inlineDialogAppContainer({
+        var dialogEl = $(sparkTemplates.inlineDialogAppContainer({
             id: appContainerId,
             createOptions: dialogSettings,
             src: iframeSrc,
             className: css.className
         }));
 
-        AJS.$(bodyEl).append(dialogEl);
+        $(bodyEl).append(dialogEl);
 
         var iframeElement = dialogEl.find('iframe');
 
         // Setup the iFrame
-        var {iframeDomEl, iframeSparkContext} = loadSparkToIframe(iframeElement, dialogSettings);
+        var { iframeDomEl, iframeSparkContext } = loadSparkToIframe(iframeElement, dialogSettings);
 
         return {
             triggerEl,
