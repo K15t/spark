@@ -183,9 +183,11 @@ abstract public class AppServlet extends HttpServlet {
 
 
     /**
-     * @return true if the host application is running in development mode.
+     * @return true if a developer added a spark development directory to the {@value Keys#SPARK_DEV_RESOURCE_DIRECTORIES} system property.
      */
-    protected abstract boolean isDevMode();
+    protected boolean isDevMode() {
+        return StringUtils.isNotBlank(System.getProperty(Keys.SPARK_DEV_RESOURCE_DIRECTORIES));
+    }
 
 
     protected InputStream loadFromDevelopmentDirectory(String localPath) throws IOException {
