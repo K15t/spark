@@ -1,7 +1,6 @@
 package com.k15t.spark.atlassian;
 
 import com.atlassian.plugin.servlet.descriptors.BaseServletModuleDescriptor;
-import com.atlassian.plugins.rest.common.util.ReflectionUtils;
 import com.atlassian.sal.api.ApplicationProperties;
 import com.atlassian.sal.api.UrlMode;
 import com.atlassian.sal.api.auth.LoginUriProvider;
@@ -28,7 +27,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -87,7 +89,7 @@ public abstract class AtlassianAppServlet extends AppServlet {
             throw new RuntimeException("Could not detect app prefix from servlet module.");
         }
 
-        BaseServletModuleDescriptor descriptor = (BaseServletModuleDescriptor) ReflectionUtils.getFieldValue(field, servletConfig);
+        BaseServletModuleDescriptor descriptor = (BaseServletModuleDescriptor) getFieldValue(field, servletConfig);
         if ((descriptor.getPaths() == null) || (descriptor.getPaths().size() < 1)) {
             throw new RuntimeException("Could not detect app prefix from servlet module.");
         }
@@ -97,13 +99,41 @@ public abstract class AtlassianAppServlet extends AppServlet {
 
 
     private Field getDescriptorField(Class<? extends ServletConfig> clazz) {
-        for (Field field : ReflectionUtils.getDeclaredFields(clazz)) {
+        for (Field field : getDeclaredFields(clazz)) {
             if (field.getType().isAssignableFrom(BaseServletModuleDescriptor.class)) {
                 return field;
             }
         }
 
         return null;
+    }
+
+
+    private static List<Field> getDeclaredFields(Class clazz) {
+        if (clazz == null) {
+            return new ArrayList<>();
+        } else {
+            final List<Field> superFields = getDeclaredFields(clazz.getSuperclass());
+            superFields.addAll(0, Arrays.asList(clazz.getDeclaredFields()));
+            return superFields;
+        }
+    }
+
+
+    private static Object getFieldValue(Field field, Object object) {
+        final boolean accessible = field.isAccessible();
+        try {
+            if (!accessible) {
+                field.setAccessible(true);
+            }
+            return field.get(object);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException("Could not access '" + field + "' from '" + object + "'", e);
+        } finally {
+            if (!accessible) {
+                field.setAccessible(false);
+            }
+        }
     }
 
 
