@@ -54,6 +54,12 @@
         </snapshotRepository>
     </distributionManagement>
 
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.javadoc.skip>true</maven.javadoc.skip>
+        <powermock.version>1.6.6</powermock.version>
+    </properties>
+
     <dependencies>
         <!-- Scope: Test -->
         <dependency>
@@ -159,10 +165,5 @@
         </pluginManagement>
 
     </build>
-
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <powermock.version>1.6.6</powermock.version>
-    </properties>
 
 </project>
