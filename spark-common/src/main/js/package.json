@@ -9,7 +9,7 @@
         "babel-loader": "^6.4.1",
         "babel-preset-es2015": "^6.24.0",
         "babel-preset-stage-2": "^6.22.0",
-        "css-loader": "^0.28.0",
+        "css-loader": "^0.28.11",
         "del": "2.2.2",
         "gulp": "3.9.1",
         "gulp-util": "3.0.8",
@@ -26,7 +26,8 @@
         "sass-loader": "^6.0.3",
         "string-replace-loader": "^1.2.0",
         "style-loader": "^0.16.1",
-        "webpack": "^2.3.3"
+        "webpack": "^2.3.3",
+        "uglifyjs-webpack-plugin": "1.2.7"
     },
     "//": "jquery is for testing, for live will be provided by AJS",
     "//": "iframeResizer will be concatenated to the resulting js dist-file"

@@ -1,5 +1,10 @@
 package com.k15t.spark.atlassian;
 
+import com.atlassian.sal.api.ApplicationProperties;
+import com.atlassian.sal.api.auth.LoginUriProvider;
+import com.atlassian.sal.api.message.LocaleResolver;
+import com.atlassian.sal.api.user.UserManager;
+import com.atlassian.templaterenderer.TemplateRenderer;
 import com.k15t.spark.base.RequestProperties;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -8,6 +13,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.springframework.context.ApplicationContext;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.http.HttpServletRequest;
@@ -15,6 +21,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.Date;
 
 
 public class AtlassianIframeAppServletTest {
@@ -27,6 +34,12 @@ public class AtlassianIframeAppServletTest {
     private static AtlassianIframeContentServlet testInstance;
 
     private static ServletConfig servletConfig;
+    private LoginUriProvider loginUriProvider;
+    private UserManager userManager;
+    private TemplateRenderer templateRenderer;
+    private LocaleResolver localeResolver;
+    private ApplicationProperties applicationProperties;
+    private ApplicationContext applicationContext;
 
 
     @Before
@@ -41,15 +54,24 @@ public class AtlassianIframeAppServletTest {
         // instantiate as spy to be able to mock the Servlet.getServletConfig() method that is
         // used for getting the init parameters
 
-        testInstance = Mockito.spy(new AtlassianIframeContentServlet() {
-            @Override
-            protected boolean isDevMode() {
-                return true;
-            }
-        });
+        loginUriProvider = Mockito.mock(LoginUriProvider.class);
+        userManager = Mockito.mock(UserManager.class);
+        templateRenderer = Mockito.mock(TemplateRenderer.class);
+        localeResolver = Mockito.mock(LocaleResolver.class);
+        applicationProperties = Mockito.mock(ApplicationProperties.class);
+        applicationContext = Mockito.mock(ApplicationContext.class);
+        Mockito.when(applicationContext.getStartupDate()).thenReturn(new Date().getTime() - 1000);
+
+        testInstance = Mockito.spy(
+                new AtlassianIframeContentServlet(loginUriProvider, userManager, templateRenderer, localeResolver, applicationProperties,
+                        applicationContext) {
+                    @Override
+                    protected boolean isDevMode() {
+                        return true;
+                    }
+                });
         servletConfig = Mockito.mock(ServletConfig.class);
         Mockito.when(testInstance.getServletConfig()).thenReturn(servletConfig);
-
     }
 
 
@@ -93,18 +115,20 @@ public class AtlassianIframeAppServletTest {
 
         String testHtml = "<html><head><script src='test.js'/></head><body><p id='body-el'>test</p></body></html>";
 
-        AtlassianIframeContentServlet customizingInstance = Mockito.spy(new AtlassianIframeContentServlet() {
-            @Override
-            protected boolean isDevMode() {
-                return true;
-            }
+        AtlassianIframeContentServlet customizingInstance = Mockito.spy(
+                new AtlassianIframeContentServlet(loginUriProvider, userManager, templateRenderer, localeResolver, applicationProperties,
+                        applicationContext) {
+                    @Override
+                    protected boolean isDevMode() {
+                        return true;
+                    }
 
 
-            @Override
-            protected void customizeIframeContentDocument(Document document) {
-                document.body().append("<p id='extra-footer'>Custom test footer</p>");
-            }
-        });
+                    @Override
+                    protected void customizeIframeContentDocument(Document document) {
+                        document.body().append("<p id='extra-footer'>Custom test footer</p>");
+                    }
+                });
         Mockito.when(customizingInstance.getServletConfig()).thenReturn(servletConfig);
 
         String resStr = customizingInstance.prepareIndexHtml(testHtml, props);
@@ -128,25 +152,27 @@ public class AtlassianIframeAppServletTest {
     @Test
     public void requestHandlingIsStoppedOnPermissionProblem() throws Exception {
 
-        AtlassianIframeContentServlet permissionVerifyingInstance = new AtlassianIframeContentServlet() {
-            @Override
-            protected boolean isDevMode() {
-                return true;
-            }
+        AtlassianIframeContentServlet permissionVerifyingInstance =
+                new AtlassianIframeContentServlet(loginUriProvider, userManager, templateRenderer, localeResolver, applicationProperties,
+                        applicationContext) {
+                    @Override
+                    protected boolean isDevMode() {
+                        return true;
+                    }
 
 
-            @Override
-            protected RequestProperties getRequestProperties(HttpServletRequest request) {
-                return new RequestProperties(this, request);
-            }
+                    @Override
+                    protected RequestProperties getRequestProperties(HttpServletRequest request) {
+                        return new RequestProperties(this, request);
+                    }
 
 
-            @Override
-            protected boolean verifyPermissions(RequestProperties props, HttpServletResponse resp) throws IOException {
-                resp.sendError(HttpServletResponse.SC_FORBIDDEN);
-                return false;
-            }
-        };
+                    @Override
+                    protected boolean verifyPermissions(RequestProperties props, HttpServletResponse resp) throws IOException {
+                        resp.sendError(HttpServletResponse.SC_FORBIDDEN);
+                        return false;
+                    }
+                };
 
         permissionVerifyingInstance.doGet(request, response);
 

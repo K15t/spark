@@ -98,7 +98,7 @@ const errorDialog = function({title, className}) {
  * @param createOptions extra options to customize the dialog
  * @param className
  */
-const appFullscreenContaineriFrame = function({id, src, createOptions, className}) {
+const appFullscreenContainerIframe = function({id, src, createOptions, className}) {
     return `
         <div id="${id}" 
             class="spark-fullscreen-wrapper ${className} ${createOptions.addChrome ? "spark-fullscreen-dialog" : "" }"
@@ -123,10 +123,60 @@ const appFullscreenContaineriFrame = function({id, src, createOptions, className
     `;
 };
 
+/**
+ * Template for a link that can be used as a trigger for an inline dialog
+ *
+ * @param targetId id of the controlled inline dialog
+ * @param text optional link text
+ */
+const inlineDialogTrigger = function({ targetId, text }) {
+    return `
+        <a data-aui-trigger aria-controls="${targetId}" style="cursor: pointer; color: inherit;">${text}</a>
+    `;
+};
+
+/**
+ * Template for an inline dialog containing an iframe
+ *
+ * @param id id for the wrapper (and prefix for other ids)
+ * @param src URL of the source of the iframe
+ * @param createOptions supports setting 'alignment' and (initial) 'width' of the inline dialog
+ * @param className
+ */
+const inlineDialogAppContainer = function({ id, src, createOptions, className }) {
+    return `
+        <aui-inline-dialog id="${id}" class="spark-inline-wrapper ${className}"
+            alignment="${createOptions.alignment}">
+                <div style="width:${createOptions.width}" id="${id + '-iframe-container'}">
+                    <iframe id="${id}-iframe" class="${className} spark-iframe" src="${src}" scrolling="no">
+                    </iframe>
+                </div>
+        </aui-inline-dialog>
+    `;
+};
+
+/**
+ * Template for creating a SPARK iframe for the most common SPA use case, where the iframe has width '100%' (ie. width of
+ * its parent element) and its height will grow as needed to fit the content of the app
+ *
+ * @param id id for the iframe
+ * @param src URL of the source of the iframe
+ * @param className
+ */
+const bootstrappedIframe = function({ id, src, className }) {
+    return `
+        <iframe id="${id}" class="${className} spark-iframe" src="${src}" scrolling="no">
+        </iframe>
+    `;
+};
+
 export default {
     appBootstrapContaineriFrame,
     appBootstrapContainerDialog2WithiFrame,
     errorDialog2,
     errorDialog,
-    appFullscreenContaineriFrame
+    appFullscreenContainerIframe,
+    inlineDialogTrigger,
+    inlineDialogAppContainer,
+    bootstrappedIframe
 };

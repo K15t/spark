@@ -5,7 +5,7 @@ describe('SPARK templates', function() {
     describe('appFullscreenContaineriFrame', function() {
 
         beforeEach(function() {
-            this.iframeTemplate = sparkTemplates.appFullscreenContaineriFrame;
+            this.iframeTemplate = sparkTemplates.appFullscreenContainerIframe;
         });
 
         it('valid arguments return a result', function() {
@@ -79,20 +79,10 @@ describe('SPARK templates', function() {
 
             expect(resEl.attr('id')).toEqual('testing-id');
 
-            expect(resEl.find('iframe').length).toEqual(1);
-
             // no dialog chrome asked, should have no buttons
             expect(resEl.find('button').length).toEqual(0);
 
             expect(resEl.hasClass('spark-fullscreen-wrapper')).toBeTruthy();
-
-            var iframeEl = resEl.find('iframe');
-
-            expect(iframeEl.attr('src')).toEqual('/src/of/iframe');
-
-            expect(iframeEl.attr('id')).toEqual('testing-id-iframe');
-
-            expect(iframeEl.hasClass('spark-fullscreen-iframe')).toBeTruthy();
 
         });
 
@@ -110,15 +100,9 @@ describe('SPARK templates', function() {
 
             expect(resEl.attr('id')).toEqual('testing-id');
 
-            expect(resEl.find('iframe').length).toEqual(1);
-
             expect(resEl.hasClass('spark-fullscreen-wrapper')).toBeTruthy();
 
             var iframeEl = resEl.find('iframe');
-
-            expect(iframeEl.attr('src')).toEqual('/src/of/iframe');
-
-            expect(iframeEl.attr('id')).toEqual('testing-id-iframe');
 
             // test dialog chrome was added and has expected ids etc
 
