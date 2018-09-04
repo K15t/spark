@@ -1,9 +1,15 @@
 package com.k15t.spark.atlassian;
 
+import com.atlassian.sal.api.ApplicationProperties;
+import com.atlassian.sal.api.auth.LoginUriProvider;
+import com.atlassian.sal.api.message.LocaleResolver;
+import com.atlassian.sal.api.user.UserManager;
+import com.atlassian.templaterenderer.TemplateRenderer;
 import com.k15t.spark.base.RequestProperties;
 import com.k15t.spark.base.util.DocumentOutputUtil;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.springframework.context.ApplicationContext;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -14,6 +20,14 @@ import java.io.IOException;
  * The servlet implementation (or sub-class) to use for SPARK iframe functionality.
  */
 public abstract class AtlassianIframeContentServlet extends AtlassianAppServlet {
+
+    protected AtlassianIframeContentServlet(LoginUriProvider loginUriProvider,
+            UserManager userManager, TemplateRenderer templateRenderer,
+            LocaleResolver localeResolver, ApplicationProperties applicationProperties,
+            ApplicationContext applicationContext) {
+
+        super(loginUriProvider, userManager, templateRenderer, localeResolver, applicationProperties, applicationContext);
+    }
 
     // AtlassianAppServlet handles some heavy lifting required for living in the plugin servlet environment
     // eg. finding out the real servlet path and handling caching in that environment

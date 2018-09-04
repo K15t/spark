@@ -36,7 +36,7 @@ import java.util.Set;
  * </ul>
  */
 
-abstract public class AppServlet extends HttpServlet {
+public abstract class AppServlet extends HttpServlet {
 
     protected final Set<String> VELOCITY_TYPES = Collections.unmodifiableSet(new HashSet<String>() {{
         add("text/html");
