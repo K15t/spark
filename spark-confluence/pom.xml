@@ -50,8 +50,8 @@
             <!-- Confluence-provided dependencies. -->
             <dependency>
                 <groupId>com.k15t.scroll.dependencies</groupId>
-                <artifactId>confluence-dep-5-10</artifactId>
-                <version>3</version>
+                <artifactId>confluence-dep-6-0</artifactId>
+                <version>5</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
