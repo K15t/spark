@@ -857,7 +857,7 @@ describe('iframeAppLoader', function() {
             it('checks the target of  the triggerElement is equal to the id of the dialogElement', function() {
                 var { triggerEl } = this.inlineDialogOpener('test-app-name', '/test/app/path', {});
 
-                expect(AJS.$(triggerEl).attr('aria-controls')).toEqual('test-app-name-spark-app-container');
+                expect($(triggerEl).attr('aria-controls')).toEqual('test-app-name-spark-app-container');
 
             });
         });
