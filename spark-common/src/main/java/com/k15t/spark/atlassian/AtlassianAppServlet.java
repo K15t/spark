@@ -1,13 +1,14 @@
 package com.k15t.spark.atlassian;
 
 import com.atlassian.plugin.servlet.descriptors.BaseServletModuleDescriptor;
-import com.atlassian.plugins.rest.common.util.ReflectionUtils;
 import com.atlassian.sal.api.ApplicationProperties;
 import com.atlassian.sal.api.UrlMode;
 import com.atlassian.sal.api.auth.LoginUriProvider;
 import com.atlassian.sal.api.message.LocaleResolver;
 import com.atlassian.sal.api.user.UserManager;
+import com.atlassian.sal.api.user.UserProfile;
 import com.atlassian.templaterenderer.TemplateRenderer;
+import com.google.common.base.Preconditions;
 import com.k15t.spark.base.AppServlet;
 import com.k15t.spark.base.RequestProperties;
 import com.k15t.spark.base.util.DocumentOutputUtil;
@@ -16,9 +17,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.osgi.framework.BundleContext;
-import org.osgi.util.tracker.ServiceTracker;
-import org.springframework.osgi.context.BundleContextAware;
+import org.springframework.context.ApplicationContext;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -28,21 +27,37 @@ import javax.ws.rs.core.UriBuilder;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
 
-abstract public class AtlassianAppServlet extends AppServlet implements BundleContextAware {
+public abstract class AtlassianAppServlet extends AppServlet {
 
-    private ServiceTracker loginUriProviderTracker;
-    private ServiceTracker userManagerTracker;
-    private ServiceTracker templateRendererTracker;
-    private ServiceTracker localeResolverTracker;
-    private ServiceTracker applicationProperties;
+    private final LoginUriProvider loginUriProvider;
+    private final UserManager userManager;
+    private final TemplateRenderer templateRenderer;
+    private final LocaleResolver localeResolver;
+    private final ApplicationProperties applicationProperties;
+    private final long pluginModifiedTimestamp;
 
     private String appPrefix;
-    private long pluginModifiedTimestamp;
+
+
+    protected AtlassianAppServlet(LoginUriProvider loginUriProvider, UserManager userManager, TemplateRenderer templateRenderer,
+            LocaleResolver localeResolver, ApplicationProperties applicationProperties, ApplicationContext applicationContext) {
+
+        this.loginUriProvider = Preconditions.checkNotNull(loginUriProvider);
+        this.userManager = Preconditions.checkNotNull(userManager);
+        this.templateRenderer = Preconditions.checkNotNull(templateRenderer);
+        this.localeResolver = Preconditions.checkNotNull(localeResolver);
+        this.applicationProperties = Preconditions.checkNotNull(applicationProperties);
+
+        this.pluginModifiedTimestamp = Preconditions.checkNotNull(applicationContext).getStartupDate();
+    }
 
 
     @Override
@@ -74,7 +89,7 @@ abstract public class AtlassianAppServlet extends AppServlet implements BundleCo
             throw new RuntimeException("Could not detect app prefix from servlet module.");
         }
 
-        BaseServletModuleDescriptor descriptor = (BaseServletModuleDescriptor) ReflectionUtils.getFieldValue(field, servletConfig);
+        BaseServletModuleDescriptor descriptor = (BaseServletModuleDescriptor) getFieldValue(field, servletConfig);
         if ((descriptor.getPaths() == null) || (descriptor.getPaths().size() < 1)) {
             throw new RuntimeException("Could not detect app prefix from servlet module.");
         }
@@ -84,7 +99,7 @@ abstract public class AtlassianAppServlet extends AppServlet implements BundleCo
 
 
     private Field getDescriptorField(Class<? extends ServletConfig> clazz) {
-        for (Field field : ReflectionUtils.getDeclaredFields(clazz)) {
+        for (Field field : getDeclaredFields(clazz)) {
             if (field.getType().isAssignableFrom(BaseServletModuleDescriptor.class)) {
                 return field;
             }
@@ -94,23 +109,50 @@ abstract public class AtlassianAppServlet extends AppServlet implements BundleCo
     }
 
 
+    private static List<Field> getDeclaredFields(Class clazz) {
+        if (clazz == null) {
+            return new ArrayList<>();
+        } else {
+            final List<Field> superFields = getDeclaredFields(clazz.getSuperclass());
+            superFields.addAll(0, Arrays.asList(clazz.getDeclaredFields()));
+            return superFields;
+        }
+    }
+
+
+    private static Object getFieldValue(Field field, Object object) {
+        final boolean accessible = field.isAccessible();
+        try {
+            if (!accessible) {
+                field.setAccessible(true);
+            }
+            return field.get(object);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException("Could not access '" + field + "' from '" + object + "'", e);
+        } finally {
+            if (!accessible) {
+                field.setAccessible(false);
+            }
+        }
+    }
+
+
     @Override
     protected RequestProperties getRequestProperties(HttpServletRequest request) {
-        return new AtlassianRequestProperties(this, request, getApplicationProperties().getBaseUrl(
-                UrlMode.RELATIVE_CANONICAL), appPrefix, getLocaleResolver().getLocale(request));
+        return new AtlassianRequestProperties(this, request, applicationProperties.getBaseUrl(UrlMode.RELATIVE_CANONICAL), appPrefix,
+                localeResolver.getLocale(request));
     }
 
 
     protected boolean isHtmlContentType(String contentType) {
-        return StringUtils.substringBefore(contentType, ";").equals("text/html");
+        return "text/html".equals(StringUtils.substringBefore(contentType, ";"));
     }
 
 
     @Override
     protected String renderVelocity(String template, RequestProperties props) throws IOException {
         Map<String, Object> context = getVelocityContext(props.getRequest());
-        String rendered = getTemplateRenderer().renderFragment(template, context);
-        return rendered;
+        return templateRenderer.renderFragment(template, context);
     }
 
 
@@ -155,7 +197,7 @@ abstract public class AtlassianAppServlet extends AppServlet implements BundleCo
 
 
     protected void applyCacheKeysToResourceUrls(Document document, RequestProperties props) {
-        Locale locale = getLocaleResolver().getLocale(props.getRequest());
+        Locale locale = localeResolver.getLocale(props.getRequest());
         DocumentOutputUtil.applyCacheKeysToResourceUrls(document, pluginModifiedTimestamp, locale);
     }
 
@@ -224,100 +266,18 @@ abstract public class AtlassianAppServlet extends AppServlet implements BundleCo
 
 
     protected boolean isAnonymous(RequestProperties props) {
-        return getUserManager().getRemoteUsername(props.getRequest()) == null;
+        return userManager.getRemoteUser(props.getRequest()) == null;
     }
 
 
     protected boolean hasPermissions(RequestProperties props) {
-        String user = getUserManager().getRemoteUsername(props.getRequest());
-        return (user != null && getUserManager().isSystemAdmin(user));
+        UserProfile user = userManager.getRemoteUser(props.getRequest());
+        return (user != null && userManager.isSystemAdmin(user.getUserKey()));
     }
 
 
     private void redirectToLogin(RequestProperties props, HttpServletResponse response) throws IOException {
-        response.sendRedirect(getLoginUriProvider().getLoginUri(props.getUri()).toASCIIString());
-    }
-
-
-    @Override
-    public void setBundleContext(BundleContext bundleContext) {
-        pluginModifiedTimestamp = bundleContext.getBundle().getLastModified();
-
-        loginUriProviderTracker = new ServiceTracker(bundleContext, LoginUriProvider.class.getName(), null);
-        loginUriProviderTracker.open();
-
-        userManagerTracker = new ServiceTracker(bundleContext, UserManager.class.getName(), null);
-        userManagerTracker.open();
-
-        templateRendererTracker = new ServiceTracker(bundleContext, TemplateRenderer.class.getName(), null);
-        templateRendererTracker.open();
-
-        localeResolverTracker = new ServiceTracker(bundleContext, LocaleResolver.class.getName(), null);
-        localeResolverTracker.open();
-
-        applicationProperties = new ServiceTracker(bundleContext, ApplicationProperties.class.getName(), null);
-        applicationProperties.open();
-    }
-
-
-    protected LoginUriProvider getLoginUriProvider() {
-        Object proxy = loginUriProviderTracker.getService();
-        if ((proxy != null) && (proxy instanceof LoginUriProvider)) {
-            return (LoginUriProvider) proxy;
-        } else {
-            throw new RuntimeException("Could not get a valid LoginUriProvider proxy.");
-        }
-    }
-
-
-    protected UserManager getUserManager() {
-        Object proxy = userManagerTracker.getService();
-        if ((proxy != null) && (proxy instanceof UserManager)) {
-            return (UserManager) proxy;
-        } else {
-            throw new RuntimeException("Could not get a valid UserManager proxy.");
-        }
-    }
-
-
-    protected TemplateRenderer getTemplateRenderer() {
-        Object proxy = templateRendererTracker.getService();
-        if ((proxy != null) && (proxy instanceof TemplateRenderer)) {
-            return (TemplateRenderer) proxy;
-        } else {
-            throw new RuntimeException("Could not get a valid TemplateRenderer proxy.");
-        }
-    }
-
-
-    protected LocaleResolver getLocaleResolver() {
-        Object proxy = localeResolverTracker.getService();
-        if ((proxy != null) && (proxy instanceof LocaleResolver)) {
-            return (LocaleResolver) proxy;
-        } else {
-            throw new RuntimeException("Could not get a valid LocaleResolver proxy.");
-        }
-    }
-
-
-    protected ApplicationProperties getApplicationProperties() {
-        Object proxy = applicationProperties.getService();
-        if ((proxy != null) && (proxy instanceof ApplicationProperties)) {
-            return (ApplicationProperties) proxy;
-        } else {
-            throw new RuntimeException("Could not get a valid ApplicationProperties proxy.");
-        }
-    }
-
-
-    @Override
-    public void destroy() {
-        super.destroy();
-        loginUriProviderTracker.close();
-        userManagerTracker.close();
-        templateRendererTracker.close();
-        localeResolverTracker.close();
-        applicationProperties.close();
+        response.sendRedirect(loginUriProvider.getLoginUri(props.getUri()).toASCIIString());
     }
 
 }
