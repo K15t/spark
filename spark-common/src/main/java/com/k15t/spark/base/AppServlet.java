@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -136,13 +137,13 @@ abstract public class AppServlet extends HttpServlet {
 
         String shortType = StringUtils.substringBefore(props.getContentType(), ";");
         if (VELOCITY_TYPES.contains(shortType)) {
-            String result = renderVelocity(IOUtils.toString(resource, "UTF-8"), props);
+            String result = renderVelocity(IOUtils.toString(resource, StandardCharsets.UTF_8), props);
 
             if ("index.html".equals(props.getLocalPath())) {
                 result = prepareIndexHtml(result, props);
             }
 
-            IOUtils.write(result, response.getOutputStream());
+            IOUtils.write(result, response.getOutputStream(), StandardCharsets.UTF_8);
 
         } else {
             IOUtils.copy(resource, response.getOutputStream());
