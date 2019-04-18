@@ -39,7 +39,7 @@ public class ConfluenceIframeSparkActionHelper {
                             instance.getSpaBaseUrl(), baseIframeId + idSuffix,
                             instance.getIframeContextInfo(), instance.getSpaQueryString());
 
-            return VelocityUtils.getRenderedContent(template, context);
+            return VelocityUtils.getRenderedContent((CharSequence) template, context);
         } catch (IOException e) {
             throw new RuntimeException("Cannot load iframe-space app template");
         }

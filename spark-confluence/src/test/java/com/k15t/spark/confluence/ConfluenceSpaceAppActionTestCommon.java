@@ -84,7 +84,7 @@ public class ConfluenceSpaceAppActionTestCommon {
         // Mock up the conflunce velocity util
         PowerMockito.mockStatic(VelocityUtils.class);
 
-        Mockito.when(VelocityUtils.getRenderedContent(anyString(), Mockito.anyMap())).
+        Mockito.when(VelocityUtils.getRenderedContent((CharSequence) anyString(), Mockito.anyMap())).
                 thenReturn(renderedVelocityToReturn);
 
 

@@ -96,7 +96,7 @@ public class ConflunceIframeSparkActionHelperTest extends ConfluenceSpaceAppActi
         // not very ideal test because ties how the rendering is expected to be done which is unimportant...
         // on the other hand making the VelocityUtils call without mocking it would require lots of other setup
         PowerMockito.verifyStatic(times(1));
-        VelocityUtils.getRenderedContent(velocityTemplateToReturn, velocityContextToReturn);
+        VelocityUtils.getRenderedContent((CharSequence) velocityTemplateToReturn, velocityContextToReturn);
 
         // expect to return the 'rendered' content
         Assert.assertEquals(renderedVelocityToReturn, result);
