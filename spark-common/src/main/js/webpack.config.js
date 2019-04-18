@@ -54,8 +54,8 @@ module.exports = [
             path: distDir
         },
         externals: {
-            jquery: 'AJS.$',
-            ajs: 'AJS'
+            jquery: "window.require('jquery')",
+            ajs: "window.require('ajs')"
         }
     }),
     Object.assign({}, baseConfig, {

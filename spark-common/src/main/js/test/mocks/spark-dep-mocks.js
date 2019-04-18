@@ -7,7 +7,15 @@
 var AJS = AJS || {}; // add a AJS mock as global and needed functions
 var $ = $ || {};
 
-AJS.$ = $;
+var require = function(module) {
+    if (module === 'ajs') {
+        return AJS;
+    } else if (module === 'jquery') {
+        return $;
+    } else {
+        throw new Error('unimplement module: ' + module);
+    }
+};
 
 var SPARK = { 'mockupOldVersion': true };
 
