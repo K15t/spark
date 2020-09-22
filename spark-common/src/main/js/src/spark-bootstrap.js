@@ -438,7 +438,7 @@ var initIframeAppLoader = function(iframeResizer) {
             'heightCalculationMethod': 'max',
             'maxHeight': getMaxHeight(),
             'scrolling': 'auto',
-            resizedCallback: function(data) {
+            'onResized': function(data) {
                 // need to re-set maxHeight when window is resized
                 // resizedCallback is called when the iframe is resized which should be enough
                 data.iframe.style.maxHeight = getMaxHeight() + 'px';

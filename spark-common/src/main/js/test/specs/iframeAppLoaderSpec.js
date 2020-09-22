@@ -236,8 +236,8 @@ describe('iframeAppLoader', function() {
             });
 
             it('close-method invokes the onClose handler with result data', function() {
-                var closeCallback = jasmine.createSpy('dialogCloseCallback');
-                this.fullScreenDialogOpener('test-app-name', '/test/app/path', { onClose: closeCallback });
+                var sparkDialogClosedCallback = jasmine.createSpy('dialogCloseCallback');
+                this.fullScreenDialogOpener('test-app-name', '/test/app/path', { onClose: sparkDialogClosedCallback });
 
                 var iframeSpark = this.getSparkIframeContext();
 
@@ -255,8 +255,8 @@ describe('iframeAppLoader', function() {
 
                 iframeSpark.dialogControls.closeDialog(resultData);
 
-                expect(closeCallback).toHaveBeenCalledTimes(1);
-                expect(closeCallback).toHaveBeenCalledWith(resultData);
+                expect(sparkDialogClosedCallback).toHaveBeenCalledTimes(1);
+                expect(sparkDialogClosedCallback).toHaveBeenCalledWith(resultData);
             });
 
             it('calls iFrameResizer.close on closing dialog', function() {
@@ -415,7 +415,7 @@ describe('iframeAppLoader', function() {
                         'heightCalculationMethod': 'max',
                         maxHeight: window.innerHeight - 51, // innerHeight - chrome bar
                         scrolling: 'auto',
-                        resizedCallback: jasmine.any(Function)
+                        onResized: jasmine.any(Function)
                     }, iframeDomEl);
 
                     var iframeDomElResizerObj = jasmine.createSpyObj('iFrameResizer', ['close']);
