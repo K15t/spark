@@ -72,27 +72,6 @@ const errorDialog2 = function({id, title, className}) {
 
 
 /**
- * Template to create an error dialog 1
- *
- * @param title
- * @param className
- */
-const errorDialog = function({title, className}) {
-    return `
-        <div class="dialog-components ${className}">
-            <h2 class="dialog-title">${title}</h2>
-            <div class="dialog-page-body">
-                <div class="dialog-panel-body spark-app-content">
-            </div>
-            </div>
-                <div class="dialog-button-panel">
-                <a href="#" class="button-panel-link button-panel-cancel-link" id="closeErrorDialogButton">Close</a>
-            </div>
-        </div>
-    `;
-};
-
-/**
  * @param id Id of the HTML element
  * @param src URL of the content to load to the iframe
  * @param createOptions extra options to customize the dialog
@@ -174,7 +153,6 @@ export default {
     appBootstrapContaineriFrame,
     appBootstrapContainerDialog2WithiFrame,
     errorDialog2,
-    errorDialog,
     appFullscreenContainerIframe,
     inlineDialogTrigger,
     inlineDialogAppContainer,
