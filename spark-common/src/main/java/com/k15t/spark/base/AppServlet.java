@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashSet;
@@ -224,7 +225,11 @@ public abstract class AppServlet extends HttpServlet {
 
 
     protected String getPluginResourcePath(String localPath) {
-        return resourcePath + localPath;
+        String normalized = URI.create(resourcePath + localPath).normalize().toASCIIString();
+        if (!normalized.startsWith(resourcePath)) {
+            throw new IllegalArgumentException("localPath is not contained within spark resource path.");
+        }
+        return normalized;
     }
 
 }
