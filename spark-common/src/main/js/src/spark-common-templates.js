@@ -5,7 +5,8 @@ const escapeHtml = function(str) {
     return str.replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
+        .replace(/'/g, '&#39;')
+        .replace(/&/g, '&amp;');
 }
 
 
@@ -51,6 +52,10 @@ const appBootstrapContainerDialog2WithiFrame = function(options) {
     const showSubmitButton = !!createOptions.showSubmitButton;
     const submitLabel = escapeHtml(createOptions.label.submit);
     const closeLabel = escapeHtml(createOptions.label.close);
+    // when calling other templates, use unescaped values
+    const idRaw = options.id;
+    const srcRaw = options.src;
+    const classNameRaw = options.className;
     return `
         <section role="dialog" id="${id}" class="${className} aui-layer aui-dialog2" style="width:${width};"
                 aria-hidden="true">
@@ -59,7 +64,7 @@ const appBootstrapContainerDialog2WithiFrame = function(options) {
             </header>
             <div class="aui-dialog2-content spark-app-content"
                     style="padding: 0; width:${width}; height: ${height}; overflow: hidden;">
-                ${appBootstrapContaineriFrame({ id, src, createOptions, className })}
+                ${appBootstrapContaineriFrame({ id: idRaw, src: srcRaw, createOptions, className: classNameRaw })}
             </div>
             <footer class="aui-dialog2-footer">
                 <div class="aui-dialog2-footer-actions">
