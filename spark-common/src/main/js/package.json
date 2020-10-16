@@ -2,7 +2,7 @@
     "private": true,
     "main": "./src/index.js",
     "dependencies": {
-        "iframe-resizer": "3.5.10"
+        "iframe-resizer": "4.2.11"
     },
     "devDependencies": {
         "babel-core": "^6.24.0",

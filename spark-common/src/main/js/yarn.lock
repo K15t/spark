@@ -2432,9 +2432,9 @@ iferr@^0.1.5:
   version "0.1.5"
   resolved "https://registry.yarnpkg.com/iferr/-/iferr-0.1.5.tgz#c60eed69e6d8fdb6b3104a1fcbca1c192dc5b501"
 
-iframe-resizer@3.5.10:
-  version "3.5.10"
-  resolved "https://registry.yarnpkg.com/iframe-resizer/-/iframe-resizer-3.5.10.tgz#14ecaef41b8b2c9b271d85e70c845c34a07bd31d"
+iframe-resizer@4.2.11:
+  version "4.2.11"
+  resolved "https://registry.yarnpkg.com/iframe-resizer/-/iframe-resizer-4.2.11.tgz#68a6709796447e90109d2cf54373b51adbd1186a"
 
 imurmurhash@^0.1.4:
   version "0.1.4"
