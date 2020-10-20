@@ -103,10 +103,12 @@ function AppLoader() {
 
         startedAppDialog = dialog;
 
-        iframeResizer([{
-            log: true,
-            autoResize: true
-        }], iFrameContent[0]);
+        if (!createOptions.disableIframeResizer) {
+            iframeResizer([{
+                log: true,
+                autoResize: true
+            }], iFrameContent[0]);
+        }
 
         dialog.show();
 
@@ -136,17 +138,20 @@ function AppLoader() {
             $('#' + elementIdSparkAppContainer).remove();
         }
 
+        createOptions = $.extend(defaultDialogOptions, createOptions);
         $(element).append(sparkTemplates.appBootstrapContaineriFrame({
             id: elementIdSparkAppContainer,
             src: location.protocol + '//' + location.host + fullAppPath,
-            createOptions: $.extend(defaultDialogOptions, createOptions),
+            createOptions: createOptions,
             className: css.className
         }));
 
-        iframeResizer([{
-            'autoResize': true,
-            'heightCalculationMethod': 'max'
-        }], $(element).find('iframe')[0]);
+        if (!createOptions.disableIframeResizer) {
+            iframeResizer([{
+                'autoResize': true,
+                'heightCalculationMethod': 'max'
+            }], $(element).find('iframe')[0]);
+        }
     };
 
     /**
@@ -257,17 +262,19 @@ var initIframeAppLoader = function(iframeResizer) {
             iframeSparkContext.customContext = options.customContext;
         }
 
-        // Setup iFrame Resizer
-        var resizerSettings = {
-            autoResize: true,
-            heightCalculationMethod: 'max'
-        };
+        if (!options.disableIframeResizer) {
+            // Setup iFrame Resizer
+            var resizerSettings = {
+                autoResize: true,
+                heightCalculationMethod: 'max'
+            };
 
-        if (options.iframeResizerSettings) {
-            resizerSettings = $.extend(resizerSettings, options.iframeResizerSettings);
+            if (options.iframeResizerSettings) {
+                resizerSettings = $.extend(resizerSettings, options.iframeResizerSettings);
+            }
+
+            iframeResizer(resizerSettings, iframeDomEl);
         }
-
-        iframeResizer(resizerSettings, iframeDomEl);
 
         return { iframeDomEl, iframeSparkContext };
 
@@ -283,6 +290,7 @@ var initIframeAppLoader = function(iframeResizer) {
      *              SPAR.getCustomContext,
      *      iframeResizerSettings: settings that can for IFrameResizer - by default autoResize:
      *              true and heightCalculationoMethod: 'max' is set,
+     *      disableIframeResizer: set to true to disable IFrameResizer
      *      queryString: the query part to be concatenated to the appPath
      *      containerEl: if specified, the created iframe will be appended to this element -
      *              if not specified the iframe won't be attached to the DOM
