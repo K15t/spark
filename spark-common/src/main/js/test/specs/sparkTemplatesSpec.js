@@ -123,35 +123,6 @@ describe('SPARK templates', function() {
 
     });
 
-    describe('errorDialog', function() {
-        it('valid arguments return a result', function() {
-
-            var result = sparkTemplates.errorDialog({
-                'title': 'test-title',
-                'className': 'test-class-name'
-            });
-
-            expect(result).toBeDefined();
-
-        });
-
-        it('creates expected basic html structure', function() {
-
-            var resEl = $(sparkTemplates.errorDialog({
-                'title': 'test-title',
-                'className': 'test-class-name'
-            }));
-
-            expect(resEl.hasClass('dialog-components')).toBeTruthy();
-            expect(resEl.hasClass('test-class-name')).toBeTruthy();
-
-            expect(resEl.find('h2').length).toEqual(1);
-            expect(resEl.find('h2').text()).toEqual('test-title');
-
-        });
-
-    });
-
     describe('errorDialog2', function() {
         it('valid arguments return a result', function() {
 

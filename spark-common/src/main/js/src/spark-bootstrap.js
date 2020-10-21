@@ -166,20 +166,11 @@ function AppLoader() {
 
 
     var createErrorDialog = function(id) {
-        var dialog;
-
-        if (AJS.dialog2) {
-            dialog = createDialog(id, sparkTemplates.errorDialog2({
-                id: id,
-                title: 'An error happened ...',
-                className: css.className
-            }));
-        } else {
-            dialog = createDialog(id, sparkTemplates.errorDialog({
-                title: 'An error happened ...',
-                className: css.className
-            }), 800, 500);
-        }
+        var dialog = createDialog(id, sparkTemplates.errorDialog2({
+            id: id,
+            title: 'An error happened ...',
+            className: css.className
+        }));
 
         $('.aui-blanket').addClass('spark-loading');
 
@@ -189,24 +180,10 @@ function AppLoader() {
 
     var createDialog = function(id, dialogMarkup, cssClass, width, height) {
 
-        var dialog;
-
-        if (AJS.dialog2) {
-            $('body').append(dialogMarkup);
-            dialog = AJS.dialog2('#' + id);
-            dialog.$appEl = dialog.$el;
-            dialog.$contentEl = $('.spark-app-content', dialog.$appEl);
-        } else {
-            dialog = new AJS.Dialog({
-                width: width,
-                height: height,
-                id: id
-            });
-            dialog.$appEl = dialog.popup.element;
-            dialog.$appEl.html(dialogMarkup);
-            dialog.$contentEl = $('.spark-app-content', dialog.$appEl);
-            dialog.$contentEl.height(dialog.$appEl.height() - 105);
-        }
+        $('body').append(dialogMarkup);
+        var dialog = AJS.dialog2('#' + id);
+        dialog.$appEl = dialog.$el;
+        dialog.$contentEl = $('.spark-app-content', dialog.$appEl);
 
         return dialog;
     };
@@ -438,7 +415,7 @@ var initIframeAppLoader = function(iframeResizer) {
             'heightCalculationMethod': 'max',
             'maxHeight': getMaxHeight(),
             'scrolling': 'auto',
-            resizedCallback: function(data) {
+            'onResized': function(data) {
                 // need to re-set maxHeight when window is resized
                 // resizedCallback is called when the iframe is resized which should be enough
                 data.iframe.style.maxHeight = getMaxHeight() + 'px';
