@@ -5,7 +5,7 @@ import com.k15t.spark.base.Keys;
 import com.k15t.spark.base.util.DocumentOutputUtil;
 import com.opensymphony.xwork.ActionContext;
 import com.opensymphony.xwork.config.entities.ActionConfig;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 

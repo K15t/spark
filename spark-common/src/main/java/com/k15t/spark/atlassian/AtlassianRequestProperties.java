@@ -1,7 +1,7 @@
 package com.k15t.spark.atlassian;
 
 import com.k15t.spark.base.RequestProperties;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -18,7 +18,7 @@ public class AtlassianRequestProperties extends RequestProperties {
     /**
      * Constructs the specific properties for an Atlassian product e.g. Confluence or Jira.
      *
-     * @param baseUrl Url which should be used as base. It is recommend to use a relative one
+     * @param baseUrl Url which should be used as base. It is recommended to use a relative one
      * @param appPrefix Configured url pattern of the servlet configuration
      * @param local Local to provide the best matching message properties for
      */
