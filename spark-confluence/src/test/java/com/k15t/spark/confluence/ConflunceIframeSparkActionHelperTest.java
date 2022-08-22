@@ -1,7 +1,6 @@
 package com.k15t.spark.confluence;
 
 import com.atlassian.confluence.util.velocity.VelocityUtils;
-import com.google.common.collect.ImmutableMap;
 import com.k15t.spark.base.Keys;
 import com.k15t.spark.base.util.DocumentOutputUtil;
 import org.junit.Assert;
@@ -108,7 +107,7 @@ public class ConflunceIframeSparkActionHelperTest extends ConfluenceSpaceAppActi
 
     @Test
     public void spaBaseUrlIsTakenFromActionConfig() {
-        Mockito.when(actionConfig.getParams()).thenReturn(ImmutableMap.of(Keys.SPARK_SPA_BASE_URL, "/hello/world"));
+        Mockito.when(actionConfig.getParams()).thenReturn(Collections.singletonMap(Keys.SPARK_SPA_BASE_URL, "/hello/world"));
         Assert.assertEquals("/hello/world", ConfluenceIframeSparkActionHelper.defaultGetSpaBaseUrl(actionContext));
     }
 
@@ -122,14 +121,14 @@ public class ConflunceIframeSparkActionHelperTest extends ConfluenceSpaceAppActi
 
     @Test
     public void defaultGetSelectedWebItem_FromActionConfig() {
-        Mockito.when(actionConfig.getParams()).thenReturn(ImmutableMap.of(Keys.SPARK_SELECTED_WEB_ITEM_KEY, "test-item"));
+        Mockito.when(actionConfig.getParams()).thenReturn(Collections.singletonMap(Keys.SPARK_SELECTED_WEB_ITEM_KEY, "test-item"));
         Assert.assertEquals("test-item", ConfluenceIframeSparkActionHelper.defaultGetSelectedWebItem(servletRequest, actionContext));
     }
 
 
     @Test
     public void defaultGetSelectedWebItem_RequestParamOverwritesActionConfig() {
-        Mockito.when(actionConfig.getParams()).thenReturn(ImmutableMap.of(Keys.SPARK_SELECTED_WEB_ITEM_KEY, "test-item"));
+        Mockito.when(actionConfig.getParams()).thenReturn(Collections.singletonMap(Keys.SPARK_SELECTED_WEB_ITEM_KEY, "test-item"));
         Mockito.when(servletRequest.getParameter(Keys.SPARK_SELECTED_WEB_ITEM_KEY)).thenReturn("from-request");
         Assert.assertEquals("from-request", ConfluenceIframeSparkActionHelper.defaultGetSelectedWebItem(servletRequest, actionContext));
     }
@@ -145,7 +144,7 @@ public class ConflunceIframeSparkActionHelperTest extends ConfluenceSpaceAppActi
 
     @Test
     public void defaultGetRequiredResourceKeys_SimpleItem() {
-        Mockito.when(actionConfig.getParams()).thenReturn(ImmutableMap.of(Keys.SPARK_REQUIRED_WEB_RESOURCE_KEYS, "test-item"));
+        Mockito.when(actionConfig.getParams()).thenReturn(Collections.singletonMap(Keys.SPARK_REQUIRED_WEB_RESOURCE_KEYS, "test-item"));
         Assert.assertEquals(Arrays.asList("test-item"), ConfluenceIframeSparkActionHelper.defaultGetRequiredResourceKeys(actionContext));
     }
 
@@ -153,7 +152,7 @@ public class ConflunceIframeSparkActionHelperTest extends ConfluenceSpaceAppActi
     @Test
     public void defaultGetRequiredResourceKeys_SingleCompleteModuleKey() {
         Mockito.when(actionConfig.getParams())
-                .thenReturn(ImmutableMap.of(Keys.SPARK_REQUIRED_WEB_RESOURCE_KEYS, "com.k15t.test.sparkplugin:important-resource"));
+                .thenReturn(Collections.singletonMap(Keys.SPARK_REQUIRED_WEB_RESOURCE_KEYS, "com.k15t.test.sparkplugin:important-resource"));
         Assert.assertEquals(Arrays.asList("com.k15t.test.sparkplugin:important-resource"),
                 ConfluenceIframeSparkActionHelper.defaultGetRequiredResourceKeys(actionContext));
     }
@@ -161,7 +160,7 @@ public class ConflunceIframeSparkActionHelperTest extends ConfluenceSpaceAppActi
 
     @Test
     public void defaultGetRequiredResourceKeys_MultipleCompleteModuleKeys() {
-        Mockito.when(actionConfig.getParams()).thenReturn(ImmutableMap.of(Keys.SPARK_REQUIRED_WEB_RESOURCE_KEYS,
+        Mockito.when(actionConfig.getParams()).thenReturn(Collections.singletonMap(Keys.SPARK_REQUIRED_WEB_RESOURCE_KEYS,
                 "com.k15t.test.sparkplugin:important-resource.js,com.k15t.test.sparkplugin:less-important-resource.js,"
                         + "com.k15t.test.sparkplugin:some-styling.css"));
         Assert.assertEquals(Arrays.asList("com.k15t.test.sparkplugin:important-resource.js",
