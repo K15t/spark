@@ -9,7 +9,6 @@ import com.k15t.spark.base.Keys;
 import com.k15t.spark.base.util.DocumentOutputUtil;
 import com.opensymphony.webwork.ServletActionContext;
 import com.opensymphony.xwork.config.entities.ActionConfig;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.exception.ExceptionUtils;
@@ -25,6 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.util.Locale;
 
 
@@ -147,7 +147,7 @@ public class ConfluenceSpaceAppAction extends AbstractSpaceAction implements Spa
             if (resourceDirectory.isDirectory()) {
                 File resource = new File(resourceDirectoryPath + localPath);
                 if (resource.canRead()) {
-                    fileIn = FileUtils.openInputStream(resource);
+                    fileIn = Files.newInputStream(resource.toPath());
                     break;
                 }
             }

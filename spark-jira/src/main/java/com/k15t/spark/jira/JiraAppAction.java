@@ -3,7 +3,6 @@ package com.k15t.spark.jira;
 import com.atlassian.jira.config.properties.JiraSystemProperties;
 import com.atlassian.jira.web.action.JiraWebActionSupport;
 import com.k15t.spark.base.Keys;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.jsoup.Jsoup;
@@ -17,6 +16,8 @@ import webwork.action.ServletActionContext;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+
 
 /**
  * The AbstractAppAction must be extended when a SPARK app needs to be displayed in the admin section.
@@ -97,7 +98,7 @@ public class JiraAppAction extends JiraWebActionSupport {
             if (resourceDirectory.isDirectory()) {
                 File resource = new File(resourceDirectoryPath + localPath);
                 if (resource.canRead()) {
-                    fileIn = FileUtils.openInputStream(resource);
+                    fileIn = Files.newInputStream(resource.toPath());
                     break;
                 }
             }

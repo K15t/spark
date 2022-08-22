@@ -1,7 +1,5 @@
 package com.k15t.spark.base.util;
 
-import org.apache.commons.io.IOUtils;
-
 import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.Collection;
@@ -125,10 +123,8 @@ public class SparkTestUtils {
     public static void testActionClassHasTemplateProps(
             Class<?> actionClass, String templatePath, String... extraProps) throws Exception {
 
-        try (InputStream templateStream =
-                     SparkTestUtils.class.getClassLoader()
-                             .getResourceAsStream(templatePath)) {
-            String template = IOUtils.toString(templateStream, "UTF-8");
+        try (InputStream templateStream = SparkTestUtils.class.getClassLoader().getResourceAsStream(templatePath)) {
+            String template = StreamUtil.toString(templateStream);
 
             Set<String> possVariables = extractPossibleVelocityKeys(actionClass, "action");
 

@@ -1,8 +1,7 @@
 package com.k15t.spark.base;
 
 import com.k15t.spark.base.util.NgTranslateMessageBundleProvider;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
+import com.k15t.spark.base.util.StreamUtil;
 import org.apache.commons.lang.StringUtils;
 
 import javax.servlet.ServletException;
@@ -15,6 +14,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -145,7 +145,8 @@ public abstract class AppServlet extends HttpServlet {
 
         if (this.messageBundleProvider != null && this.messageBundleProvider.isMessageBundle(props)) {
             response.setContentType(this.messageBundleProvider.getContentType());
-            IOUtils.write(this.messageBundleProvider.loadBundle(props), response.getOutputStream(), "UTF-8");
+            String bundle = this.messageBundleProvider.loadBundle(props);
+            response.getOutputStream().write(bundle.getBytes(StandardCharsets.UTF_8));
             return true;
         }
 
@@ -156,16 +157,16 @@ public abstract class AppServlet extends HttpServlet {
 
         String shortType = StringUtils.substringBefore(props.getContentType(), ";");
         if (VELOCITY_TYPES.contains(shortType)) {
-            String result = renderVelocity(IOUtils.toString(resource, StandardCharsets.UTF_8), props);
+            String result = renderVelocity(StreamUtil.toString(resource), props);
 
             if ("index.html".equals(props.getLocalPath())) {
                 result = prepareIndexHtml(result, props);
             }
 
-            IOUtils.write(result, response.getOutputStream(), StandardCharsets.UTF_8);
+            response.getOutputStream().write(result.getBytes(StandardCharsets.UTF_8));
 
         } else {
-            IOUtils.copy(resource, response.getOutputStream());
+            StreamUtil.copy(resource, response.getOutputStream());
         }
 
         return true;
@@ -208,7 +209,7 @@ public abstract class AppServlet extends HttpServlet {
             if (resourceDirectory.isDirectory()) {
                 File resource = new File(resourceDirectoryPath + localPath);
                 if (resource.canRead()) {
-                    fileIn = FileUtils.openInputStream(resource);
+                    fileIn = Files.newInputStream(resource.toPath());
                     break;
                 }
             }

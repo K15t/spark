@@ -1,6 +1,5 @@
 package com.k15t.spark.base.util;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -59,7 +58,7 @@ public class DocumentOutputUtil {
         try (InputStream iframeResizeContentWindowFile =
                      DocumentOutputUtil.class.getClassLoader().
                              getResourceAsStream(IFRAME_CONTENT_WINDOW_JS_PATH)) {
-            return IOUtils.toString(iframeResizeContentWindowFile, "UTF-8");
+            return StreamUtil.toString(iframeResizeContentWindowFile);
         }
     }
 
@@ -71,10 +70,8 @@ public class DocumentOutputUtil {
      * @throws NullPointerException if the resource cannot be found
      */
     private static String getSparkJs() throws IOException {
-        try (InputStream sparkJsFile =
-                     DocumentOutputUtil.class.getClassLoader().
-                             getResourceAsStream(IFRAME_SPARK_JS_PATH)) {
-            return IOUtils.toString(sparkJsFile, "UTF-8");
+        try (InputStream sparkJsFile = DocumentOutputUtil.class.getClassLoader().getResourceAsStream(IFRAME_SPARK_JS_PATH)) {
+            return StreamUtil.toString(sparkJsFile);
         }
     }
 
@@ -99,7 +96,7 @@ public class DocumentOutputUtil {
     public static String getIframeAdminContentWrapperTemplate() throws IOException {
         try (InputStream templateStream =
                      DocumentOutputUtil.class.getClassLoader().getResourceAsStream(IFRAME_CONTENT_WRAPPER_TEMPLATE_PATH)) {
-            return IOUtils.toString(templateStream, "UTF-8");
+            return StreamUtil.toString(templateStream);
         }
     }
 
