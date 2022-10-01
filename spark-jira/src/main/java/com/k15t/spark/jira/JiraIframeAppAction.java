@@ -28,7 +28,7 @@ public abstract class JiraIframeAppAction extends JiraWebActionSupport implement
      */
     protected String doExecute() {
         this.body = renderSparkIframeBody(this, ServletActionContext.getRequest(), "spark_jira_app_iframe_");
-        return INPUT;
+        return "input";
     }
 
 

@@ -2,7 +2,6 @@ package com.k15t.spark.confluence;
 
 import com.atlassian.confluence.spaces.actions.AbstractSpaceAction;
 import com.atlassian.confluence.spaces.actions.SpaceAware;
-import com.opensymphony.webwork.ServletActionContext;
 
 import java.util.List;
 
@@ -11,6 +10,16 @@ import java.util.List;
  * Class that can be extended for creating an action that opens a SPA in an iframe in the Space Tools view.
  */
 public abstract class ConfluenceIframeSpaceAppAction extends AbstractSpaceAction implements SpaceAware, ConfluenceSparkIframeAction {
+
+    // The setters for these are invoked by xwork's / struts' StaticParametersInterceptor as long as it is referenced in the action config:
+    //			<action name="test" class="some.test.TestAction" method="execute">
+    //				<interceptor-ref name="static-params"/>
+    //				<param name="SparkSpaBaseUrl">...</param>
+    //				...
+    //			</action>
+    private String sparkSpaBaseUrl;
+    private String sparkSelectedWebItemKey;
+    private String sparkRequiredWebResourceKeys;
 
     private String body;
 
@@ -21,12 +30,29 @@ public abstract class ConfluenceIframeSpaceAppAction extends AbstractSpaceAction
      * Override to add permissions checks.
      */
     public String index() {
-        this.body =
-                ConfluenceIframeSparkActionHelper.renderSparkIframeBody(this, ServletActionContext.getRequest(),
-                        "spark_space_adm_iframe_");
-
-        return INPUT;
+        if (sparkSpaBaseUrl == null) {
+            throw new IllegalStateException("\n\n"
+                    + "=============================================== Spark setup error ================================================\n"
+                    + "The configuration for action '" + this.getClass().getName() + "' in atlassian-plugin.xml is incorrect:\n"
+                    + "The action parameter 'SparkSpaBaseUrl' is not present or not injected via the 'static-params' interceptor.\n"
+                    + "Make sure to add both the parameter and the interceptor by adding this to the action definition:\n\n"
+                    + "<interceptor-ref name=\"static-params\"/>\n"
+                    + "<param name=\"SparkSpaBaseUrl\">...</param>\n"
+                    + "==================================================================================================================\n"
+            );
+        }
+        this.body = ConfluenceIframeSparkActionHelper.renderSparkIframeBody(this, "spark_space_adm_iframe_");
+        return "input";
     }
+
+
+    /**
+     * @return main body html of the iframe wrapper
+     */
+    public String getBodyAsHtml() {
+        return body;
+    }
+
 
 
     @Override
@@ -37,26 +63,40 @@ public abstract class ConfluenceIframeSpaceAppAction extends AbstractSpaceAction
 
     @Override
     public String getSpaQueryString() {
-        return ServletActionContext.getRequest().getQueryString();
+        return getCurrentRequest().getQueryString();
     }
 
 
     @Override
     public String getSpaBaseUrl() {
-        return ConfluenceIframeSparkActionHelper.defaultGetSpaBaseUrl(ServletActionContext.getContext());
+        return sparkSpaBaseUrl;
+    }
+
+
+    public void setSparkSpaBaseUrl(String sparkSpaBaseUrl) {
+        this.sparkSpaBaseUrl = sparkSpaBaseUrl;
     }
 
 
     @Override
     public String getSelectedWebItem() {
-        return ConfluenceIframeSparkActionHelper
-                .defaultGetSelectedWebItem(ServletActionContext.getRequest(), ServletActionContext.getContext());
+        return sparkSelectedWebItemKey;
+    }
+
+
+    public void setSparkSelectedWebItemKey(String sparkSelectedWebItemKey) {
+        this.sparkSelectedWebItemKey = sparkSelectedWebItemKey;
     }
 
 
     @Override
     public List<String> getRequiredResourceKeys() {
-        return ConfluenceIframeSparkActionHelper.defaultGetRequiredResourceKeys(ServletActionContext.getContext());
+        return ConfluenceIframeSparkActionHelper.splitWebResourceKeys(sparkRequiredWebResourceKeys);
+    }
+
+
+    public void setSparkRequiredWebResourceKeys(String sparkRequiredWebResourceKeys) {
+        this.sparkRequiredWebResourceKeys = sparkRequiredWebResourceKeys;
     }
 
 
@@ -69,14 +109,6 @@ public abstract class ConfluenceIframeSpaceAppAction extends AbstractSpaceAction
     @Override
     public boolean isViewPermissionRequired() {
         return true;
-    }
-
-
-    /**
-     * @return main body html of the iframe wrapper
-     */
-    public String getBodyAsHtml() {
-        return body;
     }
 
 }

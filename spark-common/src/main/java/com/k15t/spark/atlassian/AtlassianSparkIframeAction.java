@@ -1,7 +1,5 @@
 package com.k15t.spark.atlassian;
 
-import com.k15t.spark.base.Keys;
-
 import java.util.List;
 
 
@@ -38,10 +36,11 @@ public interface AtlassianSparkIframeAction {
 
 
     /**
+     * <p>
      * Returns the base url of the single page application relative to the Confluence/JIRA context path. Can be overwritten by subclasses.
-     * This default implementation evaluates the action parameter with name {@link Keys#SPARK_SELECTED_WEB_ITEM_KEY}.
-     *
-     * @return the base url of the spa app
+     * </p><p>
+     * The default implementations return the value of the action parameter {@code SparkSpaBaseUrl}, or {@code null} if not set.
+     * </p>
      */
     public String getSpaBaseUrl();
 
@@ -53,9 +52,11 @@ public interface AtlassianSparkIframeAction {
 
 
     /**
-     * Returns the complete module key of the space tools web-item to be marked as selected. Can be overwritten by subclasses.
-     * This default implementation first checks for a request parameter and then for an action parameter with name
-     * {@link Keys#SPARK_SELECTED_WEB_ITEM_KEY}. If none are present {@code null} is returned.
+     * <p>
+     * Returns the complete module key of the web-item to be marked as selected. Can be overwritten by subclasses.
+     * </p><p>
+     * The default implementations return the value of the action parameter {@code SparkSelectedWebItemKey}, or {@code null} if not set.
+     * </p>
      */
     public String getSelectedWebItem();
 
@@ -70,11 +71,8 @@ public interface AtlassianSparkIframeAction {
      * <p>
      * Returns a list of 'complete module keys' to resources that should be required into the template using #requireResource.
      * </p><p>
-     * A #requireResource instruction is added for every 'complete module key' string in the list at the end of the head element of
-     * the loaded template.
+     * The default implementations return the value of the action parameter {@code sparkRequiredWebResourceKeys}, or {@code null} if unset.
      * </p>
-     *
-     * @return a list of keys to require when loading the action template
      */
     public List<String> getRequiredResourceKeys();
 

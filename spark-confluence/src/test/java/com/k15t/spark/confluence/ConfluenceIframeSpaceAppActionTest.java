@@ -66,8 +66,7 @@ public class ConfluenceIframeSpaceAppActionTest extends ConfluenceSpaceAppAction
 
         // expect the actual spark iframe body rendering to be delegated to helper class
         PowerMockito.verifyStatic(times(1));
-        ConfluenceIframeSparkActionHelper.renderSparkIframeBody(
-                actionInstance, servletRequest, "spark_space_adm_iframe_");
+        ConfluenceIframeSparkActionHelper.renderSparkIframeBody(actionInstance, "spark_space_adm_iframe_");
 
         Assert.assertEquals(renderedVelocityToReturn, actionInstance.getBodyAsHtml());
     }
