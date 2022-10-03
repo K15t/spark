@@ -1,6 +1,7 @@
 package com.k15t.spark.confluence;
 
 import com.atlassian.confluence.core.ConfluenceActionSupport;
+import com.k15t.spark.base.util.DocumentOutputUtil;
 
 import java.util.List;
 
@@ -43,7 +44,8 @@ public abstract class ConfluenceIframeAdminAppAction extends ConfluenceActionSup
                     + "==================================================================================================================\n"
             );
         }
-        this.body = ConfluenceIframeSparkActionHelper.renderSparkIframeBody(this, "spark_admin_iframe_");
+        this.body = DocumentOutputUtil.renderSparkIframeBody(getSpaBaseUrl(), getSpaQueryString(), getIframeContextInfo(),
+                "spark_admin_iframe_");
         return "input";
     }
 

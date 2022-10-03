@@ -2,6 +2,7 @@ package com.k15t.spark.confluence;
 
 import com.atlassian.confluence.spaces.actions.AbstractSpaceAction;
 import com.atlassian.confluence.spaces.actions.SpaceAware;
+import com.k15t.spark.base.util.DocumentOutputUtil;
 
 import java.util.List;
 
@@ -41,7 +42,8 @@ public abstract class ConfluenceIframeSpaceAppAction extends AbstractSpaceAction
                     + "==================================================================================================================\n"
             );
         }
-        this.body = ConfluenceIframeSparkActionHelper.renderSparkIframeBody(this, "spark_space_adm_iframe_");
+        this.body = DocumentOutputUtil.renderSparkIframeBody(getSpaBaseUrl(), getSpaQueryString(), getIframeContextInfo(),
+                "spark_space_adm_iframe_");
         return "input";
     }
 

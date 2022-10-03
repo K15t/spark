@@ -1,0 +1,16 @@
+<div id="{{iframeId}}-wrapper" data-iframe-src="{{iframeSrc}}" data-iframe-context="{{iframeContext}}"></div>
+<script>
+    {{sparkJs}}
+
+    (function(spark) {
+        var wrapperEl = document.getElementById("{{iframeId}}-wrapper");
+
+        spark.appLoader.loadApp(wrapperEl, "{{iframeId}}", wrapperEl.getAttribute("data-iframe-src"), {width: "100%"});
+
+        var iframeEl = wrapperEl.firstElementChild;
+        if (!iframeEl.SPARK) {
+            iframeEl.SPARK = {};
+        }
+        iframeEl.SPARK.contextData = wrapperEl.getAttribute("data-iframe-context");
+    })(getSpark());
+</script>

@@ -1,4 +1,6 @@
-package com.k15t.spark.base.util;
+package com.k15t.spark.confluence;
+
+import com.k15t.spark.base.util.StreamUtil;
 
 import java.io.InputStream;
 import java.lang.reflect.Method;

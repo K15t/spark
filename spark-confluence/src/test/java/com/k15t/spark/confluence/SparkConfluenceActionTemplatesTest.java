@@ -1,6 +1,5 @@
 package com.k15t.spark.confluence;
 
-import com.k15t.spark.base.util.SparkTestUtils;
 import org.junit.Test;
 
 

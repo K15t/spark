@@ -1,7 +1,5 @@
 package com.k15t.spark.confluence;
 
-import com.atlassian.confluence.util.velocity.VelocityUtils;
-import com.k15t.spark.base.util.DocumentOutputUtil;
 import com.opensymphony.webwork.ServletActionContext;
 import com.opensymphony.xwork.ActionContext;
 import com.opensymphony.xwork.ActionInvocation;
@@ -18,13 +16,11 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.mockito.Matchers.anyString;
 import static org.powermock.api.mockito.PowerMockito.mock;
 
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({ServletActionContext.class, ActionContext.class, DocumentOutputUtil.class, VelocityUtils.class,
-        ConfluenceIframeSparkActionHelper.class})
+@PrepareForTest({ServletActionContext.class, ActionContext.class})
 public class ConfluenceSpaceAppActionTestCommon {
 
     protected static ActionContext actionContext;
@@ -39,9 +35,6 @@ public class ConfluenceSpaceAppActionTestCommon {
 
 
     public void commonSetup() throws Exception {
-
-        PowerMockito.spy(ConfluenceIframeSparkActionHelper.class);
-
         // Set up mocks so that the call ServletActionConfig.getContext().getActionInvocation().getProxy().getConfig()
         // will return this mock ActionConfig object instead of throwing NullPointerException or similar
         // Same for ServletActionContext.getRequest().getContextPath()
@@ -72,22 +65,6 @@ public class ConfluenceSpaceAppActionTestCommon {
         Mockito.when(actionConfig.getParams()).thenReturn(actionConfigParams);
 
         actionConfigParams.put("resource-path", "/spark/test-path/");
-
-        // Set up spies for the
-        PowerMockito.mockStatic(DocumentOutputUtil.class);
-
-        Mockito.when(DocumentOutputUtil.generateAdminIframeTemplateContext(anyString(), anyString(),
-                anyString(), anyString())).thenReturn(velocityContextToReturn);
-
-        Mockito.when(DocumentOutputUtil.getIframeAdminContentWrapperTemplate()).thenReturn(velocityTemplateToReturn);
-
-        // Mock up the conflunce velocity util
-        PowerMockito.mockStatic(VelocityUtils.class);
-
-        Mockito.when(VelocityUtils.getRenderedContent((CharSequence) anyString(), Mockito.anyMap())).
-                thenReturn(renderedVelocityToReturn);
-
-
     }
 
 
