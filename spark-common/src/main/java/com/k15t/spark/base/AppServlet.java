@@ -85,8 +85,8 @@ public abstract class AppServlet extends HttpServlet {
 
         applyCacheHeaders(props, response);
 
-        // when the URL is /confluence/plugins/servlet/<appPrefix>
-        // we need to redirect to /confluence/plugins/servlet/<appPrefix>/
+        // when the URL is /confluence/plugins/servlet/example-app/ui
+        // we need to redirect to /confluence/plugins/servlet/example-app/ui/
         // (note the trailing slash). Otherwise loading resources will not
         // work.
         if ("index.html".equals(props.getLocalPath())) {

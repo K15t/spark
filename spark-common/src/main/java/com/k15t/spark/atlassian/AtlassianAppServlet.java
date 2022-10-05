@@ -1,6 +1,5 @@
 package com.k15t.spark.atlassian;
 
-import com.atlassian.plugin.servlet.descriptors.BaseServletModuleDescriptor;
 import com.atlassian.sal.api.ApplicationProperties;
 import com.atlassian.sal.api.UrlMode;
 import com.atlassian.sal.api.auth.LoginUriProvider;
@@ -19,17 +18,11 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.context.ApplicationContext;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
@@ -43,8 +36,6 @@ public abstract class AtlassianAppServlet extends AppServlet {
     private final LocaleResolver localeResolver;
     private final ApplicationProperties applicationProperties;
     private final long pluginModifiedTimestamp;
-
-    private String appPrefix;
 
 
     protected AtlassianAppServlet(LoginUriProvider loginUriProvider, UserManager userManager, TemplateRenderer templateRenderer,
@@ -61,85 +52,8 @@ public abstract class AtlassianAppServlet extends AppServlet {
 
 
     @Override
-    public void init() throws ServletException {
-        super.init();
-        appPrefix = getAppPrefixFromServletConfig();
-    }
-
-
-    private String getAppPrefixFromServletConfig() {
-        ServletConfig servletConfig = getServletConfig();
-        String urlPattern = getUrlPattern(servletConfig);
-
-        return StringUtils.removeEnd(urlPattern, "*");
-    }
-
-
-    /**
-     * @return the first url pattern as configured in the servlet module in the atlassian-plugin.xml,
-     * e.g. {@code <url-pattern>/hello-world*</url-pattern>}
-     */
-    private String getUrlPattern(ServletConfig servletConfig) {
-        // This implementation is a hack, because we have to get to the ModuleDescriptor of the
-        // servlet module and we use reflection for that.
-        // (Alternatively, we could try to go through the pluginAccessor)
-
-        Field field = getDescriptorField(servletConfig.getClass());
-        if (field == null) {
-            throw new RuntimeException("Could not detect app prefix from servlet module.");
-        }
-
-        BaseServletModuleDescriptor descriptor = (BaseServletModuleDescriptor) getFieldValue(field, servletConfig);
-        if ((descriptor.getPaths() == null) || (descriptor.getPaths().size() < 1)) {
-            throw new RuntimeException("Could not detect app prefix from servlet module.");
-        }
-
-        return (String) descriptor.getPaths().get(0);
-    }
-
-
-    private Field getDescriptorField(Class<? extends ServletConfig> clazz) {
-        for (Field field : getDeclaredFields(clazz)) {
-            if (field.getType().isAssignableFrom(BaseServletModuleDescriptor.class)) {
-                return field;
-            }
-        }
-
-        return null;
-    }
-
-
-    private static List<Field> getDeclaredFields(Class clazz) {
-        if (clazz == null) {
-            return new ArrayList<>();
-        } else {
-            final List<Field> superFields = getDeclaredFields(clazz.getSuperclass());
-            superFields.addAll(0, Arrays.asList(clazz.getDeclaredFields()));
-            return superFields;
-        }
-    }
-
-
-    private static Object getFieldValue(Field field, Object object) {
-        final boolean accessible = field.isAccessible();
-        try {
-            if (!accessible) {
-                field.setAccessible(true);
-            }
-            return field.get(object);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException("Could not access '" + field + "' from '" + object + "'", e);
-        } finally {
-            if (!accessible) {
-                field.setAccessible(false);
-            }
-        }
-    }
-
-
-    @Override
     protected RequestProperties getRequestProperties(HttpServletRequest request) {
-        return new AtlassianRequestProperties(this, request, applicationProperties.getBaseUrl(UrlMode.RELATIVE_CANONICAL), appPrefix,
+        return new AtlassianRequestProperties(this, request, applicationProperties.getBaseUrl(UrlMode.RELATIVE_CANONICAL),
                 localeResolver.getLocale(request));
     }
 
