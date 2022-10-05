@@ -91,7 +91,8 @@ public abstract class AppServlet extends HttpServlet {
         // work.
         if ("index.html".equals(props.getLocalPath())) {
             if ("".equals(props.getUrlLocalPart())) {
-                response.sendRedirect(request.getRequestURI() + "/");
+                String queryString = request.getQueryString() != null ? "?" + request.getQueryString() : "";
+                response.sendRedirect(request.getRequestURI() + "/" + queryString);
                 return;
             }
         }
