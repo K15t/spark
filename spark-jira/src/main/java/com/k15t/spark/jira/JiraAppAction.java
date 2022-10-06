@@ -12,7 +12,6 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import webwork.action.ServletActionContext;
 
 import java.io.File;
 import java.io.IOException;
@@ -142,8 +141,7 @@ public class JiraAppAction extends JiraWebActionSupport {
                     + "<meta name=\"spark.app-base-url\" content=\"/plugins/servlet/hello-world/\">.");
         }
 
-        return ServletActionContext.getRequest().getContextPath() + "/" +
-                StringUtils.removeStart(baseElement.attr("content"), "/");
+        return super.insertContextPath("/" + StringUtils.removeStart(baseElement.attr("content"), "/"));
     }
 
 
