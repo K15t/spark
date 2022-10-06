@@ -1,17 +1,13 @@
 package com.k15t.spark.confluence;
 
 import com.atlassian.confluence.core.ConfluenceSystemProperties;
-import com.atlassian.confluence.plugin.descriptor.PluginAwareActionConfig;
 import com.atlassian.confluence.spaces.actions.AbstractSpaceAction;
 import com.atlassian.confluence.spaces.actions.SpaceAware;
 import com.atlassian.sal.api.message.LocaleResolver;
 import com.k15t.spark.base.Keys;
 import com.k15t.spark.base.util.DocumentOutputUtil;
-import com.opensymphony.webwork.ServletActionContext;
-import com.opensymphony.xwork.config.entities.ActionConfig;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -19,6 +15,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -41,11 +38,29 @@ public class ConfluenceSpaceAppAction extends AbstractSpaceAction implements Spa
     public static final String SPA_BASE_URL = "spark.app-base-url";
 
     private LocaleResolver localeResolver;
+    private ApplicationContext applicationContext;
 
-    private String resourcePath;
     private String title;
     private String body;
-    private String selectedSpaceToolsWebItem;
+
+    // The setters for these are invoked by xwork's / struts' StaticParametersInterceptor as long as it is referenced in the action config:
+    //			<action name="test" class="some.test.TestAction" method="execute">
+    //				<interceptor-ref name="static-params"/>
+    //				<param name="SparkResourcePath">...</param>
+    //				...
+    //			</action>
+    private String sparkResourcePath;
+    private String sparkSelectedWebItemKey;
+
+
+    public void setSparkResourcePath(String sparkResourcePath) {
+        this.sparkResourcePath = sparkResourcePath;
+    }
+
+
+    public void setSparkSelectedWebItemKey(String sparkSelectedWebItemKey) {
+        this.sparkSelectedWebItemKey = sparkSelectedWebItemKey;
+    }
 
 
     /**
@@ -55,40 +70,7 @@ public class ConfluenceSpaceAppAction extends AbstractSpaceAction implements Spa
      */
     @SuppressWarnings("unused") // references by add-ons xwork definition for Space Apps.
     public String index() {
-        ActionConfig actionConfig = ServletActionContext.getContext().getActionInvocation().getProxy().getConfig();
-        initFromActionConfig(actionConfig);
-        initFromIndexHtml(actionConfig);
-        return INPUT;
-    }
-
-
-    private void initFromActionConfig(ActionConfig actionConfig) {
-        this.resourcePath = getResourcePathAsObject(actionConfig);
-        this.selectedSpaceToolsWebItem = getSelectedSpaceToolsWebItem(actionConfig);
-    }
-
-
-    private String getResourcePathAsObject(ActionConfig actionConfig) {
-        Object resourcePathAsObject = actionConfig.getParams().get("resource-path");
-        Validate.notNull(resourcePathAsObject, "No 'resource-path' param found for package 'actionConfig.getPackageName()'.");
-        return StringUtils.removeEnd((String) resourcePathAsObject, "/");
-    }
-
-
-    private String getSelectedSpaceToolsWebItem(ActionConfig actionConfig) {
-        Object selectedSpaceToolsWebItemAsObject = actionConfig.getParams().get("selectedSpaceToolsWebItem");
-
-        if (selectedSpaceToolsWebItemAsObject instanceof String) {
-            return (String) selectedSpaceToolsWebItemAsObject;
-        } else {
-            logger.warn("No 'selectedSpaceToolsWebItem' param for " + actionConfig.getClassName());
-            return "";
-        }
-    }
-
-
-    private void initFromIndexHtml(ActionConfig actionConfig) {
-        String indexHtmlPath = resourcePath + "/index.html";
+        String indexHtmlPath = sparkResourcePath + "/index.html";
 
         try {
             InputStream indexHtml = loadIndexHtml(indexHtmlPath);
@@ -103,7 +85,7 @@ public class ConfluenceSpaceAppAction extends AbstractSpaceAction implements Spa
                 this.title = document.title();
 
                 if (!isDevMode()) {
-                    applyCacheKeysToResourceUrls(document, actionConfig);
+                    applyCacheKeysToResourceUrls(document);
                 }
 
                 this.body = prepareBody(document);
@@ -116,6 +98,8 @@ public class ConfluenceSpaceAppAction extends AbstractSpaceAction implements Spa
                     + e.getMessage()
                     + "</p><pre>" + ExceptionUtils.getStackTrace(e) + "</pre>";
         }
+
+        return "input";
     }
 
 
@@ -157,11 +141,11 @@ public class ConfluenceSpaceAppAction extends AbstractSpaceAction implements Spa
     }
 
 
-    protected void applyCacheKeysToResourceUrls(Document document, ActionConfig actionConfig) {
-        // If the actionConfig doesn't know the plugin, we cannot cache resources - bad luck.
-        if (actionConfig instanceof PluginAwareActionConfig) {
-            HttpServletRequest request = ServletActionContext.getRequest();
-            long pluginModifiedTimestamp = ((PluginAwareActionConfig) actionConfig).getPlugin().getDateLoaded().getTime();
+    protected void applyCacheKeysToResourceUrls(Document document) {
+        // If the applicationContext is not injected, we cannot cache resources - bad luck.
+        if (applicationContext != null) {
+            HttpServletRequest request = getCurrentRequest();
+            long pluginModifiedTimestamp = applicationContext.getStartupDate();
             Locale locale = localeResolver.getLocale(request);
             DocumentOutputUtil.applyCacheKeysToResourceUrls(document, pluginModifiedTimestamp, locale);
         }
@@ -203,8 +187,7 @@ public class ConfluenceSpaceAppAction extends AbstractSpaceAction implements Spa
                     + "<meta name=\"spark.app-base-url\" content=\"/plugins/servlet/hello-world/\">.");
         }
 
-        return ServletActionContext.getRequest().getContextPath() + "/" +
-                StringUtils.removeStart(baseElement.attr("content"), "/");
+        return getCurrentRequest().getContextPath() + "/" + StringUtils.removeStart(baseElement.attr("content"), "/");
     }
 
 
@@ -247,7 +230,7 @@ public class ConfluenceSpaceAppAction extends AbstractSpaceAction implements Spa
 
 
     public String getSelectedSpaceToolsWebItem() {
-        return selectedSpaceToolsWebItem;
+        return sparkSelectedWebItemKey;
     }
 
 
@@ -258,6 +241,11 @@ public class ConfluenceSpaceAppAction extends AbstractSpaceAction implements Spa
 
     public void setLocaleResolver(LocaleResolver localeResolver) {
         this.localeResolver = localeResolver;
+    }
+
+
+    public void setApplicationContext(ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
     }
 
 }
