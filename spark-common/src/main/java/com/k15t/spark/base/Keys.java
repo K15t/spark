@@ -16,9 +16,4 @@ public class Keys {
      */
     public static final String SPARK_DEV_RESOURCE_DIRECTORIES = "spark.dev.dir";
 
-    /**
-     * Param key to configure to use a specific message bundle provider for using ng-translate.
-     */
-    public static final String NG_TRANS_MSG_BUNDLE = "ng-translate-message-bundle";
-
 }

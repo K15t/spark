@@ -1,6 +1,5 @@
 package com.k15t.spark.base;
 
-import com.k15t.spark.base.util.NgTranslateMessageBundleProvider;
 import com.k15t.spark.base.util.StreamUtil;
 import org.apache.commons.lang3.StringUtils;
 
@@ -40,11 +39,9 @@ import java.util.Set;
 
 public abstract class AppServlet extends HttpServlet {
 
-    protected final Set<String> VELOCITY_TYPES = Collections.unmodifiableSet(new HashSet<String>() {{
+    protected static final Set<String> VELOCITY_TYPES = Collections.unmodifiableSet(new HashSet<String>() {{
         add("text/html");
     }});
-
-    private MessageBundleProvider messageBundleProvider;
 
     private String resourcePath;
 
@@ -59,17 +56,6 @@ public abstract class AppServlet extends HttpServlet {
         if (!"/".equals(resourcePath.substring(resourcePath.length() - 1))) {
             resourcePath = resourcePath + "/";
         }
-
-        this.messageBundleProvider = initMessageBundleProvider();
-    }
-
-
-    protected MessageBundleProvider initMessageBundleProvider() {
-        String msgBundleResourcePath = getServletConfig().getInitParameter(Keys.NG_TRANS_MSG_BUNDLE);
-        if (msgBundleResourcePath != null) {
-            return new NgTranslateMessageBundleProvider(msgBundleResourcePath);
-        }
-        return null;
     }
 
 
@@ -143,14 +129,6 @@ public abstract class AppServlet extends HttpServlet {
 
 
     protected boolean sendOutput(RequestProperties props, HttpServletResponse response) throws IOException {
-
-        if (this.messageBundleProvider != null && this.messageBundleProvider.isMessageBundle(props)) {
-            response.setContentType(this.messageBundleProvider.getContentType());
-            String bundle = this.messageBundleProvider.loadBundle(props);
-            response.getOutputStream().write(bundle.getBytes(StandardCharsets.UTF_8));
-            return true;
-        }
-
         InputStream resource = getPluginResource(props.getLocalPath());
         if (resource == null) {
             return false;
