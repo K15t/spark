@@ -123,40 +123,6 @@ describe('SPARK templates', function() {
 
     });
 
-    describe('errorDialog2', function() {
-        it('valid arguments return a result', function() {
-
-            var result = sparkTemplates.errorDialog2({
-                'title': 'test-title',
-                'className': 'test-class-name',
-                'id': 'test-error-dial-id'
-            });
-
-            expect(result).toBeDefined();
-
-        });
-
-        it('creates expected basic html structure', function() {
-
-            var resEl = $(sparkTemplates.errorDialog2({
-                'title': 'test-title',
-                'className': 'test-class-name',
-                'id': 'test-error-dial-id'
-            }));
-
-            expect(resEl.hasClass('aui-dialog2')).toBeTruthy();
-            expect(resEl.hasClass('test-class-name')).toBeTruthy();
-
-            expect(resEl.attr('id')).toEqual('test-error-dial-id');
-
-            expect(resEl.find('h2').text()).toEqual('test-title');
-
-            expect(resEl.find('button').length).toEqual(1);
-
-        });
-
-    });
-
     describe('appBootstrapContainerDialog2WithiFrame', function() {
         it('valid arguments return a result', function() {
 

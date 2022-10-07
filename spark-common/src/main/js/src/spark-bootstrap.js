@@ -40,8 +40,6 @@ var getIframeSource = function(appPath, queryString) {
 
 function AppLoader() {
 
-    var startedApps = {};
-
     var startedAppDialog;
 
     var defaultDialogOptions = {
@@ -78,7 +76,7 @@ function AppLoader() {
             src: location.protocol + '//' + location.host + appPath,
             createOptions: createOptions,
             className: css.className
-        }), createOptions.width, createOptions.height);
+        }));
 
         var closeDialogButton = $('#closeDialogButton' + elementIdSparkAppContainer, dialog.$el);
         var submitDialogButton = $('#submitDialogButton' + elementIdSparkAppContainer, dialog.$el);
@@ -116,20 +114,20 @@ function AppLoader() {
     };
 
     /**
-     * Bootstraps an Angular application.
+     * Bootstraps an application.
      *
      * @param element Dom element under which the angular application should be attached and bootstrapped
-     * @param angularAppName Name of the angular application to bootstrap
+     * @param appName Name of the application to bootstrap
      * @param appPath application path which will be used to load the necessary angular resources
      * @param createOptions Advanced configuration for setting up the the dialog. Currently supported are:
      *        width width of the dialog or iframe
      *        height height of the dialog or iframe
      */
-    this.loadApp = function(element, angularAppName, appPath, createOptions) {
+    this.loadApp = function(element, appName, appPath, createOptions) {
 
         var fullAppPath = getFullAppPath(appPath);
 
-        var elementIdSparkAppContainer = angularAppName + '-spark-app-container';
+        var elementIdSparkAppContainer = appName + '-spark-app-container';
         var appContainerAlreadyCreated = $('#' + elementIdSparkAppContainer).length > 0;
 
         if (appContainerAlreadyCreated) {
@@ -149,37 +147,13 @@ function AppLoader() {
         }], $(element).find('iframe')[0]);
     };
 
-    /**
-     * Gets the bootstrapped angular application
-     *
-     * @param angularAppName Name of the angular application
-     * @returns {*} Angular application or undefined if there is no application registered with that name
-     */
-    this.getApp = function(angularAppName) {
-        return startedApps[angularAppName];
-    };
-
 
     this.getAppDialog = function() {
         return startedAppDialog;
     };
 
 
-    var createErrorDialog = function(id) {
-        var dialog = createDialog(id, sparkTemplates.errorDialog2({
-            id: id,
-            title: 'An error happened ...',
-            className: css.className
-        }));
-
-        $('.aui-blanket').addClass('spark-loading');
-
-        return dialog;
-    };
-
-
-    var createDialog = function(id, dialogMarkup, cssClass, width, height) {
-
+    var createDialog = function(id, dialogMarkup) {
         $('body').append(dialogMarkup);
         var dialog = AJS.dialog2('#' + id);
         dialog.$appEl = dialog.$el;
