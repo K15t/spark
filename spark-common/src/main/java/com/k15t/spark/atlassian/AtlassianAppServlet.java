@@ -146,7 +146,7 @@ public abstract class AtlassianAppServlet extends AppServlet {
     /**
      * Change relative references to load CSS from the app servlet.
      */
-    private void fixLinkHrefs(Elements appWrapper) throws IOException {
+    private void fixLinkHrefs(Elements appWrapper) {
         Elements linkElements = appWrapper.select("link[href$=.css]");
 
         for (Element linkEl : linkElements) {
@@ -162,7 +162,7 @@ public abstract class AtlassianAppServlet extends AppServlet {
      * Override this method to provide parameters to the Velocity context that
      * is used to render the HTML file.
      */
-    protected Map<String, Object> getVelocityContext(HttpServletRequest request) {
+    protected Map<String, Object> getVelocityContext(HttpServletRequest ignored) {
         return Collections.emptyMap();
     }
 

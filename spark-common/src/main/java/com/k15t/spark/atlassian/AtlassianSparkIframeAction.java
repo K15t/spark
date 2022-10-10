@@ -19,7 +19,7 @@ public interface AtlassianSparkIframeAction {
      *
      * @return string that will be attached to SPARK.iframeContext variable as a JS string
      */
-    public String getIframeContextInfo();
+    String getIframeContextInfo();
 
 
     /**
@@ -32,7 +32,7 @@ public interface AtlassianSparkIframeAction {
      *
      * @return query string to use when loading the SPA in the iframe
      */
-    public String getSpaQueryString();
+    String getSpaQueryString();
 
 
     /**
@@ -42,13 +42,13 @@ public interface AtlassianSparkIframeAction {
      * The default implementations return the value of the action parameter {@code SparkSpaBaseUrl}, or {@code null} if not set.
      * </p>
      */
-    public String getSpaBaseUrl();
+    String getSpaBaseUrl();
 
 
     /**
      * @return string to be used as the title of the iframe wrapper page
      */
-    public String getTitleAsHtml();
+    String getTitleAsHtml();
 
 
     /**
@@ -58,13 +58,13 @@ public interface AtlassianSparkIframeAction {
      * The default implementations return the value of the action parameter {@code SparkSelectedWebItemKey}, or {@code null} if not set.
      * </p>
      */
-    public String getSelectedWebItem();
+    String getSelectedWebItem();
 
 
     /**
      * @return main body html of the iframe wrapper
      */
-    public String getBodyAsHtml();
+    String getBodyAsHtml();
 
 
     /**
@@ -74,6 +74,6 @@ public interface AtlassianSparkIframeAction {
      * The default implementations return the value of the action parameter {@code sparkRequiredWebResourceKeys}, or {@code null} if unset.
      * </p>
      */
-    public List<String> getRequiredResourceKeys();
+    List<String> getRequiredResourceKeys();
 
 }

@@ -10,7 +10,7 @@ import java.util.Locale;
 
 public class AtlassianRequestProperties extends RequestProperties {
 
-    private String baseUrl;
+    private final String baseUrl;
 
 
     /**

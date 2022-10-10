@@ -24,7 +24,6 @@ public class RequestProperties {
     protected String urlLocalPart;
     protected String localPath;
     protected Boolean hasCacheKey;
-    protected String contentType;
     protected Boolean shouldCache;
     protected Locale locale;
     protected URI uri;

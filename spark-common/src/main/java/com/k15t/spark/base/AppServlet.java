@@ -21,11 +21,11 @@ import java.util.Set;
 
 /**
  * <p>Serves resources.</p>
- * <p>As an example, this servlet is supposed to be listening to the URL pattern <code>https://example.com/servlet/**</code>.
+ * <p>As an example, this servlet is supposed to be listening to the URL pattern {@code https://example.com/servlet/**}.
  * Inside the classpath, there is a directory <code>/webapp</code> that contains a web application. The file
- * <code>/scripts/test.js</code> from this directory can be accessed using the following two URLs:
- * <code>https://example.com/servlet/scripts/test.js</code> and
- * <code>https://example.com/servlet/_/&lt;deploymentNumber&gt;/&lt;localeKey&gt;/scripts/test.js</code>.</p>
+ * {@code /scripts/test.js} from this directory can be accessed using the following two URLs:
+ * {@code https://example.com/servlet/scripts/test.js} and
+ * {@code https://example.com/servlet/_/&lt;deploymentNumber&gt;/&lt;localeKey&gt;/scripts/test.js}.</p>
  * <p>The following terminology will be used in this code:</p>
  * <ul>
  * <li><code>resourcePath</code> is <code>&quot;/webapp/&quot;</code></li>
@@ -60,9 +60,7 @@ public abstract class AppServlet extends HttpServlet {
 
 
     @Override
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException,
-            ServletException {
-
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         RequestProperties props = getRequestProperties(request);
 
         if (!verifyPermissions(props, response)) {
