@@ -1,6 +1,6 @@
 package com.k15t.spark.base;
 
-import com.k15t.spark.base.util.StreamUtil;
+import com.k15t.spark.base.util.IOStreamUtil;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.servlet.ServletException;
@@ -134,7 +134,7 @@ public abstract class AppServlet extends HttpServlet {
 
         String shortType = StringUtils.substringBefore(props.getContentType(), ";");
         if (VELOCITY_TYPES.contains(shortType)) {
-            String result = renderVelocity(StreamUtil.toString(resource), props);
+            String result = renderVelocity(IOStreamUtil.toString(resource), props);
 
             if ("index.html".equals(props.getLocalPath())) {
                 result = prepareIndexHtml(result, props);
@@ -143,7 +143,7 @@ public abstract class AppServlet extends HttpServlet {
             response.getOutputStream().write(result.getBytes(StandardCharsets.UTF_8));
 
         } else {
-            StreamUtil.copy(resource, response.getOutputStream());
+            IOStreamUtil.copy(resource, response.getOutputStream());
         }
 
         return true;

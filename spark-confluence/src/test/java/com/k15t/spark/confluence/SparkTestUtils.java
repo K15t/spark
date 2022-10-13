@@ -1,6 +1,6 @@
 package com.k15t.spark.confluence;
 
-import com.k15t.spark.base.util.StreamUtil;
+import com.k15t.spark.base.util.IOStreamUtil;
 
 import java.io.InputStream;
 import java.lang.reflect.Method;
@@ -126,7 +126,7 @@ public class SparkTestUtils {
             Class<?> actionClass, String templatePath, String... extraProps) throws Exception {
 
         try (InputStream templateStream = SparkTestUtils.class.getClassLoader().getResourceAsStream(templatePath)) {
-            String template = StreamUtil.toString(templateStream);
+            String template = IOStreamUtil.toString(templateStream);
 
             Set<String> possVariables = extractPossibleVelocityKeys(actionClass, "action");
 

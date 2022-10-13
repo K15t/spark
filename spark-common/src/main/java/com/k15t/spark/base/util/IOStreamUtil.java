@@ -9,7 +9,10 @@ import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 
 
-public class StreamUtil {
+/**
+ * Simple replacement for (the required subset of) commons-io {@code IOUtils}.
+ */
+public class IOStreamUtil {
 
     public static void copy(InputStream input, OutputStream output) throws IOException {
         byte[] buffer = new byte[4096];

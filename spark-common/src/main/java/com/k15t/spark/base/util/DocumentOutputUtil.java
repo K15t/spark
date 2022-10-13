@@ -27,19 +27,19 @@ public class DocumentOutputUtil {
         ClassLoader classLoader = DocumentOutputUtil.class.getClassLoader();
 
         try (InputStream in = classLoader.getResourceAsStream("com/k15t/spark/spark-dist.contentWindow.js")) {
-            ESCAPED_IFRAME_CONTENT_WINDOW_JS = escapeJavascriptForScriptTag(StreamUtil.toString(in));
+            ESCAPED_IFRAME_CONTENT_WINDOW_JS = escapeJavascriptForScriptTag(IOStreamUtil.toString(in));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
 
         try (InputStream in = classLoader.getResourceAsStream("com/k15t/spark/content_iframe_wrapper.html")) {
-            IFRAME_CONTENT_WRAPPER_TEMPLATE = StreamUtil.toString(in);
+            IFRAME_CONTENT_WRAPPER_TEMPLATE = IOStreamUtil.toString(in);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
 
         try (InputStream in = classLoader.getResourceAsStream("com/k15t/spark/spark-dist.js")) {
-            ESCAPED_SPARK_JS = escapeJavascriptForScriptTag(StreamUtil.toString(in));
+            ESCAPED_SPARK_JS = escapeJavascriptForScriptTag(IOStreamUtil.toString(in));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
