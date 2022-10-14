@@ -10,12 +10,9 @@ import com.atlassian.templaterenderer.TemplateRenderer;
 import com.k15t.spark.base.AppServlet;
 import com.k15t.spark.base.RequestProperties;
 import com.k15t.spark.base.util.DocumentOutputUtil;
-import com.k15t.spark.base.util.UrlUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import org.springframework.context.ApplicationContext;
 
 import javax.servlet.http.HttpServletRequest;
@@ -72,40 +69,13 @@ public abstract class AtlassianAppServlet extends AppServlet {
 
     @Override
     protected String prepareIndexHtml(String indexHtml, RequestProperties props) throws IOException {
-
-        Document document = Jsoup.parse(indexHtml, props.getUri().toString());
-
         if (!isDevMode()) {
+            Document document = Jsoup.parse(indexHtml, props.getUri().toString());
             applyCacheKeysToResourceUrls(document, props);
+            document.outputSettings().prettyPrint(false);
+            indexHtml = document.outerHtml();
         }
 
-        if (isAdminApp(document)) {
-            // The Confluence decorators ignore anything inside the <head> of a velocity template. Thus we
-            // move it into the body.
-            Elements scriptsAndStyles = document.head().children().not("title,meta,content").remove();
-            document.body().prepend(scriptsAndStyles.outerHtml());
-
-        } else if (isDialogApp(document) && props.isRequestedWithAjax()) {
-            // * The Confluence decorators ignore anything inside the <head> of a velocity template. Thus we
-            //   move it into the body
-            // * For page apps, we need to wrap all body content with a div to load that into the modal dialog.
-
-            Elements appWrapper = document.body().prepend("<div id=\"spark-dialog-app-wrapper\"/>").select("#spark-dialog-app-wrapper");
-
-            Elements headContent = document.head().children().not("title,meta[name=decorator],content").remove();
-            Elements allBodyContent = document.body().children().not("#spark-dialog-app-wrapper").remove();
-
-            appWrapper.append(allBodyContent.outerHtml())
-                    .append(headContent.outerHtml());
-
-            fixScriptSrcs(appWrapper);
-            fixLinkHrefs(appWrapper);
-        }
-
-        // don't let jsoup generate unwanted blanks. Otherwise decorator settings
-        // like <content tag="selectedWebItem">...</content> don;t work.
-        document.outputSettings().prettyPrint(false);
-        indexHtml = document.outerHtml();
         return indexHtml;
     }
 
@@ -113,48 +83,6 @@ public abstract class AtlassianAppServlet extends AppServlet {
     protected void applyCacheKeysToResourceUrls(Document document, RequestProperties props) {
         Locale locale = localeResolver.getLocale(props.getRequest());
         DocumentOutputUtil.applyCacheKeysToResourceUrls(document, pluginModifiedTimestamp, locale);
-    }
-
-
-    private boolean isAdminApp(Document document) {
-        return (document.select("meta[name=decorator][content=atl.admin]").size() != 0);
-    }
-
-
-    private boolean isDialogApp(Document document) {
-        return (document.select("meta[name=decorator][content=spark.dialog-app]").size() != 0);
-    }
-
-
-    /**
-     * Change relative references to load js from the app servlet.
-     */
-    private void fixScriptSrcs(Elements appWrapper) {
-        Elements scriptElements = appWrapper.select("script[src$=.js]");
-
-        for (Element scriptEl : scriptElements) {
-            String baseUrl = scriptEl.baseUri();
-            String resourceUrl = scriptEl.attr("src");
-            String url = UrlUtil.rebaseUrl(baseUrl, resourceUrl);
-            appWrapper.append("<meta name=\"script\" content=\"" + url + "\"/>");
-        }
-
-        scriptElements.remove();
-    }
-
-
-    /**
-     * Change relative references to load CSS from the app servlet.
-     */
-    private void fixLinkHrefs(Elements appWrapper) {
-        Elements linkElements = appWrapper.select("link[href$=.css]");
-
-        for (Element linkEl : linkElements) {
-            String baseUrl = linkEl.baseUri();
-            String resourceUrl = linkEl.attr("href");
-            String url = UrlUtil.rebaseUrl(baseUrl, resourceUrl);
-            linkEl.attr("href", url);
-        }
     }
 
 
