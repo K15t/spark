@@ -45,7 +45,7 @@ public abstract class AtlassianIframeContentServlet extends AtlassianAppServlet 
         String iframeContentWindowJs = DocumentOutputUtil.getIframeContentWindowJs();
         document.head().prepend("\n<script>\n" + iframeContentWindowJs + "\n</script>\n");
 
-        customizeIframeContentDocument(document);
+        customizeIframeContentDocument(document, props);
 
         document.outputSettings().prettyPrint(false);
         indexHtml = document.outerHtml();
@@ -56,7 +56,7 @@ public abstract class AtlassianIframeContentServlet extends AtlassianAppServlet 
     /**
      * Callback that can be implemented by sub classes in order to modify the iframe content document, for example to inject information.
      */
-    protected void customizeIframeContentDocument(Document document) {
+    protected void customizeIframeContentDocument(Document document, RequestProperties props) {
         // Noop by default
     }
 

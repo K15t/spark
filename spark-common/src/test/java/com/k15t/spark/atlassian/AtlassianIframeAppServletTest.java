@@ -125,7 +125,7 @@ public class AtlassianIframeAppServletTest {
 
 
                     @Override
-                    protected void customizeIframeContentDocument(Document document) {
+                    protected void customizeIframeContentDocument(Document document, RequestProperties props) {
                         document.body().append("<p id='extra-footer'>Custom test footer</p>");
                     }
                 });
