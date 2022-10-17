@@ -82,31 +82,6 @@ const appBootstrapContainerDialog2WithiFrame = function(options) {
 
 
 /**
- * Template to create an error dialog 2
- *
- * @param id
- * @param title
- * @param className
- */
-const errorDialog2 = function(options) {
-    const { id, title, className } = escapeHtmlMany(options, ['id', 'title', 'className']);
-    return `
-        <section role="dialog" id="${id}" class="${className} aui-layer aui-dialog2 aui-dialog2-medium" aria-hidden="true">
-            <header class="aui-dialog2-header">
-                <h2 class="aui-dialog2-header-main">${title}</h2>
-            </header>
-            <div class="aui-dialog2-content spark-app-content"></div>
-            <footer class="aui-dialog2-footer">
-                <div class="aui-dialog2-footer-actions">
-                    <button id="closeErrorDialogButton" class="aui-button aui-button-link">Close</button>
-                </div>
-            </footer>
-        </section>
-    `;
-};
-
-
-/**
  * @param id Id of the HTML element
  * @param src URL of the content to load to the iframe
  * @param createOptions extra options to customize the dialog
@@ -194,7 +169,6 @@ const bootstrappedIframe = function(options) {
 export default {
     appBootstrapContaineriFrame,
     appBootstrapContainerDialog2WithiFrame,
-    errorDialog2,
     appFullscreenContainerIframe,
     inlineDialogTrigger,
     inlineDialogAppContainer,

@@ -1,6 +1,6 @@
 package com.k15t.spark.base;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -24,7 +24,6 @@ public class RequestProperties {
     protected String urlLocalPart;
     protected String localPath;
     protected Boolean hasCacheKey;
-    protected String contentType;
     protected Boolean shouldCache;
     protected Locale locale;
     protected URI uri;

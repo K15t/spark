@@ -1,6 +1,6 @@
-package com.k15t.spark.base.util;
+package com.k15t.spark.confluence;
 
-import org.apache.commons.io.IOUtils;
+import com.k15t.spark.base.util.IOStreamUtil;
 
 import java.io.InputStream;
 import java.lang.reflect.Method;
@@ -125,10 +125,8 @@ public class SparkTestUtils {
     public static void testActionClassHasTemplateProps(
             Class<?> actionClass, String templatePath, String... extraProps) throws Exception {
 
-        try (InputStream templateStream =
-                     SparkTestUtils.class.getClassLoader()
-                             .getResourceAsStream(templatePath)) {
-            String template = IOUtils.toString(templateStream, "UTF-8");
+        try (InputStream templateStream = SparkTestUtils.class.getClassLoader().getResourceAsStream(templatePath)) {
+            String template = IOStreamUtil.toString(templateStream);
 
             Set<String> possVariables = extractPossibleVelocityKeys(actionClass, "action");
 

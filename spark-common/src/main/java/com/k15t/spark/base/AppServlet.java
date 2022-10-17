@@ -1,9 +1,7 @@
 package com.k15t.spark.base;
 
-import com.k15t.spark.base.util.NgTranslateMessageBundleProvider;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
+import com.k15t.spark.base.util.IOStreamUtil;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -15,6 +13,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -22,11 +21,11 @@ import java.util.Set;
 
 /**
  * <p>Serves resources.</p>
- * <p>As an example, this servlet is supposed to be listening to the URL pattern <code>https://example.com/servlet/**</code>.
+ * <p>As an example, this servlet is supposed to be listening to the URL pattern {@code https://example.com/servlet/**}.
  * Inside the classpath, there is a directory <code>/webapp</code> that contains a web application. The file
- * <code>/scripts/test.js</code> from this directory can be accessed using the following two URLs:
- * <code>https://example.com/servlet/scripts/test.js</code> and
- * <code>https://example.com/servlet/_/&lt;deploymentNumber&gt;/&lt;localeKey&gt;/scripts/test.js</code>.</p>
+ * {@code /scripts/test.js} from this directory can be accessed using the following two URLs:
+ * {@code https://example.com/servlet/scripts/test.js} and
+ * {@code https://example.com/servlet/_/&lt;deploymentNumber&gt;/&lt;localeKey&gt;/scripts/test.js}.</p>
  * <p>The following terminology will be used in this code:</p>
  * <ul>
  * <li><code>resourcePath</code> is <code>&quot;/webapp/&quot;</code></li>
@@ -40,11 +39,9 @@ import java.util.Set;
 
 public abstract class AppServlet extends HttpServlet {
 
-    protected final Set<String> VELOCITY_TYPES = Collections.unmodifiableSet(new HashSet<String>() {{
+    protected static final Set<String> VELOCITY_TYPES = Collections.unmodifiableSet(new HashSet<String>() {{
         add("text/html");
     }});
-
-    private MessageBundleProvider messageBundleProvider;
 
     private String resourcePath;
 
@@ -59,24 +56,11 @@ public abstract class AppServlet extends HttpServlet {
         if (!"/".equals(resourcePath.substring(resourcePath.length() - 1))) {
             resourcePath = resourcePath + "/";
         }
-
-        this.messageBundleProvider = initMessageBundleProvider();
-    }
-
-
-    protected MessageBundleProvider initMessageBundleProvider() {
-        String msgBundleResourcePath = getServletConfig().getInitParameter(Keys.NG_TRANS_MSG_BUNDLE);
-        if (msgBundleResourcePath != null) {
-            return new NgTranslateMessageBundleProvider(msgBundleResourcePath);
-        }
-        return null;
     }
 
 
     @Override
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException,
-            ServletException {
-
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         RequestProperties props = getRequestProperties(request);
 
         if (!verifyPermissions(props, response)) {
@@ -85,13 +69,14 @@ public abstract class AppServlet extends HttpServlet {
 
         applyCacheHeaders(props, response);
 
-        // when the URL is /confluence/plugins/servlet/<appPrefix>
-        // we need to redirect to /confluence/plugins/servlet/<appPrefix>/
+        // when the URL is /confluence/plugins/servlet/example-app/ui
+        // we need to redirect to /confluence/plugins/servlet/example-app/ui/
         // (note the trailing slash). Otherwise loading resources will not
         // work.
         if ("index.html".equals(props.getLocalPath())) {
             if ("".equals(props.getUrlLocalPart())) {
-                response.sendRedirect(request.getRequestURI() + "/");
+                String queryString = request.getQueryString() != null ? "?" + request.getQueryString() : "";
+                response.sendRedirect(request.getRequestURI() + "/" + queryString);
                 return;
             }
         }
@@ -142,13 +127,6 @@ public abstract class AppServlet extends HttpServlet {
 
 
     protected boolean sendOutput(RequestProperties props, HttpServletResponse response) throws IOException {
-
-        if (this.messageBundleProvider != null && this.messageBundleProvider.isMessageBundle(props)) {
-            response.setContentType(this.messageBundleProvider.getContentType());
-            IOUtils.write(this.messageBundleProvider.loadBundle(props), response.getOutputStream(), "UTF-8");
-            return true;
-        }
-
         InputStream resource = getPluginResource(props.getLocalPath());
         if (resource == null) {
             return false;
@@ -156,16 +134,16 @@ public abstract class AppServlet extends HttpServlet {
 
         String shortType = StringUtils.substringBefore(props.getContentType(), ";");
         if (VELOCITY_TYPES.contains(shortType)) {
-            String result = renderVelocity(IOUtils.toString(resource, StandardCharsets.UTF_8), props);
+            String result = renderVelocity(IOStreamUtil.toString(resource), props);
 
             if ("index.html".equals(props.getLocalPath())) {
                 result = prepareIndexHtml(result, props);
             }
 
-            IOUtils.write(result, response.getOutputStream(), StandardCharsets.UTF_8);
+            response.getOutputStream().write(result.getBytes(StandardCharsets.UTF_8));
 
         } else {
-            IOUtils.copy(resource, response.getOutputStream());
+            IOStreamUtil.copy(resource, response.getOutputStream());
         }
 
         return true;
@@ -208,7 +186,7 @@ public abstract class AppServlet extends HttpServlet {
             if (resourceDirectory.isDirectory()) {
                 File resource = new File(resourceDirectoryPath + localPath);
                 if (resource.canRead()) {
-                    fileIn = FileUtils.openInputStream(resource);
+                    fileIn = Files.newInputStream(resource.toPath());
                     break;
                 }
             }
