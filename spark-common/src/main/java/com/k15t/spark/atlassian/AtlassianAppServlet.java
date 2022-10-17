@@ -6,7 +6,6 @@ import com.atlassian.sal.api.auth.LoginUriProvider;
 import com.atlassian.sal.api.message.LocaleResolver;
 import com.atlassian.sal.api.user.UserManager;
 import com.atlassian.sal.api.user.UserProfile;
-import com.atlassian.templaterenderer.TemplateRenderer;
 import com.k15t.spark.base.AppServlet;
 import com.k15t.spark.base.RequestProperties;
 import com.k15t.spark.base.util.DocumentOutputUtil;
@@ -19,9 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Objects;
 
 
@@ -29,18 +26,16 @@ public abstract class AtlassianAppServlet extends AppServlet {
 
     private final LoginUriProvider loginUriProvider;
     private final UserManager userManager;
-    private final TemplateRenderer templateRenderer;
     private final LocaleResolver localeResolver;
     private final ApplicationProperties applicationProperties;
     private final long pluginModifiedTimestamp;
 
 
-    protected AtlassianAppServlet(LoginUriProvider loginUriProvider, UserManager userManager, TemplateRenderer templateRenderer,
-            LocaleResolver localeResolver, ApplicationProperties applicationProperties, ApplicationContext applicationContext) {
+    protected AtlassianAppServlet(LoginUriProvider loginUriProvider, UserManager userManager, LocaleResolver localeResolver,
+            ApplicationProperties applicationProperties, ApplicationContext applicationContext) {
 
         this.loginUriProvider = Objects.requireNonNull(loginUriProvider);
         this.userManager = Objects.requireNonNull(userManager);
-        this.templateRenderer = Objects.requireNonNull(templateRenderer);
         this.localeResolver = Objects.requireNonNull(localeResolver);
         this.applicationProperties = Objects.requireNonNull(applicationProperties);
 
@@ -61,14 +56,7 @@ public abstract class AtlassianAppServlet extends AppServlet {
 
 
     @Override
-    protected String renderVelocity(String template, RequestProperties props) throws IOException {
-        Map<String, Object> context = getVelocityContext(props.getRequest());
-        return templateRenderer.renderFragment(template, context);
-    }
-
-
-    @Override
-    protected String prepareIndexHtml(String indexHtml, RequestProperties props) throws IOException {
+    protected String customizeHtml(String indexHtml, RequestProperties props) throws IOException {
         if (!isDevMode()) {
             Document document = Jsoup.parse(indexHtml, props.getUri().toString());
             applyCacheKeysToResourceUrls(document, props);
@@ -83,15 +71,6 @@ public abstract class AtlassianAppServlet extends AppServlet {
     protected void applyCacheKeysToResourceUrls(Document document, RequestProperties props) {
         Locale locale = localeResolver.getLocale(props.getRequest());
         DocumentOutputUtil.applyCacheKeysToResourceUrls(document, pluginModifiedTimestamp, locale);
-    }
-
-
-    /**
-     * Override this method to provide parameters to the Velocity context that
-     * is used to render the HTML file.
-     */
-    protected Map<String, Object> getVelocityContext(HttpServletRequest ignored) {
-        return Collections.emptyMap();
     }
 
 

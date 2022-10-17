@@ -4,7 +4,6 @@ import com.atlassian.sal.api.ApplicationProperties;
 import com.atlassian.sal.api.auth.LoginUriProvider;
 import com.atlassian.sal.api.message.LocaleResolver;
 import com.atlassian.sal.api.user.UserManager;
-import com.atlassian.templaterenderer.TemplateRenderer;
 import com.k15t.spark.base.RequestProperties;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -36,7 +35,6 @@ public class AtlassianIframeAppServletTest {
     private static ServletConfig servletConfig;
     private LoginUriProvider loginUriProvider;
     private UserManager userManager;
-    private TemplateRenderer templateRenderer;
     private LocaleResolver localeResolver;
     private ApplicationProperties applicationProperties;
     private ApplicationContext applicationContext;
@@ -56,14 +54,13 @@ public class AtlassianIframeAppServletTest {
 
         loginUriProvider = Mockito.mock(LoginUriProvider.class);
         userManager = Mockito.mock(UserManager.class);
-        templateRenderer = Mockito.mock(TemplateRenderer.class);
         localeResolver = Mockito.mock(LocaleResolver.class);
         applicationProperties = Mockito.mock(ApplicationProperties.class);
         applicationContext = Mockito.mock(ApplicationContext.class);
         Mockito.when(applicationContext.getStartupDate()).thenReturn(new Date().getTime() - 1000);
 
         testInstance = Mockito.spy(
-                new AtlassianIframeContentServlet(loginUriProvider, userManager, templateRenderer, localeResolver, applicationProperties,
+                new AtlassianIframeContentServlet(loginUriProvider, userManager, localeResolver, applicationProperties,
                         applicationContext) {
                     @Override
                     protected boolean isDevMode() {
@@ -78,7 +75,7 @@ public class AtlassianIframeAppServletTest {
     @Test
     public void servesIframeContent() throws Exception {
 
-        String prepIndexRes = testInstance.prepareIndexHtml(
+        String prepIndexRes = testInstance.customizeHtml(
                 "<html><head><script src='test.js'/></head><body><p id='body-el'>test</p></body></html>",
                 props);
 
@@ -116,7 +113,7 @@ public class AtlassianIframeAppServletTest {
         String testHtml = "<html><head><script src='test.js'/></head><body><p id='body-el'>test</p></body></html>";
 
         AtlassianIframeContentServlet customizingInstance = Mockito.spy(
-                new AtlassianIframeContentServlet(loginUriProvider, userManager, templateRenderer, localeResolver, applicationProperties,
+                new AtlassianIframeContentServlet(loginUriProvider, userManager, localeResolver, applicationProperties,
                         applicationContext) {
                     @Override
                     protected boolean isDevMode() {
@@ -131,7 +128,7 @@ public class AtlassianIframeAppServletTest {
                 });
         Mockito.when(customizingInstance.getServletConfig()).thenReturn(servletConfig);
 
-        String resStr = customizingInstance.prepareIndexHtml(testHtml, props);
+        String resStr = customizingInstance.customizeHtml(testHtml, props);
 
         Document resDoc = Jsoup.parse(resStr);
 
@@ -153,7 +150,7 @@ public class AtlassianIframeAppServletTest {
     public void requestHandlingIsStoppedOnPermissionProblem() throws Exception {
 
         AtlassianIframeContentServlet permissionVerifyingInstance =
-                new AtlassianIframeContentServlet(loginUriProvider, userManager, templateRenderer, localeResolver, applicationProperties,
+                new AtlassianIframeContentServlet(loginUriProvider, userManager, localeResolver, applicationProperties,
                         applicationContext) {
                     @Override
                     protected boolean isDevMode() {

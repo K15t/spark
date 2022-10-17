@@ -14,9 +14,6 @@ import java.io.InputStream;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 
 
 /**
@@ -38,10 +35,6 @@ import java.util.Set;
  */
 
 public abstract class AppServlet extends HttpServlet {
-
-    protected static final Set<String> VELOCITY_TYPES = Collections.unmodifiableSet(new HashSet<String>() {{
-        add("text/html");
-    }});
 
     private String resourcePath;
 
@@ -132,16 +125,10 @@ public abstract class AppServlet extends HttpServlet {
             return false;
         }
 
-        String shortType = StringUtils.substringBefore(props.getContentType(), ";");
-        if (VELOCITY_TYPES.contains(shortType)) {
-            String result = renderVelocity(IOStreamUtil.toString(resource), props);
-
-            if ("index.html".equals(props.getLocalPath())) {
-                result = prepareIndexHtml(result, props);
-            }
-
+        if (isHtmlResource(props) && shouldCustomizeHtml(props)) {
+            String result = IOStreamUtil.toString(resource);
+            result = customizeHtml(result, props);
             response.getOutputStream().write(result.getBytes(StandardCharsets.UTF_8));
-
         } else {
             IOStreamUtil.copy(resource, response.getOutputStream());
         }
@@ -196,10 +183,18 @@ public abstract class AppServlet extends HttpServlet {
     }
 
 
-    abstract protected String renderVelocity(String template, RequestProperties props) throws IOException;
+    protected boolean isHtmlResource(RequestProperties props) {
+        String shortType = StringUtils.substringBefore(props.getContentType(), ";");
+        return "text/html".equals(shortType);
+    }
 
 
-    abstract protected String prepareIndexHtml(String indexHtml, RequestProperties props) throws IOException;
+    protected boolean shouldCustomizeHtml(RequestProperties props) {
+        return "index.html".equals(props.getLocalPath());
+    }
+
+
+    abstract protected String customizeHtml(String indexHtml, RequestProperties props) throws IOException;
 
 
     protected String getPluginResourcePath(String localPath) {

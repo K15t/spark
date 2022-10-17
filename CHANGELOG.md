@@ -9,6 +9,12 @@
 * Removed classes that were intended for non-iframe SPAs.
 * The dropped `MessageBundleProvider` feature should be replaced by bundling i18n data in the JS bundle at build time.
 * Removed deprecated APIs
+* Renamed `AppServlet.prepareIndexHtml` to `customizeHtml` because it can now be invoked for HTML files with other names.
+    * `AppServlet.shouldCustomizeHtml` can be overridden in subclasses to control invocation of `customizeHtml`.
+    * For backwards compatibility the default implementation of `shouldCustomizeHtml` returns true when requesting `index.html`. 
+* Removed `AppServlet.renderVelocity` and `AtlassianAppServlet.getVelocityContext`
+    * If still required subclasses can implement it themselves by overriding `customizeHtml` (and `shouldCustomizeHtml`) accordingly.
+    * Also removed dependency on `atlassian-template-renderer-api` maven dependency.
 
 ## Xwork action declaration changes
 Spark 2.x used Xwork specific APIs to retrieve the default action configuration (SPA base url, web resources, selected web item). For compatibility with Confluence 8 this approach could no longer be used.
