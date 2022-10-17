@@ -106,10 +106,21 @@ public class DocumentOutputUtil {
      * </p>
      *
      * @return JS file to be included in SPARK iframe content document as a string
-     * @throws NullPointerException if the resource cannot be found
      */
     public static String getIframeContentWindowJs() {
         return ESCAPED_IFRAME_CONTENT_WINDOW_JS;
+    }
+
+
+    /**
+     * <p>
+     * Returns JS code that should be injected into the Confluence main frame. Contains parts of the iframeResizer JS library.
+     * </p><p>
+     * The returned JS is escaped for insertion into an HTML {@code <script>} tag.
+     * </p>
+     */
+    public static String getSparkJs() {
+        return ESCAPED_SPARK_JS;
     }
 
 
