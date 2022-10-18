@@ -1,7 +1,7 @@
 import bootstrap from './spark-bootstrap';
 
 export default {
-    __version: '{{spark_gulp_build_version}}',
+    __version: '{{spark_build_version}}',
     appLoader: bootstrap.appLoader,
     iframeAppLoader: bootstrap.iframeAppLoader
 };
