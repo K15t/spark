@@ -737,7 +737,7 @@ describe('iframeAppLoader', function() {
         });
 
         it('calls inlineDialogAppContainer with correct parameters', function() {
-
+            this.testControl.contextPath = '/test/context';
             var expSrc = location.protocol + '//' + location.host +
                 '/test/context/test/app/path/';
 
