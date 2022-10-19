@@ -128,12 +128,12 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>yarn-test</id>
+                        <id>karma-tests</id>
                         <goals>
-                            <goal>yarn</goal>
+                            <goal>karma</goal>
                         </goals>
                         <configuration>
-                            <arguments>run test</arguments>
+                            <karmaConfPath>karma_conf.js</karmaConfPath>
                         </configuration>
                     </execution>
                 </executions>
