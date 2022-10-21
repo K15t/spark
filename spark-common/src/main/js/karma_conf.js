@@ -30,6 +30,6 @@ module.exports = (config) => {
         },
         browsers: ['ChromeHeadless'],
         singleRun: true,
-        webpack: webpackConfig,
+        webpack: webpackConfig
     });
 };
