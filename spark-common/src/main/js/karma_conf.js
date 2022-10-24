@@ -2,15 +2,23 @@ const webpackConf = require('./webpack.config.js');
 
 // take a webpack config matching the real build config
 // and adapt it to be suitable for test runs
-webpackConfig = Object.assign({}, webpackConf[0]);
+webpackConfig = webpackConf({distDir: '../../../target/classes/com/k15t/spark', buildVersion:'DEV-SNAPSHOT'});
 delete webpackConfig['output'];
 delete webpackConfig['entry'];
-webpackConfig.devtool = 'inline-source-map';
+webpackConfig.mode = 'production'; // set to 'development' for test debugging
 
-module.exports = function(config) {
+process.env.CHROME_BIN = require('puppeteer').executablePath()
+
+module.exports = (config) => {
     config.set({
-        basePath: '',
-        frameworks: ['jasmine'],
+        plugins: [
+            'karma-jasmine',
+            'karma-webpack',
+            'karma-spec-reporter',
+            'karma-chrome-launcher',
+            'karma-sourcemap-loader'
+        ],
+        frameworks: ['jasmine', 'webpack'],
         reporters: ['spec'],
         files: [
             'node_modules/jquery/dist/jquery.js',
@@ -20,11 +28,8 @@ module.exports = function(config) {
         preprocessors: {
             'test/specs/*.js': ['webpack', 'sourcemap']
         },
-        browsers: [/*'Chrome'*/ 'PhantomJS'],
+        browsers: ['ChromeHeadless'],
         singleRun: true,
-        webpack: webpackConfig,
-        webpackMiddleware: {
-            stats: 'errors-only'
-        }
+        webpack: webpackConfig
     });
 };

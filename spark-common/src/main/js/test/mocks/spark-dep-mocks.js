@@ -31,7 +31,7 @@ var SPARK = { 'mockupOldVersion': true };
         throw "AJS.toInit should not be needed";
     };
 
-    testController.contextPath = "test/context/path";
+    testController.contextPath = "/test/context/path";
     AJS.contextPath = function() {
         return testController.contextPath;
     };
