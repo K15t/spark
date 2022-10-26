@@ -82,8 +82,8 @@
             <!-- These versions (or a later one) must be provided by both the Confluence and Jira compile targets (see properties) -->
             <dependency>
                 <groupId>javax.servlet</groupId>
-                <artifactId>servlet-api</artifactId>
-                <version>2.3</version>
+                <artifactId>javax.servlet-api</artifactId>
+                <version>3.1.0</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
