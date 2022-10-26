@@ -6,7 +6,7 @@
     <parent>
         <artifactId>spark</artifactId>
         <groupId>com.k15t.spark</groupId>
-        <version>3.0.0-SNAPSHOT</version>
+        <version>3.0.0</version>
     </parent>
 
     <artifactId>spark-jira</artifactId>
