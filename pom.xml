@@ -57,7 +57,9 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.javadoc.skip>true</maven.javadoc.skip>
-        <powermock.version>1.6.6</powermock.version>
+        <confluence.version>6.0.1</confluence.version>
+        <jira.version>7.0.0</jira.version>
+        <jsoup.version>1.13.1</jsoup.version>
     </properties>
 
     <dependencyManagement>
@@ -77,6 +79,7 @@
             </dependency>
 
             <!-- Scope: Provided -->
+            <!-- These versions (or a later one) must be provided by both the Confluence and Jira compile targets (see properties) -->
             <dependency>
                 <groupId>javax.servlet</groupId>
                 <artifactId>servlet-api</artifactId>

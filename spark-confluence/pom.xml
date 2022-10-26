@@ -21,6 +21,8 @@
         <dependency>
             <groupId>com.atlassian.confluence</groupId>
             <artifactId>confluence</artifactId>
+            <version>${confluence.version}</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
@@ -39,21 +41,6 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
-    <dependencyManagement>
-        <dependencies>
-
-            <!-- Confluence-provided dependencies. -->
-            <dependency>
-                <groupId>com.k15t.scroll.dependencies</groupId>
-                <artifactId>confluence-dep-6-0</artifactId>
-                <version>5</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-
-        </dependencies>
-    </dependencyManagement>
 
     <profiles>
         <profile>
