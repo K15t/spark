@@ -1,1 +1,1 @@
-/* test mockup of spark-dist.js */
+/*<!-- test mockup of spark-dist.js -->*/

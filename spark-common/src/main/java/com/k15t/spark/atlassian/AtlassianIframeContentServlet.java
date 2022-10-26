@@ -4,7 +4,6 @@ import com.atlassian.sal.api.ApplicationProperties;
 import com.atlassian.sal.api.auth.LoginUriProvider;
 import com.atlassian.sal.api.message.LocaleResolver;
 import com.atlassian.sal.api.user.UserManager;
-import com.atlassian.templaterenderer.TemplateRenderer;
 import com.k15t.spark.base.RequestProperties;
 import com.k15t.spark.base.util.DocumentOutputUtil;
 import org.jsoup.Jsoup;
@@ -21,12 +20,10 @@ import java.io.IOException;
  */
 public abstract class AtlassianIframeContentServlet extends AtlassianAppServlet {
 
-    protected AtlassianIframeContentServlet(LoginUriProvider loginUriProvider,
-            UserManager userManager, TemplateRenderer templateRenderer,
-            LocaleResolver localeResolver, ApplicationProperties applicationProperties,
-            ApplicationContext applicationContext) {
+    protected AtlassianIframeContentServlet(LoginUriProvider loginUriProvider, UserManager userManager, LocaleResolver localeResolver,
+            ApplicationProperties applicationProperties, ApplicationContext applicationContext) {
 
-        super(loginUriProvider, userManager, templateRenderer, localeResolver, applicationProperties, applicationContext);
+        super(loginUriProvider, userManager, localeResolver, applicationProperties, applicationContext);
     }
 
     // AtlassianAppServlet handles some heavy lifting required for living in the plugin servlet environment
@@ -34,7 +31,7 @@ public abstract class AtlassianIframeContentServlet extends AtlassianAppServlet 
 
 
     @Override
-    protected String prepareIndexHtml(String indexHtml, RequestProperties props) throws IOException {
+    protected String customizeHtml(String indexHtml, RequestProperties props) throws IOException {
         Document document = Jsoup.parse(indexHtml, props.getUri().toString());
 
         if (!isDevMode()) {
@@ -45,7 +42,7 @@ public abstract class AtlassianIframeContentServlet extends AtlassianAppServlet 
         String iframeContentWindowJs = DocumentOutputUtil.getIframeContentWindowJs();
         document.head().prepend("\n<script>\n" + iframeContentWindowJs + "\n</script>\n");
 
-        customizeIframeContentDocument(document);
+        customizeIframeContentDocument(document, props);
 
         document.outputSettings().prettyPrint(false);
         indexHtml = document.outerHtml();
@@ -56,7 +53,7 @@ public abstract class AtlassianIframeContentServlet extends AtlassianAppServlet 
     /**
      * Callback that can be implemented by sub classes in order to modify the iframe content document, for example to inject information.
      */
-    protected void customizeIframeContentDocument(Document document) {
+    protected void customizeIframeContentDocument(Document document, RequestProperties props) {
         // Noop by default
     }
 

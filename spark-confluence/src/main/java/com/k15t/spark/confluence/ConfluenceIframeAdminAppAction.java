@@ -1,12 +1,22 @@
 package com.k15t.spark.confluence;
 
 import com.atlassian.confluence.core.ConfluenceActionSupport;
-import com.opensymphony.webwork.ServletActionContext;
+import com.k15t.spark.base.util.DocumentOutputUtil;
 
 import java.util.List;
 
 
 public abstract class ConfluenceIframeAdminAppAction extends ConfluenceActionSupport implements ConfluenceSparkIframeAction {
+
+    // The setters for these are invoked by xwork's / struts' StaticParametersInterceptor as long as it is referenced in the action config:
+    //			<action name="test" class="some.test.TestAction" method="execute">
+    //				<interceptor-ref name="static-params"/>
+    //				<param name="SparkSpaBaseUrl">...</param>
+    //				...
+    //			</action>
+    private String sparkSpaBaseUrl;
+    private String sparkSelectedWebItemKey;
+    private String sparkRequiredWebResourceKeys;
 
     private String body;
 
@@ -23,11 +33,26 @@ public abstract class ConfluenceIframeAdminAppAction extends ConfluenceActionSup
      * Override to add permissions checks.
      */
     public String index() {
+        if (sparkSpaBaseUrl == null) {
+            throw new IllegalStateException("\n\n"
+                    + "=============================================== Spark setup error ================================================\n"
+                    + "The configuration for action '" + this.getClass().getName() + "' in atlassian-plugin.xml is incorrect:\n"
+                    + "The action parameter 'SparkSpaBaseUrl' is not present or not injected via the 'static-params' interceptor.\n"
+                    + "Make sure to add both the parameter and the interceptor by adding this to the action definition:\n\n"
+                    + "<interceptor-ref name=\"static-params\"/>\n"
+                    + "<param name=\"SparkSpaBaseUrl\">...</param>\n"
+                    + "==================================================================================================================\n"
+            );
+        }
+        this.body = DocumentOutputUtil.renderSparkIframeBody(getSpaBaseUrl(), getSpaQueryString(), getIframeContextInfo(),
+                "spark_admin_iframe_");
+        return "input";
+    }
 
-        this.body = ConfluenceIframeSparkActionHelper.renderSparkIframeBody(this,
-                ServletActionContext.getRequest(), "spark_admin_iframe_");
 
-        return INPUT;
+    @Override
+    public String getBodyAsHtml() {
+        return body;
     }
 
 
@@ -39,32 +64,40 @@ public abstract class ConfluenceIframeAdminAppAction extends ConfluenceActionSup
 
     @Override
     public String getSpaQueryString() {
-        return ServletActionContext.getRequest().getQueryString();
+        return getCurrentRequest().getQueryString();
     }
 
 
     @Override
     public String getSpaBaseUrl() {
-        return ConfluenceIframeSparkActionHelper.defaultGetSpaBaseUrl(ServletActionContext.getContext());
+        return sparkSpaBaseUrl;
+    }
+
+
+    public void setSparkSpaBaseUrl(String sparkSpaBaseUrl) {
+        this.sparkSpaBaseUrl = sparkSpaBaseUrl;
     }
 
 
     @Override
     public String getSelectedWebItem() {
-        return ConfluenceIframeSparkActionHelper.defaultGetSelectedWebItem(
-                ServletActionContext.getRequest(), ServletActionContext.getContext());
+        return sparkSelectedWebItemKey;
+    }
+
+
+    public void setSparkSelectedWebItemKey(String sparkSelectedWebItemKey) {
+        this.sparkSelectedWebItemKey = sparkSelectedWebItemKey;
     }
 
 
     @Override
     public List<String> getRequiredResourceKeys() {
-        return ConfluenceIframeSparkActionHelper.defaultGetRequiredResourceKeys(ServletActionContext.getContext());
+        return ConfluenceIframeSparkActionHelper.splitWebResourceKeys(sparkRequiredWebResourceKeys);
     }
 
 
-    @Override
-    public String getBodyAsHtml() {
-        return body;
+    public void setSparkRequiredWebResourceKeys(String sparkRequiredWebResourceKeys) {
+        this.sparkRequiredWebResourceKeys = sparkRequiredWebResourceKeys;
     }
 
 }

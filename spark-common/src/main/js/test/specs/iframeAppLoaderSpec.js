@@ -111,7 +111,7 @@ describe('iframeAppLoader', function() {
 
             expect(this.iframeTemplate).toHaveBeenCalledWith({
                 'id': 'test-app-name-spark-app-container',
-                'createOptions': { 'addChrome': false },
+                'createOptions': { 'addChrome': false, 'addChromeCloseHandlers': false },
                 'className': jasmine.any(String),
                 'src': expSrc
             });
@@ -314,7 +314,8 @@ describe('iframeAppLoader', function() {
                     expect(this.iframeTemplate).toHaveBeenCalledWith({
                         'id': 'test-spark-app-container',
                         'createOptions': {
-                            'addChrome': true
+                            'addChrome': true,
+                            'addChromeCloseHandlers': false
                         },
                         'className': jasmine.any(String),
                         'src': jasmine.any(String)
@@ -736,7 +737,7 @@ describe('iframeAppLoader', function() {
         });
 
         it('calls inlineDialogAppContainer with correct parameters', function() {
-
+            this.testControl.contextPath = '/test/context';
             var expSrc = location.protocol + '//' + location.host +
                 '/test/context/test/app/path/';
 

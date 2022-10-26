@@ -1,68 +1,67 @@
 const path = require('path');
-const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 
-let distDir = path.resolve(process.env.DIST_DIR || 'target/gen');
-let version = process.env.PROJ_VERSION || 'dev-version';
+module.exports = (env) => {
+    const version = env.buildVersion || 'DEV-SNAPSHOT';
+    const distDir = path.resolve(env.distDir);
 
-let baseConfig = {
-    module: {
-        rules: [
-            {
-                include: /\.js$/,
-                use: [{ loader: 'babel-loader', options: { presets: ['es2015', 'stage-2'] } }]
-                // simple-xdm needs stage-2 (Object spread operator)
-            },
-            {
-                include: /\.css$/,
-                loader: 'style-loader!css-loader'
-            },
-            {
-                include: /\.scss$/,
-                loader: 'style-loader!css-loader!sass-loader'
-            },
-            {
-                include: /\.(js|css)$/,
-                use: [{
-                    loader: 'string-replace-loader', options: {
-                        search: '{{spark_gulp_build_version}}',
-                        replace: version
-                    }
-                }]
-            },
-            {
-                // Do not override global jQuery iFrameResizer fn, as some other plugins rely on it
-                include: /\/node_modules\/iframe-resizer\/js\/iframeResizer\.js/,
-                loader: [{
-                    loader: 'string-replace-loader', options: {
-                        search: 'window.jQuery',
-                        replace: 'false'
-                    }
-                }]
-            }
-        ]
-    },
-    plugins: [
-        new UglifyJSPlugin()
-    ]
-};
-
-module.exports = [
-    Object.assign({}, baseConfig, {
-        entry: './src/global.js',
+    return {
+        mode: "production",
+        stats: 'errors-only',
+        entry: {
+            'spark-dist': './src/global.js',
+            'spark-dist.contentWindow': './src_contentwin/spark-contentwindow.js',
+        },
         output: {
-            filename: 'spark-dist.js',
-            path: distDir
+            filename: '[name].js',
+            path: path.join(distDir, '/'),
         },
         externals: {
-            jquery: "window.require('jquery')",
-            ajs: "window.require('ajs')"
+            jquery: "(window.AJS && window.AJS.$) || window.require('jquery')",
+            ajs: "window.AJS || window.require('ajs')"
+        },
+        module: {
+            rules: [
+                {
+                    test: /\.js$/,
+                    use: [{ loader: 'babel-loader', options: { presets: ['@babel/preset-env'] } }]
+                },
+                {
+                    test: /\.scss$/,
+                    use: [
+                        {
+                            loader: 'style-loader'
+                        },
+                        {
+                            loader: 'css-loader',
+                            options: {
+                                modules: 'global'
+                            }
+                        },
+                        {
+                            loader: 'sass-loader'
+                        }
+                    ]
+                },
+                {
+                    test: /\.(js|css)$/,
+                    use: [{
+                        loader: 'string-replace-loader', options: {
+                            search: '{{spark_build_version}}',
+                            replace: version
+                        }
+                    }]
+                },
+                {
+                    // Do not override global jQuery iFrameResizer fn, as some other plugins rely on it
+                    test: /\/node_modules\/iframe-resizer\/js\/iframeResizer\.js/,
+                    use: [{
+                        loader: 'string-replace-loader', options: {
+                            search: 'window.jQuery',
+                            replace: 'false'
+                        }
+                    }]
+                }
+            ]
         }
-    }),
-    Object.assign({}, baseConfig, {
-        entry: './src_contentwin/spark-contentwindow.js',
-        output: {
-            filename: 'spark-dist.contentWindow.js',
-            path: distDir
-        }
-    })
-];
+    }
+};

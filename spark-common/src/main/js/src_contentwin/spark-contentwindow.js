@@ -6,7 +6,7 @@ window.SPARK = window.SPARK || {};
 
     // windowEl.frameElement would be null if domains are not same but
     // same domain is prereq for SPARK usage
-    var parentSpark = windowEl.frameElement.SPARK;
+    var parentSpark = windowEl.frameElement.SPARK || {};
 
     var getContextData = function() {
         return parentSpark.contextData;
