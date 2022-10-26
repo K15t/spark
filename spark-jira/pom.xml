@@ -26,10 +26,6 @@
         </dependency>
     </dependencies>
 
-    <properties>
-        <jira.version>7.0.0</jira.version>
-    </properties>
-
     <profiles>
         <profile>
             <id>vulnerability-scan</id>
