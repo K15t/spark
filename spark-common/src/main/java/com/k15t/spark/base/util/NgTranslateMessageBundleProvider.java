@@ -2,11 +2,11 @@ package com.k15t.spark.base.util;
 
 import com.k15t.spark.base.MessageBundleProvider;
 import com.k15t.spark.base.RequestProperties;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.node.ObjectNode;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Iterator;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
@@ -55,13 +55,19 @@ public class NgTranslateMessageBundleProvider implements MessageBundleProvider {
             logger.debug("Use local {} to load bundle from {}", Locale.getDefault(), msgBundleResourcePath);
             rb = ResourceBundle.getBundle(msgBundleResourcePath);
         }
-        ObjectMapper mapper = new ObjectMapper();
-        ObjectNode i18Properties = mapper.createObjectNode();
-        for (String key : rb.keySet()) {
-            i18Properties.put(key, convertValue(rb.getString(key)));
-        }
 
-        return i18Properties.toString();
+        StringBuilder json = new StringBuilder("{");
+        for (Iterator<String> iterator = rb.keySet().iterator(); iterator.hasNext(); ) {
+            String key = iterator.next();
+            String value = convertValue(rb.getString(key));
+            json.append('"').append(escapeJson(key)).append("\":\"").append(escapeJson(value)).append('"');
+            if (iterator.hasNext()) {
+                json.append(',');
+            }
+        }
+        json.append("}");
+
+        return json.toString();
     }
 
 
@@ -76,6 +82,44 @@ public class NgTranslateMessageBundleProvider implements MessageBundleProvider {
      */
     protected String convertValue(String value) {
         return value.replaceAll("\\{(\\d)\\}", "{{_$1}}").replaceAll("''", "'");
+    }
+
+
+    /**
+     * See https://www.ietf.org/rfc/rfc4627.txt section '2.5. Strings'
+     * <pre>
+     * All Unicode characters may be placed within the
+     * quotation marks except for the characters that must be escaped:
+     * quotation mark, reverse solidus, and the control characters (U+0000
+     * through U+001F).
+     * </pre>
+     */
+    static String escapeJson(String input) {
+        if (input == null || input.isEmpty()) {
+            return "";
+        }
+
+        StringBuilder result = new StringBuilder(input.length());
+
+        for (int i = 0; i < input.length(); i += 1) {
+            char c = input.charAt(i);
+
+            if (c == '\\') {
+                result.append("\\\\");
+            } else if (c == '\"') {
+                result.append("\\\"");
+            } else if (c == '\n') {
+                result.append("\\n");
+            } else if (c <= 0x1F) {
+                String hex = Integer.toHexString(c);
+                result.append("\\u");
+                result.append(StringUtils.leftPad(hex, 4, '0'));
+            } else {
+                result.append(c);
+            }
+        }
+
+        return result.toString();
     }
 
 }
