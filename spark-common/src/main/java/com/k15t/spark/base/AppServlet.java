@@ -3,7 +3,7 @@ package com.k15t.spark.base;
 import com.k15t.spark.base.util.NgTranslateMessageBundleProvider;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
