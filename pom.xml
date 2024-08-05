@@ -6,7 +6,7 @@
 
     <groupId>com.k15t.spark</groupId>
     <artifactId>spark</artifactId>
-    <version>3.0.1-SNAPSHOT</version>
+    <version>3.1.1-SNAPSHOT</version>
 
     <name>SPARK</name>
 
