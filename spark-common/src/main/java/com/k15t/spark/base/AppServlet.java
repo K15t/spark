@@ -1,9 +1,7 @@
 package com.k15t.spark.base;
 
 import com.k15t.spark.base.util.NgTranslateMessageBundleProvider;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -14,6 +12,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -126,7 +125,8 @@ abstract public class AppServlet extends HttpServlet {
 
         if (this.messageBundleProvider != null && this.messageBundleProvider.isMessageBundle(props)) {
             response.setContentType(this.messageBundleProvider.getContentType());
-            IOUtils.write(this.messageBundleProvider.loadBundle(props), response.getOutputStream(), "UTF-8");
+            String bundleData = this.messageBundleProvider.loadBundle(props);
+            response.getOutputStream().write(bundleData.getBytes(StandardCharsets.UTF_8));
             return true;
         }
 
@@ -135,18 +135,21 @@ abstract public class AppServlet extends HttpServlet {
             return false;
         }
 
-        String shortType = StringUtils.substringBefore(props.getContentType(), ";");
-        if (VELOCITY_TYPES.contains(shortType)) {
-            String result = renderVelocity(IOUtils.toString(resource, StandardCharsets.UTF_8), props);
+        try (resource) {
+            String shortType = StringUtils.substringBefore(props.getContentType(), ";");
+            if (VELOCITY_TYPES.contains(shortType)) {
+                String template = new String(resource.readAllBytes(), StandardCharsets.UTF_8);
+                String result = renderVelocity(template, props);
 
-            if ("index.html".equals(props.getLocalPath())) {
-                result = prepareIndexHtml(result, props);
+                if ("index.html".equals(props.getLocalPath())) {
+                    result = prepareIndexHtml(result, props);
+                }
+
+                response.getOutputStream().write(result.getBytes(StandardCharsets.UTF_8));
+
+            } else {
+                resource.transferTo(response.getOutputStream());
             }
-
-            IOUtils.write(result, response.getOutputStream(), StandardCharsets.UTF_8);
-
-        } else {
-            IOUtils.copy(resource, response.getOutputStream());
         }
 
         return true;
@@ -187,7 +190,7 @@ abstract public class AppServlet extends HttpServlet {
             if (resourceDirectory.isDirectory()) {
                 File resource = new File(resourceDirectoryPath + localPath);
                 if (resource.canRead()) {
-                    fileIn = FileUtils.openInputStream(resource);
+                    fileIn = Files.newInputStream(resource.toPath());
                     break;
                 }
             }

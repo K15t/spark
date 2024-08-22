@@ -8,11 +8,10 @@ import com.atlassian.sal.api.message.LocaleResolver;
 import com.atlassian.sal.api.user.UserManager;
 import com.atlassian.sal.api.user.UserProfile;
 import com.atlassian.templaterenderer.TemplateRenderer;
-import com.google.common.base.Preconditions;
 import com.k15t.spark.base.AppServlet;
 import com.k15t.spark.base.RequestProperties;
 import com.k15t.spark.base.util.DocumentOutputUtil;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -33,6 +32,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 
 public abstract class AtlassianAppServlet extends AppServlet {
@@ -50,13 +50,13 @@ public abstract class AtlassianAppServlet extends AppServlet {
     protected AtlassianAppServlet(LoginUriProvider loginUriProvider, UserManager userManager, TemplateRenderer templateRenderer,
             LocaleResolver localeResolver, ApplicationProperties applicationProperties, ApplicationContext applicationContext) {
 
-        this.loginUriProvider = Preconditions.checkNotNull(loginUriProvider);
-        this.userManager = Preconditions.checkNotNull(userManager);
-        this.templateRenderer = Preconditions.checkNotNull(templateRenderer);
-        this.localeResolver = Preconditions.checkNotNull(localeResolver);
-        this.applicationProperties = Preconditions.checkNotNull(applicationProperties);
+        this.loginUriProvider = Objects.requireNonNull(loginUriProvider);
+        this.userManager = Objects.requireNonNull(userManager);
+        this.templateRenderer = Objects.requireNonNull(templateRenderer);
+        this.localeResolver = Objects.requireNonNull(localeResolver);
+        this.applicationProperties = Objects.requireNonNull(applicationProperties);
 
-        this.pluginModifiedTimestamp = Preconditions.checkNotNull(applicationContext).getStartupDate();
+        this.pluginModifiedTimestamp = Objects.requireNonNull(applicationContext).getStartupDate();
     }
 
 

@@ -6,9 +6,8 @@ import com.atlassian.confluence.spaces.actions.SpaceAware;
 import com.atlassian.sal.api.message.LocaleResolver;
 import com.k15t.spark.base.Keys;
 import com.k15t.spark.base.util.DocumentOutputUtil;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -22,6 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.util.Locale;
 
 
@@ -131,7 +131,7 @@ public class ConfluenceSpaceAppAction extends AbstractSpaceAction implements Spa
             if (resourceDirectory.isDirectory()) {
                 File resource = new File(resourceDirectoryPath + localPath);
                 if (resource.canRead()) {
-                    fileIn = FileUtils.openInputStream(resource);
+                    fileIn = Files.newInputStream(resource.toPath());
                     break;
                 }
             }

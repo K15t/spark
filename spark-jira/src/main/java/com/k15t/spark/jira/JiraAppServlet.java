@@ -7,7 +7,7 @@ import com.atlassian.sal.api.user.UserManager;
 import com.atlassian.templaterenderer.TemplateRenderer;
 import com.k15t.spark.atlassian.AtlassianAppServlet;
 import org.springframework.context.ApplicationContext;
-import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang3.BooleanUtils;
 
 
 public class JiraAppServlet extends AtlassianAppServlet {
