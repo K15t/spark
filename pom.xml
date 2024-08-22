@@ -127,6 +127,7 @@
                     <version>2.5</version>
                     <configuration>
                         <tagNameFormat>@{project.version}</tagNameFormat>
+                        <autoVersionSubmodules>true</autoVersionSubmodules>
                     </configuration>
                 </plugin>
                 <plugin>
