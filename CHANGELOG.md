@@ -1,3 +1,9 @@
+# Spark 4.0.0
+* Java 11 compile target
+
+# Spark 3.1.0
+* Introduced support for dark mode, by running `SPARK.initializeTheming()` in the parent window.
+
 # Spark 3.0.0
 
 ## Main changes
