@@ -46,7 +46,7 @@ public abstract class AtlassianAppServlet extends AppServlet {
     @Override
     protected RequestProperties getRequestProperties(HttpServletRequest request) {
         return new AtlassianRequestProperties(this, request, applicationProperties.getBaseUrl(UrlMode.RELATIVE_CANONICAL),
-                localeResolver.getLocale(request));
+                localeResolver.getLocale());
     }
 
 
@@ -68,8 +68,8 @@ public abstract class AtlassianAppServlet extends AppServlet {
     }
 
 
-    protected void applyCacheKeysToResourceUrls(Document document, RequestProperties props) {
-        Locale locale = localeResolver.getLocale(props.getRequest());
+    protected void applyCacheKeysToResourceUrls(Document document, RequestProperties ignored) {
+        Locale locale = localeResolver.getLocale();
         DocumentOutputUtil.applyCacheKeysToResourceUrls(document, pluginModifiedTimestamp, locale);
     }
 
@@ -90,13 +90,13 @@ public abstract class AtlassianAppServlet extends AppServlet {
     }
 
 
-    protected boolean isAnonymous(RequestProperties props) {
-        return userManager.getRemoteUser(props.getRequest()) == null;
+    protected boolean isAnonymous(RequestProperties ignored) {
+        return userManager.getRemoteUser() == null;
     }
 
 
-    protected boolean hasPermissions(RequestProperties props) {
-        UserProfile user = userManager.getRemoteUser(props.getRequest());
+    protected boolean hasPermissions(RequestProperties ignored) {
+        UserProfile user = userManager.getRemoteUser();
         return (user != null && userManager.isSystemAdmin(user.getUserKey()));
     }
 
