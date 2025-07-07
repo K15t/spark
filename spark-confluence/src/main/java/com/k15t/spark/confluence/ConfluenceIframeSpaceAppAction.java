@@ -65,7 +65,7 @@ public abstract class ConfluenceIframeSpaceAppAction extends AbstractSpaceAction
 
     @Override
     public String getSpaQueryString() {
-        return getCurrentRequest().getQueryString();
+        return ConfluenceIframeSparkActionHelper.getQueryString(this);
     }
 
 

@@ -88,6 +88,12 @@
                 <scope>provided</scope>
             </dependency>
             <dependency>
+                <groupId>jakarta.servlet</groupId>
+                <artifactId>jakarta.servlet-api</artifactId>
+                <version>6.0.0</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
                 <version>3.9</version>
@@ -152,8 +158,12 @@
                     <version>2.7</version>
                 </plugin>
                 <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>2.19.1</version>
+                    <version>3.5.3</version>
+                    <configuration>
+                        <argLine>--add-opens java.base/java.lang=ALL-UNNAMED</argLine>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.owasp</groupId>
@@ -178,5 +188,15 @@
         </pluginManagement>
 
     </build>
+
+    <profiles>
+        <profile>
+            <id>platform-8</id>
+            <properties>
+                <confluence.version>10.0.1</confluence.version>
+                <jira.version>11.0.0-m0015</jira.version>
+            </properties>
+        </profile>
+    </profiles>
 
 </project>
