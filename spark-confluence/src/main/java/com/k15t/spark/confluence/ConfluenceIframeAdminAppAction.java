@@ -10,7 +10,7 @@ public abstract class ConfluenceIframeAdminAppAction extends ConfluenceActionSup
 
     // The setters for these are invoked by xwork's / struts' StaticParametersInterceptor as long as it is referenced in the action config:
     //			<action name="test" class="some.test.TestAction" method="execute">
-    //				<interceptor-ref name="static-params"/>
+    //				<interceptor-ref name="staticParams"/>
     //				<param name="SparkSpaBaseUrl">...</param>
     //				...
     //			</action>
@@ -37,9 +37,9 @@ public abstract class ConfluenceIframeAdminAppAction extends ConfluenceActionSup
             throw new IllegalStateException("\n\n"
                     + "=============================================== Spark setup error ================================================\n"
                     + "The configuration for action '" + this.getClass().getName() + "' in atlassian-plugin.xml is incorrect:\n"
-                    + "The action parameter 'SparkSpaBaseUrl' is not present or not injected via the 'static-params' interceptor.\n"
+                    + "The action parameter 'SparkSpaBaseUrl' is not present or not injected via the 'staticParams' interceptor.\n"
                     + "Make sure to add both the parameter and the interceptor by adding this to the action definition:\n\n"
-                    + "<interceptor-ref name=\"static-params\"/>\n"
+                    + "<interceptor-ref name=\"staticParams\"/>\n"
                     + "<param name=\"SparkSpaBaseUrl\">...</param>\n"
                     + "==================================================================================================================\n"
             );
