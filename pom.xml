@@ -20,13 +20,13 @@
 
     <organization>
         <name>K15t Software GmbH</name>
-        <url>http://www.k15t.com/</url>
+        <url>https://www.k15t.com/</url>
     </organization>
 
     <licenses>
         <license>
             <name>MIT License</name>
-            <url>http://www.opensource.org/licenses/mit-license.php</url>
+            <url>https://opensource.org/license/mit</url>
             <distribution>repo</distribution>
         </license>
     </licenses>
