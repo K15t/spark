@@ -6,6 +6,7 @@
 * Added compatibility for platform 8 versions of host products and Jakarta Servlet APIs, while still compiling against the older versions in general.
     * This enables Spark to run on multiple platform versions, such as Confluence versions 8-10.
     * Spark servlets must therefore implement the Jakarta Servlet API (instead of Javax).
+    * The new `spark-javax-servlet-compat` module provides a compatibility class for running Jakarta-enabled servlets on older platform versions that require Javax servlets. See docs in [JakartaWrapperServlet.java](spark-javax-compat-servlet/src/main/java/com/k15t/spark/javax/compatibility/JakartaWrapperServlet.java) for more information.
 
 # Spark 3.1.0
 * Introduced support for dark mode, by running `SPARK.initializeTheming()` in the parent window.

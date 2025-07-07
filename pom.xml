@@ -16,6 +16,7 @@
         <module>spark-common</module>
         <module>spark-confluence</module>
         <module>spark-jira</module>
+        <module>spark-javax-compat-servlet</module>
     </modules>
 
     <organization>
@@ -77,6 +78,13 @@
                 <artifactId>mockito-core</artifactId>
                 <version>1.10.19</version>
                 <scope>test</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>io.atlassian.util.adapter</groupId>
+                <artifactId>jakarta-adapters</artifactId>
+                <version>0.2.5</version>
+                <scope>compile</scope>
             </dependency>
 
             <!-- Scope: Provided -->
