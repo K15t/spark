@@ -95,4 +95,16 @@ public class JakartaWrapperServlet extends javax.servlet.http.HttpServlet {
         }
     }
 
+
+    @Override
+    public void destroy() {
+        delegate.destroy();
+    }
+
+
+    @Override
+    public String getServletInfo() {
+        return delegate.getServletInfo();
+    }
+
 }
