@@ -6,7 +6,7 @@
 
     <groupId>com.k15t.spark</groupId>
     <artifactId>spark</artifactId>
-    <version>3.1.1-SNAPSHOT</version>
+    <version>4.0.0-SNAPSHOT</version>
 
     <name>SPARK</name>
 
@@ -16,17 +16,18 @@
         <module>spark-common</module>
         <module>spark-confluence</module>
         <module>spark-jira</module>
+        <module>spark-javax-compat-servlet</module>
     </modules>
 
     <organization>
         <name>K15t Software GmbH</name>
-        <url>http://www.k15t.com/</url>
+        <url>https://www.k15t.com/</url>
     </organization>
 
     <licenses>
         <license>
             <name>MIT License</name>
-            <url>http://www.opensource.org/licenses/mit-license.php</url>
+            <url>https://opensource.org/license/mit</url>
             <distribution>repo</distribution>
         </license>
     </licenses>
@@ -55,10 +56,11 @@
     </distributionManagement>
 
     <properties>
+        <java.version>11</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.javadoc.skip>true</maven.javadoc.skip>
-        <confluence.version>6.0.1</confluence.version>
-        <jira.version>7.0.0</jira.version>
+        <confluence.version>8.0.0</confluence.version>
+        <jira.version>8.13.0</jira.version>
         <jsoup.version>1.15.3</jsoup.version>
     </properties>
 
@@ -78,30 +80,43 @@
                 <scope>test</scope>
             </dependency>
 
+            <dependency>
+                <groupId>io.atlassian.util.adapter</groupId>
+                <artifactId>jakarta-adapters</artifactId>
+                <version>0.2.5</version>
+                <scope>compile</scope>
+            </dependency>
+
             <!-- Scope: Provided -->
             <!-- These versions (or a later one) must be provided by both the Confluence and Jira compile targets (see properties) -->
             <dependency>
                 <groupId>javax.servlet</groupId>
                 <artifactId>javax.servlet-api</artifactId>
-                <version>3.1.0</version>
+                <version>4.0.0</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>jakarta.servlet</groupId>
+                <artifactId>jakarta.servlet-api</artifactId>
+                <version>6.0.0</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
-                <version>3.3.2</version>
+                <version>3.9</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.atlassian.sal</groupId>
                 <artifactId>sal-api</artifactId>
-                <version>3.0.3</version>
+                <version>5.0.2</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-context</artifactId>
-                <version>4.1.6.RELEASE</version>
+                <version>5.3.21</version>
                 <scope>provided</scope>
             </dependency>
         </dependencies>
@@ -110,12 +125,13 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.1</version>
+                <version>3.13.0</version>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                    <encoding>${project.build.sourceEncoding}</encoding>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                    <release>${java.version}</release>
                 </configuration>
             </plugin>
             <plugin>
@@ -150,8 +166,12 @@
                     <version>2.7</version>
                 </plugin>
                 <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>2.19.1</version>
+                    <version>3.5.3</version>
+                    <configuration>
+                        <argLine>--add-opens java.base/java.lang=ALL-UNNAMED</argLine>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.owasp</groupId>
@@ -176,5 +196,15 @@
         </pluginManagement>
 
     </build>
+
+    <profiles>
+        <profile>
+            <id>platform-8</id>
+            <properties>
+                <confluence.version>10.0.1</confluence.version>
+                <jira.version>11.0.0-m0015</jira.version>
+            </properties>
+        </profile>
+    </profiles>
 
 </project>
