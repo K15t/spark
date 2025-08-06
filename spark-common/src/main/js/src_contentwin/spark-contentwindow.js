@@ -11,16 +11,19 @@ window.SPARK = window.SPARK || {};
      */
     function copyThemeTokens() {
         // copy style tags into our app iframe if not already present
-        if (document.querySelector('style[data-theme]:not([data-custom-theme])')) {
+        if (document.querySelector('style[data-theme]:not([data-custom-theme]),link[data-theme]')) {
             return;
         }
 
         // look for data-theme style tags on parent document and copy those in
-
         if (parentWindow && parentWindow.document) {
-            // copy theming CSS from outer window
-            parentWindow.document.querySelectorAll('style[data-theme]:not([data-custom-theme])')
-                .forEach((themeStyle) => {
+            var inlineThemeTags = [...parentWindow.document.querySelectorAll('style[data-theme]:not([data-custom-theme])')];
+            var inlineThemeTokens = inlineThemeTags
+                .filter(tag => tag.textContent.trim().length > 0);
+
+            if (inlineThemeTokens.length && inlineThemeTokens.length === inlineThemeTags.length) {
+                // copy theming CSS from outer window
+                inlineThemeTokens.forEach((themeStyle) => {
                     var theme = themeStyle.dataset.theme;
 
                     var iframeThemeStyle = document.createElement('style');
@@ -29,8 +32,26 @@ window.SPARK = window.SPARK || {};
 
                     document.head.appendChild(iframeThemeStyle);
                 })
+            } else {
+                var contextPathTag = parentWindow.document.querySelector('meta[name="ajs-context-path"]');
+                if (contextPathTag) {
+                    var contextPath = contextPathTag.content || '';
+
+                    var stylesheet = document.createElement('link');
+                    stylesheet.rel = 'stylesheet';
+                    stylesheet.href = contextPath
+                        + '/s/_/_/download/resources'
+                        + '/com.atlassian.auiplugin:split_aui.page.design-tokens-base-themes-css'
+                        + '/aui.page.design-tokens-base-themes-css.css';
+                    stylesheet.dataset.theme = 'all';
+
+                    document.head.appendChild(stylesheet);
+                }
+
+            }
         }
     }
+
 
     /*
      * Copy the data attributes from the parent pages HTML element to this one.
@@ -52,6 +73,15 @@ window.SPARK = window.SPARK || {};
         var thisHtml = document.documentElement;
         thisHtml.dataset.colorMode = colorMode;
         thisHtml.dataset.theme = themeKeys;
+
+        // also set color-scheme meta tag so it matches the outer documents scheme which will enable transparent background iframes
+        var colorSchemeTag = document.querySelector('meta[name="color-scheme"]');
+        if (!colorSchemeTag) {
+            colorSchemeTag = document.createElement('meta');
+            colorSchemeTag.name = 'color-scheme';
+            document.head.appendChild(colorSchemeTag);
+        }
+        colorSchemeTag.content = colorMode;
     }
 
     function handleThemeChange(event) {
@@ -81,12 +111,25 @@ window.SPARK = window.SPARK || {};
         return 'light';
     }
 
-    function initializeTheming() {
-        copyThemeTokens();
-        copyThemeAttributes();
+    /*
+     * Check for availability of theming in the host product, to avoid errors when requesting tokens in old versions without theming.
+     */
+    function isThemingAvailable() {
+        if (parentWindow && parentWindow.document && parentWindow.document.documentElement) {
+            const data = parentWindow.document.documentElement.dataset;
+            return !!(data.theme && data.colorMode);
+        }
+        return false;
+    }
 
-        // if the user switches themes Confluence will send a message with the "theme.change" type in the payload
-        windowEl.addEventListener("message", handleThemeChange);
+    function initializeTheming() {
+        if (isThemingAvailable()) {
+            copyThemeTokens();
+            copyThemeAttributes();
+
+            // if the user switches themes the host app will send a message with the "theme.change" type in the payload
+            windowEl.addEventListener("message", handleThemeChange);
+        }
     }
 
     // windowEl.frameElement would be null if domains are not same but

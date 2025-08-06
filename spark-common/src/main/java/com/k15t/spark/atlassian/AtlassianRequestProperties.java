@@ -2,7 +2,7 @@ package com.k15t.spark.atlassian;
 
 import com.k15t.spark.base.RequestProperties;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import java.net.URI;
 import java.util.Locale;
