@@ -35,6 +35,7 @@ public class ConfluenceIframeSparkActionHelper {
         try {
             @SuppressWarnings({"JavaReflectionMemberAccess", "RedundantSuppression"})
             Method getActiveRequest = ConfluenceActionSupport.class.getDeclaredMethod("getActiveRequest");
+            getActiveRequest.setAccessible(true);
             HttpServletRequest request = (HttpServletRequest) getActiveRequest.invoke(action);
             return request != null ? request.getQueryString() : null;
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
@@ -44,6 +45,7 @@ public class ConfluenceIframeSparkActionHelper {
         try {
             @SuppressWarnings({"JavaReflectionMemberAccess", "RedundantSuppression"})
             Method getCurrentRequest = ConfluenceActionSupport.class.getDeclaredMethod("getCurrentRequest");
+            getCurrentRequest.setAccessible(true);
             Object javaxRequest = getCurrentRequest.invoke(action);
             if (javaxRequest == null) {
                 return null;
