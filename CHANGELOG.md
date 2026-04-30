@@ -1,3 +1,5 @@
+# Spark 4.1.0
+* Added `ConfluenceIframeAppAction` for actions that any user is supposed to access.
 # Spark 4.0.0
 * Java 11 compile target
 * Updated docs and code snippets for `staticParams` interceptor
