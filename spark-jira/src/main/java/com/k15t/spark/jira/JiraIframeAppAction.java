@@ -24,7 +24,7 @@ public abstract class JiraIframeAppAction extends JiraWebActionSupport implement
      */
     protected String doExecute() {
         this.body = DocumentOutputUtil.renderSparkIframeBody(getSpaBaseUrl(), getSpaQueryString(), getIframeContextInfo(),
-                "spark_jira_app_iframe_");
+                "spark_jira_app_iframe_", getNonceId());
         return "input";
     }
 
@@ -54,6 +54,24 @@ public abstract class JiraIframeAppAction extends JiraWebActionSupport implement
             }
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException("Could not retrieve current request or its query string.", e);
+        }
+        return null;
+    }
+
+
+    // Replace this method with a direct call to getHttpRequest().getAttribute() when dropping support for Jira 10 and older.
+    private String getNonceId() {
+        try {
+            Method getHttpRequest = JiraWebActionSupport.class.getMethod("getHttpRequest");
+            Object requestObject = getHttpRequest.invoke(this);
+            if (requestObject instanceof HttpServletRequest) {
+                return (String) ((HttpServletRequest) requestObject).getAttribute(DocumentOutputUtil.NONCE_ID_REQUEST_ATTRIBUTE);
+            } else if (requestObject != null) {
+                Method getAttribute = requestObject.getClass().getMethod("getAttribute", String.class);
+                return (String) getAttribute.invoke(requestObject, DocumentOutputUtil.NONCE_ID_REQUEST_ATTRIBUTE);
+            }
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException("Could not retrieve current request or its attributes.", e);
         }
         return null;
     }

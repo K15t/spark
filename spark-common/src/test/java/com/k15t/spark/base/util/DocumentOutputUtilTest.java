@@ -34,7 +34,8 @@ public class DocumentOutputUtilTest {
 
     @Test
     public void renderSparkIframeBody_TestEscaping() {
-        String body = DocumentOutputUtil.renderSparkIframeBody("/path", "?one=test&two=2", "abc\"><img src=x onerror=prompt(1)>", "id-");
+        String body = DocumentOutputUtil.renderSparkIframeBody("/path", "?one=test&two=2", "abc\"><img src=x onerror=prompt(1)>", "id-",
+                "my-nonce");
 
         assertTrue(Pattern.compile("id-[0-9]+-wrapper").matcher(body).find());
         assertTrue(body.contains("data-iframe-src=\"/path?one=test&amp;two=2\""));
@@ -45,7 +46,7 @@ public class DocumentOutputUtilTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void renderSparkIframeBody_InvalidPrefix() {
-        DocumentOutputUtil.renderSparkIframeBody("/", null, null, "abc\"><img src=x onerror=prompt(1)>");
+        DocumentOutputUtil.renderSparkIframeBody("/", null, null, "abc\"><img src=x onerror=prompt(1)>", "my-nonce");
     }
 
 }
