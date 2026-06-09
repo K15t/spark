@@ -42,8 +42,11 @@ public abstract class ConfluenceIframeSpaceAppAction extends AbstractSpaceAction
                     + "==================================================================================================================\n"
             );
         }
+
+        String cspNonceId = ConfluenceIframeSparkActionHelper.getNonceId(this);
+
         this.body = DocumentOutputUtil.renderSparkIframeBody(getSpaBaseUrl(), getSpaQueryString(), getIframeContextInfo(),
-                "spark_space_adm_iframe_");
+                "spark_space_adm_iframe_", cspNonceId);
         return "input";
     }
 
