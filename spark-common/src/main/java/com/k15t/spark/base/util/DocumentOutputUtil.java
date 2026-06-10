@@ -1,7 +1,5 @@
 package com.k15t.spark.base.util;
 
-import org.apache.commons.lang3.StringEscapeUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -159,22 +157,22 @@ public class DocumentOutputUtil {
         String iframeId = iframeIdPrefix + System.currentTimeMillis();
         String iframeContext = String.valueOf(iframeContextInfo);
         String iframeSource = spaBaseUrl;
-        if (StringUtils.isNotBlank(spaQueryString)) {
-            iframeSource += StringUtils.prependIfMissing(spaQueryString, "?");
+        if (StringUtil.isNotBlank(spaQueryString)) {
+            iframeSource += StringUtil.prependIfMissing(spaQueryString, "?");
         }
 
         String cspNonceIdAttr = "";
         if (cspNonceId != null) {
-            cspNonceIdAttr = "nonce=\"" + StringEscapeUtils.escapeHtml4(cspNonceId) + "\"";
+            cspNonceIdAttr = "nonce=\"" + StringUtil.escapeHtml(cspNonceId) + "\"";
         }
 
-        return StringUtils.replaceEach(
+        return StringUtil.replaceEach(
                 IFRAME_CONTENT_WRAPPER_TEMPLATE,
                 new String[] {"{{iframeId}}", "{{iframeSrc}}", "{{iframeContext}}", "{{cspNonceIdAttr}}", "{{sparkJs}}"},
                 new String[] {
                         iframeId, // Not escaped because inserted into both JS and HTML contexts and must match IFRAME_ID_PREFIX_PATTERN
-                        StringEscapeUtils.escapeHtml4(iframeSource),
-                        StringEscapeUtils.escapeHtml4(iframeContext),
+                        StringUtil.escapeHtml(iframeSource),
+                        StringUtil.escapeHtml(iframeContext),
                         cspNonceIdAttr,
                         ESCAPED_SPARK_JS
                 }

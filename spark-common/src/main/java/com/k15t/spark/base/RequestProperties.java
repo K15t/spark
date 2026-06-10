@@ -1,6 +1,6 @@
 package com.k15t.spark.base;
 
-import org.apache.commons.lang3.StringUtils;
+import com.k15t.spark.base.util.StringUtil;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -55,7 +55,7 @@ public class RequestProperties {
 
     public String getLocalPath() {
         if (localPath == null) {
-            localPath = StringUtils.removeStart(CACHE_KEY_PATTERN.matcher(getUrlLocalPart()).replaceFirst(""), "/");
+            localPath = StringUtil.removeStart(CACHE_KEY_PATTERN.matcher(getUrlLocalPart()).replaceFirst(""), "/");
             if (localPath.equals("")) {
                 localPath = "index.html";
             }
@@ -120,7 +120,7 @@ public class RequestProperties {
     public boolean shouldCache() {
         if (shouldCache == null) {
             shouldCache = !appServlet.isDevMode() && hasCacheKey()
-                    && !("text/html".equals(StringUtils.substringBefore(getContentType(), ";")));
+                    && !("text/html".equals(StringUtil.substringBefore(getContentType(), ";")));
         }
 
         return shouldCache;
@@ -145,9 +145,9 @@ public class RequestProperties {
                 builder = request.getRequestURL();
             } else {
                 List<String> segments = new ArrayList<>();
-                segments.addAll(Arrays.asList(StringUtils.split(StringUtils.defaultString(baseUrl), '/')));
-                segments.addAll(Arrays.asList(StringUtils.split(StringUtils.defaultString(getRequest().getServletPath()), '/')));
-                segments.addAll(Arrays.asList(StringUtils.split(StringUtils.defaultString(getRequest().getPathInfo()), '/')));
+                segments.addAll(Arrays.asList(StringUtil.split(StringUtil.defaultString(baseUrl), '/')));
+                segments.addAll(Arrays.asList(StringUtil.split(StringUtil.defaultString(getRequest().getServletPath()), '/')));
+                segments.addAll(Arrays.asList(StringUtil.split(StringUtil.defaultString(getRequest().getPathInfo()), '/')));
 
                 builder = new StringBuffer();
                 for (String segment : segments) {
@@ -155,7 +155,7 @@ public class RequestProperties {
                 }
 
                 // Add trailing slash if required.
-                if (StringUtils.endsWith(getRequest().getPathInfo(), "/")) {
+                if (StringUtil.endsWith(getRequest().getPathInfo(), "/")) {
                     builder.append("/");
                 }
             }

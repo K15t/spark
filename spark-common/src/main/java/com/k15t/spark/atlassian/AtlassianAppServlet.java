@@ -9,7 +9,7 @@ import com.atlassian.sal.api.user.UserProfile;
 import com.k15t.spark.base.AppServlet;
 import com.k15t.spark.base.RequestProperties;
 import com.k15t.spark.base.util.DocumentOutputUtil;
-import org.apache.commons.lang3.StringUtils;
+import com.k15t.spark.base.util.StringUtil;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.springframework.context.ApplicationContext;
@@ -51,7 +51,7 @@ public abstract class AtlassianAppServlet extends AppServlet {
 
 
     protected boolean isHtmlContentType(String contentType) {
-        return "text/html".equals(StringUtils.substringBefore(contentType, ";"));
+        return "text/html".equals(StringUtil.substringBefore(contentType, ";"));
     }
 
 

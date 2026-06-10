@@ -2,7 +2,7 @@ package com.k15t.spark.confluence;
 
 import com.atlassian.confluence.core.ConfluenceActionSupport;
 import com.k15t.spark.base.util.DocumentOutputUtil;
-import org.apache.commons.lang3.StringUtils;
+import com.k15t.spark.base.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,9 +22,9 @@ public class ConfluenceIframeSparkActionHelper {
 
 
     static List<String> splitWebResourceKeys(String webResourceKeys) {
-        String keys = StringUtils.defaultString(webResourceKeys);
-        return Arrays.stream(StringUtils.split(keys, ','))
-                .map(StringUtils::trimToNull)
+        String keys = StringUtil.defaultString(webResourceKeys);
+        return Arrays.stream(StringUtil.split(keys, ','))
+                .map(StringUtil::trimToNull)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }

@@ -1,7 +1,7 @@
 package com.k15t.spark.base;
 
 import com.k15t.spark.base.util.IOStreamUtil;
-import org.apache.commons.lang3.StringUtils;
+import com.k15t.spark.base.util.StringUtil;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
@@ -153,7 +153,7 @@ public abstract class AppServlet extends HttpServlet {
      * @return true if a developer added a spark development directory to the {@value Keys#SPARK_DEV_RESOURCE_DIRECTORIES} system property.
      */
     protected boolean isDevMode() {
-        return StringUtils.isNotBlank(System.getProperty(Keys.SPARK_DEV_RESOURCE_DIRECTORIES));
+        return StringUtil.isNotBlank(System.getProperty(Keys.SPARK_DEV_RESOURCE_DIRECTORIES));
     }
 
 
@@ -165,9 +165,9 @@ public abstract class AppServlet extends HttpServlet {
             return null;
         }
 
-        for (String resourceDirectoryPath : StringUtils.split(resourceDirectoryPaths, ",")) {
+        for (String resourceDirectoryPath : StringUtil.split(resourceDirectoryPaths, ",")) {
             resourceDirectoryPath = resourceDirectoryPath.trim();
-            resourceDirectoryPath = StringUtils.removeEnd(resourceDirectoryPath, "/") + "/";
+            resourceDirectoryPath = StringUtil.removeEnd(resourceDirectoryPath, "/") + "/";
             File resourceDirectory = new File(resourceDirectoryPath);
 
             if (resourceDirectory.isDirectory()) {
@@ -184,7 +184,7 @@ public abstract class AppServlet extends HttpServlet {
 
 
     protected boolean isHtmlResource(RequestProperties props) {
-        String shortType = StringUtils.substringBefore(props.getContentType(), ";");
+        String shortType = StringUtil.substringBefore(props.getContentType(), ";");
         return "text/html".equals(shortType);
     }
 
