@@ -5,6 +5,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,7 +18,11 @@ import java.util.regex.Pattern;
 
 public class DocumentOutputUtil {
 
+    private static final Logger logger = LoggerFactory.getLogger(DocumentOutputUtil.class);
+
     private static final Pattern IFRAME_ID_PREFIX_PATTERN = Pattern.compile("^[a-zA-Z0-9_\\-]+$");
+
+    public static final String NONCE_ID_REQUEST_ATTRIBUTE = "cspNonceId";
 
     private static final String ESCAPED_IFRAME_CONTENT_WINDOW_JS;
     private static final String IFRAME_CONTENT_WRAPPER_TEMPLATE;
@@ -140,9 +146,12 @@ public class DocumentOutputUtil {
      * @param spaQueryString queryString to add to the url of the iframe content source
      * @param iframeContextInfo string that will be available in the iframe's context using SPARK.getContextData()
      * @param iframeIdPrefix prefix for iframe ID. Must match {@link DocumentOutputUtil#IFRAME_ID_PREFIX_PATTERN}
-     * @return html code containing a SPARK iframe
+     * @param cspNonceId nonce ID for script tag {@code nonce} attributes. If {@code null}, the attribute will not be inserted.
+     * @return HTML code containing a SPARK iframe
      */
-    public static String renderSparkIframeBody(String spaBaseUrl, String spaQueryString, String iframeContextInfo, String iframeIdPrefix) {
+    public static String renderSparkIframeBody(String spaBaseUrl, String spaQueryString, String iframeContextInfo, String iframeIdPrefix,
+            String cspNonceId) {
+
         if (!IFRAME_ID_PREFIX_PATTERN.matcher(iframeIdPrefix).matches()) {
             throw new IllegalArgumentException("Invalid iframeIdPrefix. Must match " + IFRAME_ID_PREFIX_PATTERN);
         }
@@ -154,16 +163,31 @@ public class DocumentOutputUtil {
             iframeSource += StringUtils.prependIfMissing(spaQueryString, "?");
         }
 
+        String cspNonceIdAttr = "";
+        if (cspNonceId != null) {
+            cspNonceIdAttr = "nonce=\"" + StringEscapeUtils.escapeHtml4(cspNonceId) + "\"";
+        }
+
         return StringUtils.replaceEach(
                 IFRAME_CONTENT_WRAPPER_TEMPLATE,
-                new String[] {"{{iframeId}}", "{{iframeSrc}}", "{{iframeContext}}", "{{sparkJs}}"},
+                new String[] {"{{iframeId}}", "{{iframeSrc}}", "{{iframeContext}}", "{{cspNonceIdAttr}}", "{{sparkJs}}"},
                 new String[] {
                         iframeId, // Not escaped because inserted into both JS and HTML contexts and must match IFRAME_ID_PREFIX_PATTERN
                         StringEscapeUtils.escapeHtml4(iframeSource),
                         StringEscapeUtils.escapeHtml4(iframeContext),
+                        cspNonceIdAttr,
                         ESCAPED_SPARK_JS
                 }
         );
+    }
+
+
+    @Deprecated
+    public static String renderSparkIframeBody(String spaBaseUrl, String spaQueryString, String iframeContextInfo, String iframeIdPrefix) {
+        logger.warn("renderSparkIframeBody(String, String, String, String) without the 'cspNonceId' parameter is deprecated. Calling this "
+                + "method may result in failing CSP checks in host app versions that enforce such checks. Call the method with the "
+                + "'cspNonceId' parameter instead.");
+        return renderSparkIframeBody(spaBaseUrl, spaQueryString, iframeContextInfo, iframeIdPrefix, null);
     }
 
 }
