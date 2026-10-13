@@ -1,3 +1,5 @@
+# Spark 4.2.0
+* Support for DC platform 9 apps (Confluence 11, Jira 12, ...)
 # Spark 4.1.0
 * Added `ConfluenceIframeAppAction` for actions that any user is supposed to access.
 # Spark 4.0.0

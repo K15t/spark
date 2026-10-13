@@ -5,8 +5,10 @@ import com.atlassian.sal.api.auth.LoginUriProvider;
 import com.atlassian.sal.api.message.LocaleResolver;
 import com.atlassian.sal.api.user.UserManager;
 import com.k15t.spark.base.RequestProperties;
+import com.k15t.spark.base.util.DocumentOutputUtil;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.junit.Assert;
 import org.junit.Before;
@@ -21,6 +23,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Date;
+import java.util.UUID;
 
 
 public class AtlassianIframeAppServletTest {
@@ -124,18 +127,29 @@ public class AtlassianIframeAppServletTest {
                     @Override
                     protected void customizeIframeContentDocument(Document document, RequestProperties props) {
                         document.body().append("<p id='extra-footer'>Custom test footer</p>");
+                        document.head().append("<script src='test-custom.js'/>");
                     }
                 });
         Mockito.when(customizingInstance.getServletConfig()).thenReturn(servletConfig);
+
+        String nonce = UUID.randomUUID().toString();
+        Mockito.when(request.getAttribute(DocumentOutputUtil.NONCE_ID_REQUEST_ATTRIBUTE)).thenReturn(nonce);
 
         String resStr = customizingInstance.customizeHtml(testHtml, props);
 
         Document resDoc = Jsoup.parse(resStr);
 
-        Assert.assertEquals(2, resDoc.head().children().size());
-        Assert.assertEquals("script", resDoc.head().child(0).nodeName());
-        Assert.assertEquals("script", resDoc.head().child(1).nodeName());
-        Assert.assertEquals("test.js", resDoc.head().child(1).attr("src"));
+        Element sparkScript = resDoc.selectFirst("script:not([src])");
+        Assert.assertNotNull(sparkScript);
+        Assert.assertEquals(nonce, sparkScript.attr("nonce"));
+
+        Element testScript = resDoc.selectFirst("script[src=test.js]");
+        Assert.assertNotNull(testScript);
+        Assert.assertEquals(nonce, testScript.attr("nonce"));
+
+        Element customTestScript = resDoc.selectFirst("script[src=test-custom.js]");
+        Assert.assertNotNull(customTestScript);
+        Assert.assertEquals(nonce, customTestScript.attr("nonce"));
 
         Assert.assertEquals(2, resDoc.body().children().size());
         Assert.assertEquals("body-el", resDoc.body().child(0).id());

@@ -13,6 +13,7 @@ import org.springframework.context.ApplicationContext;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
+import java.util.Optional;
 
 
 /**
@@ -44,9 +45,19 @@ public abstract class AtlassianIframeContentServlet extends AtlassianAppServlet 
 
         customizeIframeContentDocument(document, props);
 
+        addCspNonceAttributesToScriptTags(document, props);
+
         document.outputSettings().prettyPrint(false);
         indexHtml = document.outerHtml();
         return indexHtml;
+    }
+
+
+    protected void addCspNonceAttributesToScriptTags(Document document, RequestProperties props) {
+        Optional.ofNullable(props.getRequest())
+                .map(req -> req.getAttribute(DocumentOutputUtil.NONCE_ID_REQUEST_ATTRIBUTE))
+                .map(Object::toString)
+                .ifPresent(nonceId -> document.select("script").forEach(script -> script.attr("nonce", nonceId)));
     }
 
 
